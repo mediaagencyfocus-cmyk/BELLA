@@ -21,18 +21,18 @@ export const FloatingWhatsApp: React.FC = () => {
         className="relative flex items-center gap-2.5 p-1 rounded-full group-hover:scale-105 transition-transform"
         title="تواصل معنا عبر واتساب"
       >
-        {/* Glowing Green WhatsApp Circle */}
-        <div className="relative w-14 h-14 rounded-full bg-[#00FF66] text-black flex items-center justify-center shadow-[0_0_20px_rgba(0,255,102,0.5)] group-hover:shadow-[0_0_30px_rgba(0,255,102,0.7)] transition-all">
+        {/* Light Blue WhatsApp Circle */}
+        <div className="relative w-14 h-14 rounded-full bg-[#00C8FF] text-black flex items-center justify-center shadow-[0_0_20px_rgba(0,200,255,0.45)] group-hover:shadow-[0_0_30px_rgba(0,200,255,0.7)] transition-all border-2 border-black/10">
           <MessageCircle className="w-7 h-7 fill-black stroke-black" />
 
           {/* Interactive Red Notification Dot on top right */}
-          <span className="absolute top-0 right-0 w-4 h-4 rounded-full bg-rose-500 border-2 border-black flex items-center justify-center">
+          <span className="absolute top-0 right-0 w-4 h-4 rounded-full bg-rose-500 border-2 border-white dark:border-black flex items-center justify-center">
             <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
           </span>
         </div>
 
-        {/* Black Pill with text "تواصل معنا عبر واتساب" */}
-        <div className="px-4 py-2 rounded-full bg-black/90 dark:bg-[#12141C]/95 backdrop-blur-md border border-slate-700/80 text-white text-xs font-bold shadow-xl transition-all">
+        {/* Crisp White/Black Pill with text "تواصل معنا عبر واتساب" */}
+        <div className="px-4 py-2 rounded-full bg-white dark:bg-white border-2 border-slate-300 dark:border-black text-slate-900 dark:text-black text-xs font-bold shadow-xl transition-all">
           تواصل معنا عبر واتساب
         </div>
       </a>

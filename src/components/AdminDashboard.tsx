@@ -193,7 +193,7 @@ export const AdminDashboard: React.FC = () => {
       {
         id: `c-${Date.now()}`,
         name: 'لون جديد',
-        hex: '#00FF66',
+        hex: '#00C8FF',
         image: '/src/assets/images/bella_luxury_sneaker_1794318695413.jpg',
         inStock: true
       }
@@ -217,7 +217,7 @@ export const AdminDashboard: React.FC = () => {
         {/* Top Header of Admin */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-black dark:bg-[#12141C] border border-[#00FF66]/50 flex items-center justify-center text-[#00FF66] font-black text-2xl shadow-[0_0_20px_rgba(0,255,102,0.3)]">
+            <div className="w-12 h-12 rounded-2xl bg-black dark:bg-[#12141C] border border-[#00C8FF]/50 flex items-center justify-center text-[#00C8FF] font-black text-2xl shadow-[0_0_20px_rgba(0,255,102,0.3)]">
               B
             </div>
             <div>
@@ -225,7 +225,7 @@ export const AdminDashboard: React.FC = () => {
                 <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
                   لوحة تحكم الإدارة · BELLA SHOES
                 </h1>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-[#00FF66] text-black">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-[#00C8FF] text-black">
                   ADMIN
                 </span>
               </div>
@@ -238,9 +238,9 @@ export const AdminDashboard: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsAdminView(false)}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white dark:bg-[#161922] border border-slate-200 dark:border-slate-800 text-xs font-bold hover:border-[#00FF66] transition-colors"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white dark:bg-[#161922] border border-slate-200 dark:border-slate-800 text-xs font-bold hover:border-[#00C8FF] transition-colors"
             >
-              <ArrowLeft className="w-4 h-4 text-[#00FF66]" />
+              <ArrowLeft className="w-4 h-4 text-[#00C8FF]" />
               <span>العودة إلى واجهة المتجر</span>
             </button>
             <button
@@ -258,7 +258,7 @@ export const AdminDashboard: React.FC = () => {
             onClick={() => setActiveTab('overview')}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
               activeTab === 'overview'
-                ? 'bg-[#00FF66] text-black shadow-[0_0_12px_rgba(0,255,102,0.3)]'
+                ? 'bg-[#00C8FF] text-black shadow-[0_0_12px_rgba(0,255,102,0.3)]'
                 : 'bg-white dark:bg-[#12141C] text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800'
             }`}
           >
@@ -270,7 +270,7 @@ export const AdminDashboard: React.FC = () => {
             onClick={() => setActiveTab('products')}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
               activeTab === 'products'
-                ? 'bg-[#00FF66] text-black shadow-[0_0_12px_rgba(0,255,102,0.3)]'
+                ? 'bg-[#00C8FF] text-black shadow-[0_0_12px_rgba(0,255,102,0.3)]'
                 : 'bg-white dark:bg-[#12141C] text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800'
             }`}
           >
@@ -282,7 +282,7 @@ export const AdminDashboard: React.FC = () => {
             onClick={() => setActiveTab('orders')}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
               activeTab === 'orders'
-                ? 'bg-[#00FF66] text-black shadow-[0_0_12px_rgba(0,255,102,0.3)]'
+                ? 'bg-[#00C8FF] text-black shadow-[0_0_12px_rgba(0,255,102,0.3)]'
                 : 'bg-white dark:bg-[#12141C] text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800'
             }`}
           >
@@ -297,7 +297,7 @@ export const AdminDashboard: React.FC = () => {
             onClick={() => setActiveTab('customers')}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
               activeTab === 'customers'
-                ? 'bg-[#00FF66] text-black shadow-[0_0_12px_rgba(0,255,102,0.3)]'
+                ? 'bg-[#00C8FF] text-black shadow-[0_0_12px_rgba(0,255,102,0.3)]'
                 : 'bg-white dark:bg-[#12141C] text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800'
             }`}
           >
@@ -309,7 +309,7 @@ export const AdminDashboard: React.FC = () => {
             onClick={() => setActiveTab('settings')}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
               activeTab === 'settings'
-                ? 'bg-[#00FF66] text-black shadow-[0_0_12px_rgba(0,255,102,0.3)]'
+                ? 'bg-[#00C8FF] text-black shadow-[0_0_12px_rgba(0,255,102,0.3)]'
                 : 'bg-white dark:bg-[#12141C] text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800'
             }`}
           >
@@ -321,14 +321,14 @@ export const AdminDashboard: React.FC = () => {
             onClick={() => setActiveTab('database')}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
               activeTab === 'database'
-                ? 'bg-[#00FF66] text-black shadow-[0_0_12px_rgba(0,255,102,0.3)]'
+                ? 'bg-[#00C8FF] text-black shadow-[0_0_12px_rgba(0,255,102,0.3)]'
                 : 'bg-white dark:bg-[#12141C] text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800'
             }`}
           >
             <Database className="w-4 h-4" />
             <span>قاعدة بيانات Supabase SQL</span>
             {isSupabaseActive ? (
-              <span className="w-2 h-2 rounded-full bg-[#00FF66]" />
+              <span className="w-2 h-2 rounded-full bg-[#00C8FF]" />
             ) : (
               <span className="w-2 h-2 rounded-full bg-amber-400" />
             )}
@@ -342,10 +342,10 @@ export const AdminDashboard: React.FC = () => {
               <div className="p-5 rounded-2xl bg-white dark:bg-[#12141C] border border-slate-200 dark:border-slate-800">
                 <div className="flex items-center justify-between text-slate-500 mb-2">
                   <span className="text-xs font-bold">إجمالي المبيعات المؤكدة</span>
-                  <TrendingUp className="w-4 h-4 text-[#00FF66]" />
+                  <TrendingUp className="w-4 h-4 text-[#00C8FF]" />
                 </div>
                 <div className="text-2xl font-black font-mono text-slate-900 dark:text-white">
-                  {totalRevenue} <span className="text-xs font-sans text-[#00FF66]">MAD</span>
+                  {totalRevenue} <span className="text-xs font-sans text-[#00C8FF]">MAD</span>
                 </div>
               </div>
 
@@ -372,7 +372,7 @@ export const AdminDashboard: React.FC = () => {
               <div className="p-5 rounded-2xl bg-white dark:bg-[#12141C] border border-slate-200 dark:border-slate-800">
                 <div className="flex items-center justify-between text-slate-500 mb-2">
                   <span className="text-xs font-bold">الأحذية في المتجر</span>
-                  <Package className="w-4 h-4 text-[#00FF66]" />
+                  <Package className="w-4 h-4 text-[#00C8FF]" />
                 </div>
                 <div className="text-2xl font-black font-mono text-slate-900 dark:text-white">
                   {products.length}
@@ -388,7 +388,7 @@ export const AdminDashboard: React.FC = () => {
                 </h3>
                 <button
                   onClick={() => setActiveTab('orders')}
-                  className="text-xs text-[#00FF66] font-bold hover:underline"
+                  className="text-xs text-[#00C8FF] font-bold hover:underline"
                 >
                   مشاهدة كافة الطلبات ({orders.length})
                 </button>
@@ -415,7 +415,7 @@ export const AdminDashboard: React.FC = () => {
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                       {orders.slice(0, 5).map((ord) => (
                         <tr key={ord.id} className="py-2.5">
-                          <td className="py-2.5 font-mono font-bold text-[#00FF66]">{ord.orderNumber}</td>
+                          <td className="py-2.5 font-mono font-bold text-[#00C8FF]">{ord.orderNumber}</td>
                           <td className="font-semibold text-slate-800 dark:text-slate-200">{ord.customerName}</td>
                           <td className="font-mono">{ord.phone}</td>
                           <td>{ord.city}</td>
@@ -450,7 +450,7 @@ export const AdminDashboard: React.FC = () => {
               </div>
               <button
                 onClick={startAddNewProduct}
-                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#00FF66] text-black font-bold text-xs shadow-md hover:bg-[#05ea5f] transition-all cursor-pointer"
+                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#00C8FF] text-black font-bold text-xs shadow-md hover:bg-[#00B4E6] transition-all cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>إضافة حذاء جديد</span>
@@ -459,10 +459,10 @@ export const AdminDashboard: React.FC = () => {
 
             {/* Product Edit / Add Form (Modal or Expandable) */}
             {(isAddingProduct || editingProduct) && (
-              <div className="p-6 rounded-3xl bg-white dark:bg-[#141720] border-2 border-[#00FF66]/50 shadow-2xl">
+              <div className="p-6 rounded-3xl bg-white dark:bg-[#141720] border-2 border-[#00C8FF]/50 shadow-2xl">
                 <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800 mb-4">
                   <h4 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white flex items-center gap-2">
-                    <Tag className="w-4 h-4 text-[#00FF66]" />
+                    <Tag className="w-4 h-4 text-[#00C8FF]" />
                     <span>{editingProduct ? 'تعديل بيانات الحذاء' : 'إضافة حذاء جديد للمتجر'}</span>
                   </h4>
                   <button
@@ -488,7 +488,7 @@ export const AdminDashboard: React.FC = () => {
                         value={formName}
                         onChange={(e) => setFormName(e.target.value)}
                         placeholder="مثال: حذاء كعب عالي ملكي فاخر"
-                        className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-100 dark:bg-[#1A1E29] border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:border-[#00FF66] focus:outline-none"
+                        className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-100 dark:bg-[#1A1E29] border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:border-[#00C8FF] focus:outline-none"
                       />
                     </div>
 
@@ -499,7 +499,7 @@ export const AdminDashboard: React.FC = () => {
                       <select
                         value={formCategory}
                         onChange={(e) => setFormCategory(e.target.value as ShoeCategory)}
-                        className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-100 dark:bg-[#1A1E29] border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:border-[#00FF66] focus:outline-none"
+                        className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-100 dark:bg-[#1A1E29] border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:border-[#00C8FF] focus:outline-none"
                       >
                         <option value="womens">الأحذية النسائية</option>
                         <option value="mens">الأحذية الرجالية</option>
@@ -517,7 +517,7 @@ export const AdminDashboard: React.FC = () => {
                         required
                         value={formPrice}
                         onChange={(e) => setFormPrice(Number(e.target.value))}
-                        className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-100 dark:bg-[#1A1E29] border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:border-[#00FF66] focus:outline-none font-mono"
+                        className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-100 dark:bg-[#1A1E29] border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:border-[#00C8FF] focus:outline-none font-mono"
                       />
                     </div>
 
@@ -530,7 +530,7 @@ export const AdminDashboard: React.FC = () => {
                         value={formOldPrice || ''}
                         onChange={(e) => setFormOldPrice(e.target.value ? Number(e.target.value) : undefined)}
                         placeholder="مثال: 599"
-                        className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-100 dark:bg-[#1A1E29] border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:border-[#00FF66] focus:outline-none font-mono"
+                        className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-100 dark:bg-[#1A1E29] border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:border-[#00C8FF] focus:outline-none font-mono"
                       />
                     </div>
 
@@ -542,7 +542,7 @@ export const AdminDashboard: React.FC = () => {
                         type="number"
                         value={formStock}
                         onChange={(e) => setFormStock(Number(e.target.value))}
-                        className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-100 dark:bg-[#1A1E29] border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:border-[#00FF66] focus:outline-none font-mono"
+                        className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-100 dark:bg-[#1A1E29] border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:border-[#00C8FF] focus:outline-none font-mono"
                       />
                     </div>
 
@@ -557,7 +557,7 @@ export const AdminDashboard: React.FC = () => {
                         value={formSizesInput}
                         onChange={(e) => setFormSizesInput(e.target.value)}
                         placeholder="مثال: 37, 38, 39, 40, 41"
-                        className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-100 dark:bg-[#1A1E29] border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:border-[#00FF66] focus:outline-none font-mono"
+                        className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-100 dark:bg-[#1A1E29] border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:border-[#00C8FF] focus:outline-none font-mono"
                       />
                       <span className="text-[10px] text-slate-400 mt-0.5 block">
                         يمكنك إضافة أو حذف أي مقاس للمنتج بكل حرية بدون مقاسات افتراضية.
@@ -574,7 +574,7 @@ export const AdminDashboard: React.FC = () => {
                       rows={3}
                       value={formDescription}
                       onChange={(e) => setFormDescription(e.target.value)}
-                      className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-100 dark:bg-[#1A1E29] border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:border-[#00FF66] focus:outline-none"
+                      className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-100 dark:bg-[#1A1E29] border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:border-[#00C8FF] focus:outline-none"
                     />
                   </div>
 
@@ -587,7 +587,7 @@ export const AdminDashboard: React.FC = () => {
                       <button
                         type="button"
                         onClick={addColorVariant}
-                        className="text-xs text-[#00FF66] font-bold hover:underline flex items-center gap-1"
+                        className="text-xs text-[#00C8FF] font-bold hover:underline flex items-center gap-1"
                       >
                         <Plus className="w-3.5 h-3.5" />
                         <span>إضافة لون آخر</span>
@@ -659,7 +659,7 @@ export const AdminDashboard: React.FC = () => {
                   <div className="flex items-center gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
                     <button
                       type="submit"
-                      className="px-6 py-2.5 rounded-xl bg-[#00FF66] text-black font-extrabold text-xs shadow-md hover:bg-[#05ea5f] transition-all flex items-center gap-2 cursor-pointer"
+                      className="px-6 py-2.5 rounded-xl bg-[#00C8FF] text-black font-extrabold text-xs shadow-md hover:bg-[#00B4E6] transition-all flex items-center gap-2 cursor-pointer"
                     >
                       <Save className="w-4 h-4" />
                       <span>{editingProduct ? 'حفظ التعديلات' : 'إضافة الحذاء للمتجر'}</span>
@@ -714,7 +714,7 @@ export const AdminDashboard: React.FC = () => {
                           {prod.category === 'kids' && 'أطفال'}
                           {prod.category === 'wholesale' && 'جملة'}
                         </td>
-                        <td className="px-4 font-mono font-bold text-[#00FF66]">
+                        <td className="px-4 font-mono font-bold text-[#00C8FF]">
                           {prod.price} MAD
                         </td>
                         <td className="px-4 font-mono">
@@ -739,7 +739,7 @@ export const AdminDashboard: React.FC = () => {
                           <div className="flex items-center justify-center gap-2">
                             <button
                               onClick={() => startEditProduct(prod)}
-                              className="p-1.5 rounded-lg text-slate-400 hover:text-[#00FF66] hover:bg-slate-100 dark:hover:bg-slate-800"
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-[#00C8FF] hover:bg-slate-100 dark:hover:bg-slate-800"
                               title="تعديل الحذاء"
                             >
                               <Edit3 className="w-4 h-4" />
@@ -786,7 +786,7 @@ export const AdminDashboard: React.FC = () => {
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-mono font-bold text-[#00FF66] text-sm">
+                          <span className="font-mono font-bold text-[#00C8FF] text-sm">
                             {ord.orderNumber}
                           </span>
                           <span className="text-xs text-slate-400">
@@ -852,7 +852,7 @@ export const AdminDashboard: React.FC = () => {
                       <span className="text-slate-500">
                         طريقة الدفع: الدفع عند الاستلام بعد المعاينة والقياس
                       </span>
-                      <span className="font-mono font-bold text-sm text-[#00FF66]">
+                      <span className="font-mono font-bold text-sm text-[#00C8FF]">
                         المجموع: {ord.total} MAD
                       </span>
                     </div>
@@ -911,7 +911,7 @@ export const AdminDashboard: React.FC = () => {
             </h3>
 
             {settingsSavedAlert && (
-              <div className="p-3 rounded-xl bg-[#00FF66]/15 border border-[#00FF66]/40 text-[#00FF66] text-xs font-bold flex items-center gap-2">
+              <div className="p-3 rounded-xl bg-[#00C8FF]/15 border border-[#00C8FF]/40 text-[#00C8FF] text-xs font-bold flex items-center gap-2">
                 <CheckCircle className="w-4 h-4" />
                 <span>تم حفظ وتحديث إعدادات المتجر بنجاح!</span>
               </div>
@@ -1062,7 +1062,7 @@ export const AdminDashboard: React.FC = () => {
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-[#00FF66] text-black font-extrabold text-xs shadow-md hover:bg-[#05ea5f] transition-all cursor-pointer"
+                  className="px-6 py-2.5 rounded-xl bg-[#00C8FF] text-black font-extrabold text-xs shadow-md hover:bg-[#00B4E6] transition-all cursor-pointer"
                 >
                   حفظ كافة الإعدادات
                 </button>
@@ -1077,7 +1077,7 @@ export const AdminDashboard: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
-                  <Database className="w-5 h-5 text-[#00FF66]" />
+                  <Database className="w-5 h-5 text-[#00C8FF]" />
                   <span>إعدادات قاعدة بيانات Supabase SQL الاحترافية</span>
                 </h3>
                 <p className="text-xs text-slate-500">
@@ -1088,10 +1088,10 @@ export const AdminDashboard: React.FC = () => {
               {/* Status Badge */}
               <div className={`px-3 py-1.5 rounded-xl text-xs font-bold border flex items-center gap-2 ${
                 isSupabaseActive
-                  ? 'bg-[#00FF66]/15 border-[#00FF66]/40 text-[#00FF66]'
+                  ? 'bg-[#00C8FF]/15 border-[#00C8FF]/40 text-[#00C8FF]'
                   : 'bg-amber-500/10 border-amber-500/30 text-amber-500'
               }`}>
-                <span className={`w-2.5 h-2.5 rounded-full ${isSupabaseActive ? 'bg-[#00FF66] animate-pulse' : 'bg-amber-400'}`} />
+                <span className={`w-2.5 h-2.5 rounded-full ${isSupabaseActive ? 'bg-[#00C8FF] animate-pulse' : 'bg-amber-400'}`} />
                 <span>{isSupabaseActive ? 'قاعدة بيانات Supabase: متصلة بنجاح ✅' : 'وضع التخزين السريع (في انتظار المفاتيح)'}</span>
               </div>
             </div>
@@ -1099,14 +1099,14 @@ export const AdminDashboard: React.FC = () => {
             {/* Keys Guide Box (المفاتيح المطلوبة من Supabase) */}
             <div className="p-6 rounded-3xl bg-white dark:bg-[#12141C] border border-slate-200 dark:border-slate-800 space-y-4">
               <div className="flex items-center gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
-                <Key className="w-5 h-5 text-[#00FF66]" />
+                <Key className="w-5 h-5 text-[#00C8FF]" />
                 <h4 className="font-bold text-sm text-slate-900 dark:text-white">
                   المفتاحان المطلوب نسخهما من حسابك على Supabase:
                 </h4>
               </div>
 
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                بعد إنشاء مشروعك المجاني على <a href="https://supabase.com" target="_blank" rel="noopener noreferrer" className="text-[#00FF66] font-bold underline">Supabase</a>، توجه إلى:
+                بعد إنشاء مشروعك المجاني على <a href="https://supabase.com" target="_blank" rel="noopener noreferrer" className="text-[#00C8FF] font-bold underline">Supabase</a>، توجه إلى:
                 <strong className="text-slate-900 dark:text-white"> Project Settings ➔ API </strong> وانسخ المتغيرين التاليين:
               </p>
 
@@ -1139,7 +1139,7 @@ export const AdminDashboard: React.FC = () => {
             <div className="p-6 rounded-3xl bg-white dark:bg-[#12141C] border border-slate-200 dark:border-slate-800 space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-[#00FF66]" />
+                  <CheckCircle className="w-5 h-5 text-[#00C8FF]" />
                   <h4 className="font-bold text-sm text-slate-900 dark:text-white">
                     خطوات إنشاء الجداول وتشغيل سكربت SQL في Supabase:
                   </h4>
@@ -1148,7 +1148,7 @@ export const AdminDashboard: React.FC = () => {
                 <a
                   href="/supabase/schema.sql"
                   target="_blank"
-                  className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold hover:text-[#00FF66] flex items-center gap-1.5"
+                  className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold hover:text-[#00C8FF] flex items-center gap-1.5"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
                   <span>فتح ملف schema.sql</span>
@@ -1157,19 +1157,19 @@ export const AdminDashboard: React.FC = () => {
 
               <div className="space-y-2.5 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                 <div className="flex items-start gap-2">
-                  <span className="w-5 h-5 rounded-full bg-[#00FF66]/20 text-[#00FF66] flex items-center justify-center font-bold shrink-0 mt-0.5">1</span>
+                  <span className="w-5 h-5 rounded-full bg-[#00C8FF]/20 text-[#00C8FF] flex items-center justify-center font-bold shrink-0 mt-0.5">1</span>
                   <span>ادخل إلى لوحة تحكم مشروعك في Supabase، ثم اضغط على قائمة <strong>SQL Editor</strong> في الشريط الجانبي.</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <span className="w-5 h-5 rounded-full bg-[#00FF66]/20 text-[#00FF66] flex items-center justify-center font-bold shrink-0 mt-0.5">2</span>
+                  <span className="w-5 h-5 rounded-full bg-[#00C8FF]/20 text-[#00C8FF] flex items-center justify-center font-bold shrink-0 mt-0.5">2</span>
                   <span>اضغط على <strong>+ New Query</strong> لفتح نافذة استعلام جديدة.</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <span className="w-5 h-5 rounded-full bg-[#00FF66]/20 text-[#00FF66] flex items-center justify-center font-bold shrink-0 mt-0.5">3</span>
+                  <span className="w-5 h-5 rounded-full bg-[#00C8FF]/20 text-[#00C8FF] flex items-center justify-center font-bold shrink-0 mt-0.5">3</span>
                   <span>انسخ كود SQL الكامل الموجود في الأسفل، والصقه داخل الـ SQL Editor ثم اضغط زر <strong>Run</strong> الأخضر.</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <span className="w-5 h-5 rounded-full bg-[#00FF66]/20 text-[#00FF66] flex items-center justify-center font-bold shrink-0 mt-0.5">4</span>
+                  <span className="w-5 h-5 rounded-full bg-[#00C8FF]/20 text-[#00C8FF] flex items-center justify-center font-bold shrink-0 mt-0.5">4</span>
                   <span>سيتم فوراً بناء جميع الجداول (المنتجات، الألوان، النمر، الطلبيات، الإعدادات) مع تعبئة البيانات الأولية وحماية RLS.</span>
                 </div>
               </div>
@@ -1190,7 +1190,7 @@ export const AdminDashboard: React.FC = () => {
                           setTimeout(() => setCopiedSql(false), 2500);
                         });
                     }}
-                    className="px-3.5 py-1.5 rounded-xl bg-[#00FF66] text-black font-extrabold text-xs flex items-center gap-1.5 shadow-xs hover:bg-[#05ea5f] transition-all cursor-pointer"
+                    className="px-3.5 py-1.5 rounded-xl bg-[#00C8FF] text-black font-extrabold text-xs flex items-center gap-1.5 shadow-xs hover:bg-[#00B4E6] transition-all cursor-pointer"
                   >
                     {copiedSql ? (
                       <>

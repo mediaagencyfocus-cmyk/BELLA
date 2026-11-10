@@ -21,9 +21,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   };
 
   return (
-    <div className="group rounded-2xl bg-white dark:bg-[#111319] border border-slate-200 dark:border-slate-800/80 overflow-hidden shadow-xs hover:shadow-xl hover:border-[#00FF66]/50 dark:hover:border-[#00FF66]/40 transition-all flex flex-col justify-between">
+    <div className="group rounded-3xl bg-white border-2 border-slate-200 dark:border-black overflow-hidden shadow-xs hover:shadow-xl hover:border-[#00C8FF] transition-all flex flex-col justify-between">
       {/* Top Image Container */}
-      <div className="relative aspect-[4/3] bg-slate-100 dark:bg-black/60 overflow-hidden">
+      <div className="relative aspect-[4/3] bg-slate-50 overflow-hidden border-b-2 border-slate-100 dark:border-black/10">
         <img
           src={mainImage}
           alt={product.name}
@@ -39,12 +39,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             </span>
           )}
           {product.isBestseller && (
-            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500 text-black shadow-xs">
+            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-400 text-black shadow-xs">
               الأكثر طلباً
             </span>
           )}
           {product.isNew && (
-            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#00FF66] text-black shadow-xs">
+            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#00C8FF] text-black shadow-xs">
               جديد
             </span>
           )}
@@ -56,7 +56,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             e.stopPropagation();
             toggleWishlist(product.id);
           }}
-          className="absolute top-2.5 left-2.5 p-2 rounded-full bg-black/40 backdrop-blur-md text-white hover:text-rose-500 hover:bg-black/70 transition-all z-10"
+          className="absolute top-2.5 left-2.5 p-2 rounded-full bg-white/80 dark:bg-white backdrop-blur-md text-slate-800 border border-slate-200 dark:border-black hover:text-rose-500 transition-all z-10 shadow-xs"
           title={isFavorite ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}
         >
           <Heart className={`w-4 h-4 ${isFavorite ? 'fill-rose-500 text-rose-500' : ''}`} />
@@ -65,24 +65,24 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         {/* Eye icon overlay button for instant preview */}
         <button
           onClick={() => openProductModal(product)}
-          className="absolute inset-0 bg-black/30 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-bold text-xs"
+          className="absolute inset-0 bg-black/25 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-bold text-xs"
           title="مشاهدة التفاصيل"
         >
-          <span className="p-3 rounded-full bg-[#00FF66] text-black shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
+          <span className="p-3 rounded-full bg-[#00C8FF] text-black shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform border border-black">
             <Eye className="w-5 h-5 stroke-[2.5]" />
           </span>
         </button>
       </div>
 
       {/* Product Content Details */}
-      <div className="p-4 flex-1 flex flex-col justify-between">
+      <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between bg-white">
         <div>
           {/* Category & Rating */}
-          <div className="flex items-center justify-between text-xs mb-1.5 text-slate-500 dark:text-slate-400">
-            <span className="text-[11px] font-semibold text-[#00FF66] uppercase tracking-wider">
+          <div className="flex items-center justify-between text-xs mb-1.5 text-slate-500">
+            <span className="text-[11px] font-bold text-[#00a8dc] dark:text-[#0090c0] uppercase tracking-wider font-sans">
               {categoryNames[product.category]}
             </span>
-            <div className="flex items-center gap-1 font-mono font-medium">
+            <div className="flex items-center gap-1 font-mono font-medium text-slate-800 dark:text-black">
               <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
               <span>{product.rating}</span>
             </div>
@@ -91,18 +91,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           {/* Title */}
           <h3 
             onClick={() => openProductModal(product)}
-            className="font-bold text-sm text-slate-900 dark:text-white line-clamp-2 hover:text-[#00FF66] transition-colors cursor-pointer mb-2"
+            className="font-bold text-sm text-slate-950 dark:text-black line-clamp-2 hover:text-[#00C8FF] transition-colors cursor-pointer mb-2 leading-snug font-sans"
           >
             {product.name}
           </h3>
         </div>
 
         {/* Price & Action Buttons */}
-        <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80">
+        <div className="pt-3 border-t border-slate-100 dark:border-black/10">
           <div className="flex items-baseline justify-between mb-3">
             <div className="flex items-baseline gap-2">
-              <span className="text-lg font-black text-slate-900 dark:text-white font-mono">
-                {product.price} <span className="text-xs font-sans text-[#00FF66]">MAD</span>
+              <span className="text-lg font-black text-slate-950 dark:text-black font-mono">
+                {product.price} <span className="text-xs font-sans text-[#00a8dc] font-bold">MAD</span>
               </span>
               {product.oldPrice && (
                 <span className="text-xs text-slate-400 line-through font-mono">
@@ -112,7 +112,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             </div>
 
             {product.wholesaleMinQty && (
-              <span className="text-[10px] text-slate-400 font-semibold">
+              <span className="text-[10px] text-slate-500 font-semibold">
                 (سلسلة كرتون)
               </span>
             )}
@@ -122,7 +122,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           <div className="grid grid-cols-5 gap-2">
             <button
               onClick={() => openProductModal(product)}
-              className="col-span-1 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 flex items-center justify-center transition-colors cursor-pointer"
+              className="col-span-1 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white text-slate-800 dark:text-black border border-slate-200 dark:border-black flex items-center justify-center transition-colors cursor-pointer shadow-2xs"
               title="مشاهدة تفاصيل الحذاء"
             >
               <Eye className="w-4 h-4" />
@@ -130,7 +130,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
             <button
               onClick={() => openProductModal(product)}
-              className="col-span-4 py-2 px-3 rounded-xl bg-slate-900 hover:bg-black dark:bg-[#1C202B] dark:hover:bg-[#00FF66] text-white dark:hover:text-black font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer group/btn"
+              className="col-span-4 py-2 px-3 rounded-xl bg-black hover:bg-[#00C8FF] text-white hover:text-black border border-black font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer group/btn"
             >
               <ShoppingBag className="w-3.5 h-3.5 group-hover/btn:scale-110 transition-transform" />
               <span>إضافة إلى السلة</span>

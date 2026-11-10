@@ -79,8 +79,8 @@ export const defaultProducts: Product[] = [
     colors: [
       {
         id: 'c-white-gold',
-        name: 'أبيض عاجي بلمسة نيون خفيفة',
-        hex: '#00FF66',
+        name: 'أبيض عاجي بلمسة زرقاء خفيفة',
+        hex: '#00C8FF',
         image: '/src/assets/images/bella_luxury_sneaker_1794318695413.jpg',
         inStock: true
       },
@@ -158,8 +158,8 @@ export const defaultProducts: Product[] = [
     colors: [
       {
         id: 'c-black-neon',
-        name: 'أسود بلمسات أخضر نيون (#00FF66)',
-        hex: '#00FF66',
+        name: 'أسود بلمسات أزرق فاتح (#00C8FF)',
+        hex: '#00C8FF',
         image: '/src/assets/images/bella_luxury_sneaker_1794318695413.jpg',
         inStock: true
       },
@@ -240,7 +240,7 @@ export const defaultProducts: Product[] = [
       {
         id: 'c-series-mixed',
         name: 'تشكيلة ألوان منوعة الأكثر طلباً',
-        hex: '#00FF66',
+        hex: '#00C8FF',
         image: '/src/assets/images/bella_mens_oxford_1794318693998.jpg',
         inStock: true
       }

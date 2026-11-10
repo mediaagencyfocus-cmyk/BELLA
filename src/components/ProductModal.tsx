@@ -95,27 +95,27 @@ export const ProductModal: React.FC = () => {
     <>
       {/* Backdrop */}
       <div 
-        className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+        className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
         onClick={closeProductModal}
       >
         {/* Modal Dialog */}
         <div 
-          className="relative w-full max-w-4xl bg-white dark:bg-[#12141C] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl overflow-hidden my-auto text-right"
+          className="relative w-full max-w-4xl bg-white dark:bg-white border-2 border-slate-200 dark:border-black rounded-3xl shadow-2xl overflow-hidden my-auto text-right"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close button */}
           <button
             onClick={closeProductModal}
-            className="absolute top-4 left-4 z-20 p-2 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors"
+            className="absolute top-4 left-4 z-20 p-2 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-100 dark:hover:bg-slate-200 text-slate-700 dark:text-black transition-colors"
             title="إغلاق"
           >
             <X className="w-5 h-5" />
           </button>
 
           <div className="grid grid-cols-1 md:grid-cols-12 max-h-[90vh] overflow-y-auto">
-            {/* Right: Images and Gallery (7 cols on desktop) */}
-            <div className="md:col-span-6 bg-slate-50 dark:bg-black/50 p-4 sm:p-6 flex flex-col justify-between border-b md:border-b-0 md:border-l border-slate-200 dark:border-slate-800">
-              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-slate-200 dark:bg-black/80 border border-slate-200 dark:border-slate-800 group">
+            {/* Right: Images and Gallery (6 cols on desktop) */}
+            <div className="md:col-span-6 bg-slate-50 dark:bg-slate-50 p-4 sm:p-6 flex flex-col justify-between border-b md:border-b-0 md:border-l-2 border-slate-200 dark:border-black">
+              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-slate-200 dark:bg-slate-200 border border-slate-200 dark:border-black group">
                 <img
                   src={activeImage}
                   alt={product.name}
@@ -148,7 +148,7 @@ export const ProductModal: React.FC = () => {
 
               {/* Color thumbnails / previews */}
               <div className="mt-4">
-                <label className="text-xs font-bold text-slate-500 dark:text-slate-400 block mb-2">
+                <label className="text-xs font-bold text-slate-600 dark:text-black block mb-2">
                   معاينة صور الألوان المتوفرة:
                 </label>
                 <div className="flex items-center gap-2 overflow-x-auto pb-1">
@@ -158,8 +158,8 @@ export const ProductModal: React.FC = () => {
                       onClick={() => handleColorChange(c)}
                       className={`relative w-16 h-12 rounded-lg overflow-hidden border-2 transition-all shrink-0 ${
                         selectedColor?.id === c.id
-                          ? 'border-[#00FF66] shadow-[0_0_10px_rgba(0,255,102,0.3)]'
-                          : 'border-slate-300 dark:border-slate-700 opacity-70 hover:opacity-100'
+                          ? 'border-[#00C8FF] shadow-[0_0_10px_rgba(0,200,255,0.4)]'
+                          : 'border-slate-300 dark:border-slate-400 opacity-70 hover:opacity-100'
                       }`}
                     >
                       <img src={c.image} alt={c.name} className="w-full h-full object-cover" />
@@ -169,44 +169,44 @@ export const ProductModal: React.FC = () => {
               </div>
 
               {/* Guarantee badges */}
-              <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800 grid grid-cols-3 gap-2 text-center text-[11px] text-slate-600 dark:text-slate-400">
-                <div className="p-2 rounded-xl bg-white dark:bg-[#181B24] border border-slate-200 dark:border-slate-800/80 flex flex-col items-center gap-1">
-                  <Truck className="w-4 h-4 text-[#00FF66]" />
+              <div className="mt-6 pt-4 border-t border-slate-200 dark:border-black grid grid-cols-3 gap-2 text-center text-[11px] text-slate-700 dark:text-black font-semibold">
+                <div className="p-2 rounded-xl bg-white dark:bg-white border border-slate-200 dark:border-black flex flex-col items-center gap-1">
+                  <Truck className="w-4 h-4 text-[#00C8FF]" />
                   <span>توصيل 24 ساعة</span>
                 </div>
-                <div className="p-2 rounded-xl bg-white dark:bg-[#181B24] border border-slate-200 dark:border-slate-800/80 flex flex-col items-center gap-1">
-                  <ShieldCheck className="w-4 h-4 text-[#00FF66]" />
+                <div className="p-2 rounded-xl bg-white dark:bg-white border border-slate-200 dark:border-black flex flex-col items-center gap-1">
+                  <ShieldCheck className="w-4 h-4 text-[#00C8FF]" />
                   <span>جلد طبيعي 100%</span>
                 </div>
-                <div className="p-2 rounded-xl bg-white dark:bg-[#181B24] border border-slate-200 dark:border-slate-800/80 flex flex-col items-center gap-1">
-                  <RotateCcw className="w-4 h-4 text-[#00FF66]" />
+                <div className="p-2 rounded-xl bg-white dark:bg-white border border-slate-200 dark:border-black flex flex-col items-center gap-1">
+                  <RotateCcw className="w-4 h-4 text-[#00C8FF]" />
                   <span>قياس عند الباب</span>
                 </div>
               </div>
             </div>
 
             {/* Left: Product Purchasing Module & Selectors (6 cols) */}
-            <div className="md:col-span-6 p-5 sm:p-7 flex flex-col justify-between">
+            <div className="md:col-span-6 p-5 sm:p-7 flex flex-col justify-between bg-white dark:bg-white text-slate-900 dark:text-black">
               <div>
                 {/* Header info */}
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#00FF66]/15 text-[#00FF66] border border-[#00FF66]/30">
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#00C8FF]/15 text-[#0099DD] dark:text-[#0088CC] border border-[#00C8FF]/30">
                     BELLA SHOES LUXURY
                   </span>
-                  <div className="flex items-center gap-1 text-xs font-mono text-slate-500">
+                  <div className="flex items-center gap-1 text-xs font-mono text-slate-500 dark:text-slate-600">
                     <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                    <span className="font-bold text-slate-900 dark:text-white">{product.rating}</span>
+                    <span className="font-bold text-slate-900 dark:text-black">{product.rating}</span>
                     <span>({product.reviewsCount} تقييم)</span>
                   </div>
                 </div>
 
-                <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mb-2 leading-snug">
+                <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-black mb-2 leading-snug">
                   {product.name}
                 </h2>
 
                 {/* Price Display */}
                 <div className="flex items-baseline gap-3 mb-4">
-                  <span className="text-2xl sm:text-3xl font-black text-[#00FF66] font-mono">
+                  <span className="text-2xl sm:text-3xl font-black text-[#00C8FF] font-mono">
                     {product.price} <span className="text-sm font-sans">MAD</span>
                   </span>
                   {product.oldPrice && (
@@ -214,13 +214,13 @@ export const ProductModal: React.FC = () => {
                       {product.oldPrice} MAD
                     </span>
                   )}
-                  <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                  <span className="text-xs text-slate-500 dark:text-slate-600 font-medium">
                     (شامل الضريبة والمعاينة)
                   </span>
                 </div>
 
                 {/* Description */}
-                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-700 leading-relaxed mb-6">
                   {product.description}
                 </p>
 
@@ -232,12 +232,12 @@ export const ProductModal: React.FC = () => {
                   </div>
                 )}
 
-                {/* 1. COLOR SELECTION (اختيار الألوان المتوفرة) */}
+                {/* 1. COLOR SELECTION */}
                 <div className="mb-5">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold text-slate-900 dark:text-white">
+                    <span className="text-xs font-bold text-slate-900 dark:text-black">
                       اللون المختار:{' '}
-                      <span className="text-[#00FF66]">{selectedColor?.name || 'اختر اللون'}</span>
+                      <span className="text-[#00C8FF]">{selectedColor?.name || 'اختر اللون'}</span>
                     </span>
                     <span className="text-[11px] text-slate-400">
                       (انقر لتغيير صورة الحذاء)
@@ -251,10 +251,10 @@ export const ProductModal: React.FC = () => {
                         <button
                           key={c.id}
                           onClick={() => handleColorChange(c)}
-                          className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all ${
+                          className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 text-xs font-semibold transition-all ${
                             isSelected
-                              ? 'bg-slate-100 dark:bg-slate-800 border-[#00FF66] shadow-[0_0_12px_rgba(0,255,102,0.3)] text-slate-900 dark:text-white'
-                              : 'bg-white dark:bg-[#151821] border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-400'
+                              ? 'bg-slate-100 dark:bg-slate-100 border-[#00C8FF] shadow-[0_0_12px_rgba(0,200,255,0.35)] text-slate-900 dark:text-black'
+                              : 'bg-white dark:bg-white border-slate-200 dark:border-black text-slate-700 dark:text-black hover:border-slate-400'
                           }`}
                         >
                           <span
@@ -262,20 +262,20 @@ export const ProductModal: React.FC = () => {
                             style={{ backgroundColor: c.hex }}
                           />
                           <span>{c.name}</span>
-                          {isSelected && <Check className="w-3.5 h-3.5 text-[#00FF66]" />}
+                          {isSelected && <Check className="w-3.5 h-3.5 text-[#00C8FF]" />}
                         </button>
                       );
                     })}
                   </div>
                 </div>
 
-                {/* 2. SIZE SELECTION (اختيار النمرة المتوفرة) */}
+                {/* 2. SIZE SELECTION */}
                 <div className="mb-6">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1">
+                    <span className="text-xs font-bold text-slate-900 dark:text-black flex items-center gap-1">
                       <span>النمرة / المقاس المتوفر:</span>
                       {selectedSize ? (
-                        <span className="text-[#00FF66] font-mono text-sm font-black">{selectedSize}</span>
+                        <span className="text-[#00C8FF] font-mono text-sm font-black">{selectedSize}</span>
                       ) : (
                         <span className="text-rose-500 font-bold">* إلزامي</span>
                       )}
@@ -295,10 +295,10 @@ export const ProductModal: React.FC = () => {
                             setSelectedSize(size);
                             setErrorMessage('');
                           }}
-                          className={`py-2.5 rounded-xl font-mono text-sm font-bold border transition-all cursor-pointer flex flex-col items-center justify-center ${
+                          className={`py-2.5 rounded-xl font-mono text-sm font-bold border-2 transition-all cursor-pointer flex flex-col items-center justify-center ${
                             isSelected
-                              ? 'bg-[#00FF66] text-black border-[#00FF66] shadow-[0_0_15px_rgba(0,255,102,0.4)] scale-105'
-                              : 'bg-slate-100 hover:bg-slate-200 dark:bg-[#161922] dark:hover:bg-[#1E2330] text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-800'
+                              ? 'bg-[#00C8FF] text-black border-[#00C8FF] shadow-[0_0_15px_rgba(0,200,255,0.4)] scale-105'
+                              : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-100 dark:hover:bg-slate-200 text-slate-900 dark:text-black border-slate-200 dark:border-black'
                           }`}
                         >
                           <span>{size}</span>
@@ -308,24 +308,24 @@ export const ProductModal: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 3. QUANTITY SELECTOR (الكمية) */}
-                <div className="flex items-center justify-between mb-6 p-3 rounded-2xl bg-slate-50 dark:bg-[#151821] border border-slate-200 dark:border-slate-800">
-                  <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                {/* 3. QUANTITY SELECTOR */}
+                <div className="flex items-center justify-between mb-6 p-3 rounded-2xl bg-slate-50 dark:bg-slate-50 border-2 border-slate-200 dark:border-black">
+                  <span className="text-xs font-bold text-slate-700 dark:text-black">
                     الكمية المطلوبة:
                   </span>
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 hover:border-[#00FF66] transition-colors"
+                      className="w-8 h-8 rounded-lg bg-white dark:bg-white border border-slate-300 dark:border-black flex items-center justify-center text-slate-800 dark:text-black hover:border-[#00C8FF] transition-colors"
                     >
                       <Minus className="w-3.5 h-3.5" />
                     </button>
-                    <span className="font-mono font-bold text-base w-6 text-center text-slate-900 dark:text-white">
+                    <span className="font-mono font-bold text-base w-6 text-center text-slate-900 dark:text-black">
                       {quantity}
                     </span>
                     <button
                       onClick={() => setQuantity(quantity + 1)}
-                      className="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 hover:border-[#00FF66] transition-colors"
+                      className="w-8 h-8 rounded-lg bg-white dark:bg-white border border-slate-300 dark:border-black flex items-center justify-center text-slate-800 dark:text-black hover:border-[#00C8FF] transition-colors"
                     >
                       <Plus className="w-3.5 h-3.5" />
                     </button>
@@ -334,10 +334,10 @@ export const ProductModal: React.FC = () => {
               </div>
 
               {/* Purchase Action Buttons */}
-              <div className="space-y-2.5 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div className="space-y-2.5 pt-4 border-t-2 border-slate-200 dark:border-black">
                 <button
                   onClick={handleFastOrder}
-                  className="w-full py-3.5 px-4 rounded-2xl bg-[#00FF66] text-black font-extrabold text-sm sm:text-base flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(0,255,102,0.35)] hover:bg-[#05ea5f] transition-all cursor-pointer"
+                  className="w-full py-3.5 px-4 rounded-2xl bg-[#00C8FF] text-black font-extrabold text-sm sm:text-base flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(0,200,255,0.35)] hover:bg-[#00B4E6] transition-all cursor-pointer border-2 border-transparent"
                 >
                   <Sparkles className="w-4 h-4 fill-black" />
                   <span>اطلب الآن - الدفع عند الاستلام</span>
@@ -345,7 +345,7 @@ export const ProductModal: React.FC = () => {
 
                 <button
                   onClick={() => handleAddToCart(true)}
-                  className="w-full py-3 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-[#1A1E29] dark:hover:bg-[#222837] text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 font-bold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  className="w-full py-3 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-100 dark:hover:bg-slate-200 text-slate-900 dark:text-black border-2 border-slate-200 dark:border-black font-bold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 >
                   <ShoppingBag className="w-4 h-4" />
                   <span>إضافة إلى سلة المشتريات</span>
@@ -372,7 +372,7 @@ export const ProductModal: React.FC = () => {
             <img
               src={activeImage}
               alt={product.name}
-              className="max-h-[80vh] w-auto max-w-full rounded-2xl object-contain shadow-2xl border border-white/10"
+              className="max-h-[80vh] w-auto max-w-full rounded-2xl object-contain shadow-2xl border-2 border-white/20"
             />
             <p className="text-center text-white text-sm font-bold mt-4 font-sans">
               {product.name} - {selectedColor?.name}
