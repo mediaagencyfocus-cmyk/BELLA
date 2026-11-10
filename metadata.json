@@ -1,0 +1,6 @@
+{
+  "name": "BELLA SHOES - متجر الأحذية الفاخرة",
+  "description": "متجر الأحذية الفاخرة BELLA SHOES - أرقى الأحذية النسائية والرجالية وأحذية الأطفال والبيع بالجملة في المغرب مع خدمة التوصيل السريع والدفع عند الاستلام.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
