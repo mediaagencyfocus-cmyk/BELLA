@@ -181,3 +181,31 @@ export async function fetchSettingsFromSupabase(): Promise<Partial<StoreSettings
     return null;
   }
 }
+
+export async function updateSettingsInSupabase(newSettings: Partial<StoreSettings>): Promise<boolean> {
+  if (!supabase || !isSupabaseConfigured()) return false;
+
+  try {
+    const payload: Record<string, any> = {};
+    if (newSettings.phone !== undefined) payload.phone = newSettings.phone;
+    if (newSettings.whatsapp !== undefined) payload.whatsapp = newSettings.whatsapp;
+    if (newSettings.email !== undefined) payload.email = newSettings.email;
+    if (newSettings.address !== undefined) payload.address = newSettings.address;
+    if (newSettings.deliveryFee !== undefined) payload.delivery_fee = newSettings.deliveryFee;
+    if (newSettings.freeShippingPairThreshold !== undefined) payload.free_shipping_pair_threshold = newSettings.freeShippingPairThreshold;
+    if (newSettings.instagramUrl !== undefined) payload.instagram_url = newSettings.instagramUrl;
+    if (newSettings.facebookUrl !== undefined) payload.facebook_url = newSettings.facebookUrl;
+    if (newSettings.tiktokUrl !== undefined) payload.tiktok_url = newSettings.tiktokUrl;
+    if (newSettings.adminPasswordHash !== undefined) payload.admin_password_hash = newSettings.adminPasswordHash;
+
+    const { error } = await supabase
+      .from('store_settings')
+      .update(payload)
+      .eq('id', 1);
+
+    return !error;
+  } catch (err) {
+    console.error('Error updating settings in Supabase:', err);
+    return false;
+  }
+}

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product, ShoeCategory, ColorVariant, CartItem, Order, OrderStatus, User, StoreSettings } from '../types';
 import { defaultProducts, initialSettings } from '../data/defaultProducts';
-import { isSupabaseConfigured, fetchProductsFromSupabase, fetchSettingsFromSupabase, saveOrderToSupabase } from '../lib/supabase';
+import { isSupabaseConfigured, fetchProductsFromSupabase, fetchSettingsFromSupabase, saveOrderToSupabase, updateSettingsInSupabase } from '../lib/supabase';
 
 interface StoreContextType {
   isSupabaseActive: boolean;
@@ -142,6 +142,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       localStorage.setItem('bella_settings', JSON.stringify(updated));
       return updated;
     });
+    if (isSupabaseConfigured()) {
+      updateSettingsInSupabase(newSettings);
+    }
   };
 
   // Products

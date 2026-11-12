@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, 
   Package, 
@@ -30,6 +30,7 @@ import {
 import { useStore } from '../context/StoreContext';
 import { Product, ShoeCategory, ColorVariant, OrderStatus } from '../types';
 import { WhatsAppIcon, InstagramIcon, FacebookIcon, TikTokIcon } from './SocialIcons';
+import { normalizeWhatsAppNumber, buildWhatsAppLink } from '../utils/phone';
 
 export const AdminDashboard: React.FC = () => {
   const {
@@ -88,6 +89,24 @@ export const AdminDashboard: React.FC = () => {
   const [settingsTiktok, setSettingsTiktok] = useState(settings.tiktokUrl);
   const [adminPass, setAdminPass] = useState(settings.adminPasswordHash);
   const [settingsSavedAlert, setSettingsSavedAlert] = useState(false);
+
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
+
+  // Sync settings into form states only when switching to settings tab
+  useEffect(() => {
+    if (activeTab === 'settings') {
+      setSettingsPhone(settings.phone);
+      setSettingsWhatsapp(settings.whatsapp);
+      setSettingsEmail(settings.email);
+      setSettingsAddress(settings.address);
+      setSettingsDeliveryFee(settings.deliveryFee);
+      setSettingsFreeThreshold(settings.freeShippingPairThreshold);
+      setSettingsInstagram(settings.instagramUrl);
+      setSettingsFacebook(settings.facebookUrl);
+      setSettingsTiktok(settings.tiktokUrl);
+      setAdminPass(settings.adminPasswordHash);
+    }
+  }, [activeTab]);
 
   // Stats calculation
   const totalRevenue = orders.reduce((sum, o) => sum + (o.status !== 'cancelled' ? o.total : 0), 0);
@@ -172,20 +191,28 @@ export const AdminDashboard: React.FC = () => {
 
   const handleSaveSettings = (e: React.FormEvent) => {
     e.preventDefault();
-    updateSettings({
-      phone: settingsPhone,
-      whatsapp: settingsWhatsapp,
-      email: settingsEmail,
-      address: settingsAddress,
-      deliveryFee: Number(settingsDeliveryFee),
-      freeShippingPairThreshold: Number(settingsFreeThreshold),
-      instagramUrl: settingsInstagram,
-      facebookUrl: settingsFacebook,
-      tiktokUrl: settingsTiktok,
-      adminPasswordHash: adminPass
-    });
+    setIsSavingSettings(true);
+
+    const updated = {
+      phone: settingsPhone.trim(),
+      whatsapp: settingsWhatsapp.trim(),
+      email: settingsEmail.trim(),
+      address: settingsAddress.trim(),
+      deliveryFee: Number(settingsDeliveryFee) || 0,
+      freeShippingPairThreshold: Number(settingsFreeThreshold) || 2,
+      instagramUrl: settingsInstagram.trim(),
+      facebookUrl: settingsFacebook.trim(),
+      tiktokUrl: settingsTiktok.trim(),
+      adminPasswordHash: adminPass.trim()
+    };
+
+    updateSettings(updated);
     setSettingsSavedAlert(true);
-    setTimeout(() => setSettingsSavedAlert(false), 3000);
+    setIsSavingSettings(false);
+
+    setTimeout(() => {
+      setSettingsSavedAlert(false);
+    }, 4500);
   };
 
   const addColorVariant = () => {
@@ -912,9 +939,22 @@ export const AdminDashboard: React.FC = () => {
             </h3>
 
             {settingsSavedAlert && (
-              <div className="p-3 rounded-xl bg-[#00C8FF]/15 border border-[#00C8FF]/40 text-[#00C8FF] text-xs font-bold flex items-center gap-2">
-                <CheckCircle className="w-4 h-4" />
-                <span>تم حفظ وتحديث إعدادات المتجر بنجاح!</span>
+              <div className="p-4 rounded-2xl bg-emerald-500/15 border-2 border-emerald-500/40 text-emerald-700 dark:text-emerald-300 text-xs font-bold flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md animate-in fade-in duration-200">
+                <div className="flex items-center gap-2.5">
+                  <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0" />
+                  <div>
+                    <span className="block font-black text-sm text-slate-900 dark:text-white">تم حفظ كافة الباراميترات بنجاح!</span>
+                    <span className="text-[11px] font-medium text-slate-600 dark:text-slate-300">تم تحديث رقم الواتساب، الهاتف، روابط المنصات، ومصاريف التوصيل في المتجر فوراً.</span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsAdminView(false)}
+                  className="px-3 py-1.5 rounded-xl bg-emerald-500 text-black font-extrabold text-[11px] hover:bg-emerald-400 transition-colors shrink-0 flex items-center justify-center gap-1 cursor-pointer"
+                >
+                  <span>معاينة المتجر الآن</span>
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                </button>
               </div>
             )}
 
@@ -930,12 +970,31 @@ export const AdminDashboard: React.FC = () => {
                       required
                       value={settingsWhatsapp}
                       onChange={(e) => setSettingsWhatsapp(e.target.value)}
+                      placeholder="0612345678 أو +212612345678"
                       className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-100 dark:bg-[#181B24] border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-mono"
                     />
                     <WhatsAppIcon className="w-4 h-4 text-[#25D366] absolute left-3 top-1/2 -translate-y-1/2" />
                   </div>
-                  <span className="text-[10px] text-slate-400 mt-0.5 block">
-                    يتم ربط زر واتساب العائم بهذا الرقم مباشرة.
+                  
+                  {/* Real-time WhatsApp Link Preview & Direct Test */}
+                  <div className="mt-2 p-2.5 rounded-xl bg-slate-50 dark:bg-[#161922] border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-right">
+                    <div className="text-[11px] text-slate-600 dark:text-slate-300">
+                      <span>الرقم المعتمد: </span>
+                      <span className="font-mono font-bold text-[#00C8FF]">+{normalizeWhatsAppNumber(settingsWhatsapp)}</span>
+                    </div>
+                    <a
+                      href={buildWhatsAppLink(settingsWhatsapp, 'السلام عليكم، تجربة فتح واتساب BELLA SHOES بعد تعديل الرقم.')}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#25D366] text-black font-extrabold text-[11px] shadow-xs hover:bg-[#20ba5a] transition-all"
+                      title="انقر لتجربة فتح واتساب الآن على هاتفك أو حاسوبك"
+                    >
+                      <WhatsAppIcon className="w-3.5 h-3.5" />
+                      <span>اختبر فتح واتساب الخاص بك الآن</span>
+                    </a>
+                  </div>
+                  <span className="text-[10px] text-slate-400 mt-1 block">
+                    يقبل الأرقام المحلية (مثل 0661234567 أو 07...) أو الدولية (+212...) ويتم تحويلها وتحديثها فورياً في كامل المتجر.
                   </span>
                 </div>
 
@@ -1075,13 +1134,39 @@ export const AdminDashboard: React.FC = () => {
                 </div>
               </div>
 
-              <div className="pt-2">
+              <div className="pt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-[#00C8FF] text-black font-extrabold text-xs shadow-md hover:bg-[#00B4E6] transition-all cursor-pointer"
+                  disabled={isSavingSettings}
+                  className={`px-8 py-3 rounded-xl font-black text-xs sm:text-sm shadow-md transition-all cursor-pointer flex items-center justify-center gap-2 border-2 ${
+                    settingsSavedAlert
+                      ? 'bg-emerald-500 hover:bg-emerald-600 border-emerald-400 text-white shadow-[0_0_20px_rgba(16,185,129,0.4)] scale-[1.02]'
+                      : 'bg-[#00C8FF] hover:bg-[#20d0ff] border-[#00C8FF] text-black shadow-[0_0_15px_rgba(0,200,255,0.35)]'
+                  }`}
                 >
-                  حفظ كافة الإعدادات
+                  {settingsSavedAlert ? (
+                    <>
+                      <Check className="w-4 h-4 stroke-[3]" />
+                      <span>✓ تم حفظ كافة الإعدادات والباراميترات بنجاح!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4" />
+                      <span>حفظ كافة الإعدادات</span>
+                    </>
+                  )}
                 </button>
+
+                {settingsSavedAlert && (
+                  <button
+                    type="button"
+                    onClick={() => setIsAdminView(false)}
+                    className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#181B24] dark:hover:bg-[#202531] text-slate-800 dark:text-slate-200 text-xs font-bold border border-slate-300 dark:border-slate-700 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                  >
+                    <ArrowLeft className="w-4 h-4 text-[#00C8FF]" />
+                    <span>الرجوع لمعاينة المتجر</span>
+                  </button>
+                )}
               </div>
             </form>
           </div>

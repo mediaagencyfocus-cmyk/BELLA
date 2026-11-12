@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { WhatsAppIcon, InstagramIcon, FacebookIcon, TikTokIcon } from './SocialIcons';
+import { buildWhatsAppLink, formatDisplayPhone } from '../utils/phone';
 
 export const Footer: React.FC = () => {
   const { settings, setActiveCategory } = useStore();
@@ -17,16 +18,15 @@ export const Footer: React.FC = () => {
   const [contactMessage, setContactMessage] = useState('');
   const [contactSent, setContactSent] = useState(false);
 
-  const cleanPhone = settings.whatsapp.replace(/[^0-9]/g, '');
+  const directWaLink = buildWhatsAppLink(settings.whatsapp);
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!contactMessage.trim()) return;
 
-    const text = encodeURIComponent(
-      `رسالة من موقع BELLA SHOES:\nالاسم: ${contactName || 'زبون'}\nالرسالة: ${contactMessage}`
-    );
-    window.open(`https://wa.me/${cleanPhone}?text=${text}`, '_blank');
+    const message = `رسالة من موقع BELLA SHOES:\nالاسم: ${contactName || 'زبون'}\nالرسالة: ${contactMessage}`;
+    const url = buildWhatsAppLink(settings.whatsapp, message);
+    window.open(url, '_blank');
     setContactSent(true);
     setTimeout(() => {
       setContactSent(false);
@@ -74,7 +74,7 @@ export const Footer: React.FC = () => {
               <div className="flex items-center gap-2">
                 {/* WhatsApp */}
                 <a
-                  href={`https://wa.me/${cleanPhone}`}
+                  href={directWaLink}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-[#25D366]/15 dark:bg-[#12141C] dark:hover:bg-[#25D366]/20 border border-slate-200 dark:border-slate-800 hover:border-[#25D366] text-slate-700 dark:text-slate-300 hover:text-[#25D366] flex items-center justify-center transition-all shadow-xs"
@@ -191,13 +191,13 @@ export const Footer: React.FC = () => {
             <ul className="space-y-2.5 text-xs text-slate-700 dark:text-slate-300">
               <li>
                 <a
-                  href={`https://wa.me/${cleanPhone}`}
+                  href={directWaLink}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 hover:text-[#25D366] transition-colors group"
                 >
                   <WhatsAppIcon className="w-4 h-4 text-[#25D366] shrink-0 group-hover:scale-110 transition-transform" />
-                  <span className="font-mono font-semibold" dir="ltr">{settings.whatsapp}</span>
+                  <span className="font-mono font-semibold" dir="ltr">{formatDisplayPhone(settings.whatsapp)}</span>
                   <span className="text-[10px] text-slate-400 dark:text-slate-500">(واتساب مباشر)</span>
                 </a>
               </li>
@@ -280,7 +280,7 @@ export const Footer: React.FC = () => {
             
             {/* WhatsApp Direct */}
             <a
-              href={`https://wa.me/${cleanPhone}`}
+              href={directWaLink}
               target="_blank"
               rel="noopener noreferrer"
               className="p-2.5 rounded-xl bg-slate-100 hover:bg-[#25D366]/15 dark:bg-[#12141C] dark:hover:bg-[#25D366]/20 border border-slate-200 dark:border-slate-800 hover:border-[#25D366] text-slate-700 dark:text-slate-300 hover:text-[#25D366] transition-all flex items-center gap-1.5 group"

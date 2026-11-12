@@ -209,9 +209,9 @@ export const ProductCatalog: React.FC = () => {
         </div>
       )}
 
-      {/* Responsive Grid of Shoe Cards (1 col mobile, 2 col tablet, 3-4 col desktop) */}
+      {/* Responsive Grid of Shoe Cards (2 col mobile, 3 col tablet, 4 col desktop) */}
       {filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5 lg:gap-6">
           {filteredProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}

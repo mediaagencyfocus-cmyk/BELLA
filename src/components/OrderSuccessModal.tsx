@@ -2,6 +2,7 @@ import React from 'react';
 import { CheckCircle2, X, PhoneCall, ShieldCheck } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { WhatsAppIcon } from './SocialIcons';
+import { buildWhatsAppLink } from '../utils/phone';
 
 export const OrderSuccessModal: React.FC = () => {
   const { lastPlacedOrder, setLastPlacedOrder, settings } = useStore();
@@ -18,12 +19,8 @@ export const OrderSuccessModal: React.FC = () => {
     )
     .join('\n');
 
-  const waMessage = encodeURIComponent(
-    `السلام عليكم ورحمة الله،\nلقد قمت بطلب حذاء من متجر BELLA SHOES رقم الطلب: ${order.orderNumber}\nالاسم: ${order.customerName}\nالهاتف: ${order.phone}\nالمدينة: ${order.city}\nالعنوان: ${order.address}\n\nتفاصيل الأحذية:\n${itemsText}\n\nالمجموع النهائي: ${order.total} درهم (الدفع عند الاستلام مع إمكانية القياس).\nشكراً لكم.`
-  );
-
-  const cleanPhone = settings.whatsapp.replace(/[^0-9]/g, '');
-  const waUrl = `https://wa.me/${cleanPhone}?text=${waMessage}`;
+  const rawMessage = `السلام عليكم ورحمة الله،\nلقد قمت بطلب حذاء من متجر BELLA SHOES رقم الطلب: ${order.orderNumber}\nالاسم: ${order.customerName}\nالهاتف: ${order.phone}\nالمدينة: ${order.city}\nالعنوان: ${order.address}\n\nتفاصيل الأحذية:\n${itemsText}\n\nالمجموع النهائي: ${order.total} درهم (الدفع عند الاستلام مع إمكانية القياس).\nشكراً لكم.`;
+  const waUrl = buildWhatsAppLink(settings.whatsapp, rawMessage);
 
   return (
     <div className="fixed inset-0 z-60 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto text-right">

@@ -407,14 +407,14 @@ export const Header: React.FC = () => {
           </div>
 
           {/* Centered Categories Bar matching the EXACT same width of the search bar */}
-          <div className="w-full grid grid-cols-5 gap-1 sm:gap-2">
+          <div className="w-full flex sm:grid sm:grid-cols-5 gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
             {categories.map((cat) => {
               const isActive = activeCategory === cat.id && !isAdminView;
               return (
                 <button
                   key={cat.id}
                   onClick={() => handleSelectCategory(cat.id)}
-                  className={`py-2 px-1 text-center truncate text-[10px] sm:text-xs font-bold rounded-xl sm:rounded-full transition-all cursor-pointer ${
+                  className={`py-2 px-3 sm:px-1 text-center whitespace-nowrap sm:truncate text-[11px] sm:text-xs font-bold rounded-xl sm:rounded-full transition-all cursor-pointer shrink-0 sm:shrink ${
                     isActive
                       ? 'bg-[#00C8FF] text-black shadow-[0_0_12px_rgba(0,200,255,0.4)] scale-[1.02] border border-[#00C8FF] font-extrabold'
                       : 'bg-slate-50 hover:bg-slate-100 dark:bg-[#161922] dark:hover:bg-[#1E2330] text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-800'
