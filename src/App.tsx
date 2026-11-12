@@ -16,7 +16,7 @@ const MainLayout: React.FC = () => {
   const { isAdminView, user } = useStore();
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-slate-900 transition-colors selection:bg-[#00C8FF] selection:text-black font-sans">
+    <div className="min-h-screen flex flex-col bg-white dark:bg-[#08090C] text-slate-900 dark:text-slate-100 transition-colors duration-300 selection:bg-[#00C8FF] selection:text-black font-sans">
       {/* Top Header */}
       <Header />
 

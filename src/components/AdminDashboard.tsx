@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { Product, ShoeCategory, ColorVariant, OrderStatus } from '../types';
+import { WhatsAppIcon, InstagramIcon, FacebookIcon, TikTokIcon } from './SocialIcons';
 
 export const AdminDashboard: React.FC = () => {
   const {
@@ -217,7 +218,7 @@ export const AdminDashboard: React.FC = () => {
         {/* Top Header of Admin */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-black dark:bg-[#12141C] border border-[#00C8FF]/50 flex items-center justify-center text-[#00C8FF] font-black text-2xl shadow-[0_0_20px_rgba(0,255,102,0.3)]">
+            <div className="w-12 h-12 rounded-2xl bg-black dark:bg-[#12141C] border border-[#00C8FF]/50 flex items-center justify-center text-[#00C8FF] font-black text-2xl shadow-[0_0_20px_rgba(0,200,255,0.35)]">
               B
             </div>
             <div>
@@ -258,7 +259,7 @@ export const AdminDashboard: React.FC = () => {
             onClick={() => setActiveTab('overview')}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
               activeTab === 'overview'
-                ? 'bg-[#00C8FF] text-black shadow-[0_0_12px_rgba(0,255,102,0.3)]'
+                ? 'bg-[#00C8FF] text-black shadow-[0_0_12px_rgba(0,200,255,0.35)]'
                 : 'bg-white dark:bg-[#12141C] text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800'
             }`}
           >
@@ -270,7 +271,7 @@ export const AdminDashboard: React.FC = () => {
             onClick={() => setActiveTab('products')}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
               activeTab === 'products'
-                ? 'bg-[#00C8FF] text-black shadow-[0_0_12px_rgba(0,255,102,0.3)]'
+                ? 'bg-[#00C8FF] text-black shadow-[0_0_12px_rgba(0,200,255,0.35)]'
                 : 'bg-white dark:bg-[#12141C] text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800'
             }`}
           >
@@ -282,7 +283,7 @@ export const AdminDashboard: React.FC = () => {
             onClick={() => setActiveTab('orders')}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
               activeTab === 'orders'
-                ? 'bg-[#00C8FF] text-black shadow-[0_0_12px_rgba(0,255,102,0.3)]'
+                ? 'bg-[#00C8FF] text-black shadow-[0_0_12px_rgba(0,200,255,0.35)]'
                 : 'bg-white dark:bg-[#12141C] text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800'
             }`}
           >
@@ -297,7 +298,7 @@ export const AdminDashboard: React.FC = () => {
             onClick={() => setActiveTab('customers')}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
               activeTab === 'customers'
-                ? 'bg-[#00C8FF] text-black shadow-[0_0_12px_rgba(0,255,102,0.3)]'
+                ? 'bg-[#00C8FF] text-black shadow-[0_0_12px_rgba(0,200,255,0.35)]'
                 : 'bg-white dark:bg-[#12141C] text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800'
             }`}
           >
@@ -309,7 +310,7 @@ export const AdminDashboard: React.FC = () => {
             onClick={() => setActiveTab('settings')}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
               activeTab === 'settings'
-                ? 'bg-[#00C8FF] text-black shadow-[0_0_12px_rgba(0,255,102,0.3)]'
+                ? 'bg-[#00C8FF] text-black shadow-[0_0_12px_rgba(0,200,255,0.35)]'
                 : 'bg-white dark:bg-[#12141C] text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800'
             }`}
           >
@@ -321,7 +322,7 @@ export const AdminDashboard: React.FC = () => {
             onClick={() => setActiveTab('database')}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
               activeTab === 'database'
-                ? 'bg-[#00C8FF] text-black shadow-[0_0_12px_rgba(0,255,102,0.3)]'
+                ? 'bg-[#00C8FF] text-black shadow-[0_0_12px_rgba(0,200,255,0.35)]'
                 : 'bg-white dark:bg-[#12141C] text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800'
             }`}
           >
@@ -931,7 +932,7 @@ export const AdminDashboard: React.FC = () => {
                       onChange={(e) => setSettingsWhatsapp(e.target.value)}
                       className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-100 dark:bg-[#181B24] border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-mono"
                     />
-                    <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <WhatsAppIcon className="w-4 h-4 text-[#25D366] absolute left-3 top-1/2 -translate-y-1/2" />
                   </div>
                   <span className="text-[10px] text-slate-400 mt-0.5 block">
                     يتم ربط زر واتساب العائم بهذا الرقم مباشرة.
@@ -1006,39 +1007,54 @@ export const AdminDashboard: React.FC = () => {
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <label className="text-[10px] text-slate-400 block mb-1">Instagram</label>
+                    <label className="text-[10px] font-bold text-slate-700 dark:text-slate-300 block mb-1 flex items-center gap-1.5">
+                      <InstagramIcon className="w-3.5 h-3.5 text-[#E1306C]" />
+                      <span>Instagram</span>
+                    </label>
                     <div className="relative">
                       <input
                         type="url"
                         value={settingsInstagram}
                         onChange={(e) => setSettingsInstagram(e.target.value)}
-                        className="w-full px-2.5 py-1.5 rounded-lg text-xs bg-slate-100 dark:bg-black/50 border border-slate-200 dark:border-slate-700 font-mono"
+                        placeholder="https://instagram.com/..."
+                        className="w-full pl-8 pr-2.5 py-1.5 rounded-lg text-xs bg-slate-100 dark:bg-black/50 border border-slate-200 dark:border-slate-700 font-mono text-slate-900 dark:text-white"
                       />
-                      <Instagram className="w-3.5 h-3.5 text-slate-400 absolute left-2 top-1/2 -translate-y-1/2" />
+                      <InstagramIcon className="w-3.5 h-3.5 text-[#E1306C] absolute left-2 top-1/2 -translate-y-1/2" />
                     </div>
                   </div>
 
                   <div>
-                    <label className="text-[10px] text-slate-400 block mb-1">Facebook</label>
+                    <label className="text-[10px] font-bold text-slate-700 dark:text-slate-300 block mb-1 flex items-center gap-1.5">
+                      <FacebookIcon className="w-3.5 h-3.5 text-[#1877F2]" />
+                      <span>Facebook</span>
+                    </label>
                     <div className="relative">
                       <input
                         type="url"
                         value={settingsFacebook}
                         onChange={(e) => setSettingsFacebook(e.target.value)}
-                        className="w-full px-2.5 py-1.5 rounded-lg text-xs bg-slate-100 dark:bg-black/50 border border-slate-200 dark:border-slate-700 font-mono"
+                        placeholder="https://facebook.com/..."
+                        className="w-full pl-8 pr-2.5 py-1.5 rounded-lg text-xs bg-slate-100 dark:bg-black/50 border border-slate-200 dark:border-slate-700 font-mono text-slate-900 dark:text-white"
                       />
-                      <Facebook className="w-3.5 h-3.5 text-slate-400 absolute left-2 top-1/2 -translate-y-1/2" />
+                      <FacebookIcon className="w-3.5 h-3.5 text-[#1877F2] absolute left-2 top-1/2 -translate-y-1/2" />
                     </div>
                   </div>
 
                   <div>
-                    <label className="text-[10px] text-slate-400 block mb-1">TikTok</label>
-                    <input
-                      type="url"
-                      value={settingsTiktok}
-                      onChange={(e) => setSettingsTiktok(e.target.value)}
-                      className="w-full px-2.5 py-1.5 rounded-lg text-xs bg-slate-100 dark:bg-black/50 border border-slate-200 dark:border-slate-700 font-mono"
-                    />
+                    <label className="text-[10px] font-bold text-slate-700 dark:text-slate-300 block mb-1 flex items-center gap-1.5">
+                      <TikTokIcon className="w-3.5 h-3.5 text-[#FE2C55]" />
+                      <span>TikTok</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="url"
+                        value={settingsTiktok}
+                        onChange={(e) => setSettingsTiktok(e.target.value)}
+                        placeholder="https://tiktok.com/@..."
+                        className="w-full pl-8 pr-2.5 py-1.5 rounded-lg text-xs bg-slate-100 dark:bg-black/50 border border-slate-200 dark:border-slate-700 font-mono text-slate-900 dark:text-white"
+                      />
+                      <TikTokIcon className="w-3.5 h-3.5 text-[#FE2C55] absolute left-2 top-1/2 -translate-y-1/2" />
+                    </div>
                   </div>
                 </div>
               </div>

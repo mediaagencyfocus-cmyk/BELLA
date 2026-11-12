@@ -26,7 +26,7 @@ export const FeatureCards: React.FC = () => {
   ];
 
   return (
-    <section className="py-12 bg-white border-t-2 border-slate-200 dark:border-black transition-colors">
+    <section className="py-12 bg-slate-50/60 dark:bg-[#0A0B0E] border-t-2 border-slate-200 dark:border-slate-800 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {features.map((item, idx) => {
@@ -34,16 +34,16 @@ export const FeatureCards: React.FC = () => {
             return (
               <div
                 key={idx}
-                className="relative rounded-2xl p-5 bg-white border-2 border-slate-200 dark:border-black shadow-xs hover:border-[#00C8FF] transition-all group flex items-start gap-4"
+                className="relative rounded-2xl p-5 bg-white dark:bg-[#12141C] border-2 border-slate-200 dark:border-slate-800 shadow-xs hover:border-[#00C8FF] dark:hover:border-[#00C8FF] transition-all group flex items-start gap-4"
               >
-                <div className="w-12 h-12 rounded-xl bg-slate-50 dark:bg-white border-2 border-slate-200 dark:border-black flex items-center justify-center shrink-0 text-[#00C8FF] group-hover:bg-[#00C8FF]/10 transition-colors">
+                <div className="w-12 h-12 rounded-xl bg-slate-50 dark:bg-[#181B24] border-2 border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0 text-[#00C8FF] group-hover:bg-[#00C8FF]/10 transition-colors">
                   <Icon className="w-6 h-6 stroke-[1.75]" />
                 </div>
                 <div className="text-right">
-                  <h3 className="text-sm font-bold text-slate-950 dark:text-black mb-1 group-hover:text-[#00C8FF] transition-colors font-sans">
+                  <h3 className="text-sm font-bold text-slate-950 dark:text-white mb-1 group-hover:text-[#00C8FF] transition-colors font-sans">
                     {item.title}
                   </h3>
-                  <p className="text-xs text-slate-600 dark:text-slate-700 leading-relaxed font-sans">
+                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-sans">
                     {item.desc}
                   </p>
                 </div>

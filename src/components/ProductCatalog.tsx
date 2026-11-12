@@ -102,25 +102,25 @@ export const ProductCatalog: React.FC = () => {
             <span className="font-sans">المعدات والتشكيلات المعتمدة</span>
           </div>
 
-          <h2 className="text-2xl sm:text-3xl font-black text-slate-950 dark:text-black font-brand">
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-950 dark:text-white font-brand">
             {categoryTitles[activeCategory]}
           </h2>
-          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-700 mt-1 max-w-2xl font-sans">
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-2xl font-sans">
             {categoryDescriptions[activeCategory]}
           </p>
         </div>
 
         {/* Dynamic Category / Sub-category Tabs */}
         {activeCategory !== 'all' ? (
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar bg-white p-1.5 rounded-2xl border-2 border-slate-200 dark:border-black shadow-2xs">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar bg-white dark:bg-[#12141C] p-1.5 rounded-2xl border-2 border-slate-200 dark:border-slate-800 shadow-2xs">
             {subcategoryMap[activeCategory].map((sub) => (
               <button
                 key={sub.id}
                 onClick={() => setActiveSubcategory(sub.id)}
                 className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                   activeSubcategory === sub.id
-                    ? 'bg-[#00C8FF] text-black shadow-xs font-black border border-[#00C8FF] dark:border-black'
-                    : 'text-slate-700 dark:text-black hover:bg-slate-100'
+                    ? 'bg-[#00C8FF] text-black shadow-xs font-black border border-[#00C8FF]'
+                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#1A1E29]'
                 }`}
               >
                 <Tag className="w-3.5 h-3.5" />
@@ -129,13 +129,13 @@ export const ProductCatalog: React.FC = () => {
             ))}
           </div>
         ) : (
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar bg-white p-1.5 rounded-2xl border-2 border-slate-200 dark:border-black shadow-2xs">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar bg-white dark:bg-[#12141C] p-1.5 rounded-2xl border-2 border-slate-200 dark:border-slate-800 shadow-2xs">
             <button
               onClick={() => setActiveTab('all')}
               className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                 activeTab === 'all'
-                  ? 'bg-[#00C8FF] text-black shadow-xs font-black border border-[#00C8FF] dark:border-black'
-                  : 'text-slate-700 dark:text-black hover:bg-slate-100'
+                  ? 'bg-[#00C8FF] text-black shadow-xs font-black border border-[#00C8FF]'
+                  : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#1A1E29]'
               }`}
             >
               <Layers className="w-3.5 h-3.5" />
@@ -146,8 +146,8 @@ export const ProductCatalog: React.FC = () => {
               onClick={() => setActiveTab('bestseller')}
               className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                 activeTab === 'bestseller'
-                  ? 'bg-[#00C8FF] text-black shadow-xs font-black border border-[#00C8FF] dark:border-black'
-                  : 'text-slate-700 dark:text-black hover:bg-slate-100'
+                  ? 'bg-[#00C8FF] text-black shadow-xs font-black border border-[#00C8FF]'
+                  : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#1A1E29]'
               }`}
             >
               <Flame className="w-3.5 h-3.5 text-amber-500" />
@@ -158,8 +158,8 @@ export const ProductCatalog: React.FC = () => {
               onClick={() => setActiveTab('new')}
               className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                 activeTab === 'new'
-                  ? 'bg-[#00C8FF] text-black shadow-xs font-black border border-[#00C8FF] dark:border-black'
-                  : 'text-slate-700 dark:text-black hover:bg-slate-100'
+                  ? 'bg-[#00C8FF] text-black shadow-xs font-black border border-[#00C8FF]'
+                  : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#1A1E29]'
               }`}
             >
               <Sparkles className="w-3.5 h-3.5 text-[#00C8FF]" />
@@ -170,8 +170,8 @@ export const ProductCatalog: React.FC = () => {
               onClick={() => setActiveTab('offers')}
               className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                 activeTab === 'offers'
-                  ? 'bg-[#00C8FF] text-black shadow-xs font-black border border-[#00C8FF] dark:border-black'
-                  : 'text-slate-700 dark:text-black hover:bg-slate-100'
+                  ? 'bg-[#00C8FF] text-black shadow-xs font-black border border-[#00C8FF]'
+                  : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#1A1E29]'
               }`}
             >
               <Percent className="w-3.5 h-3.5 text-rose-500" />
@@ -182,8 +182,8 @@ export const ProductCatalog: React.FC = () => {
               onClick={() => setActiveTab('recommended')}
               className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                 activeTab === 'recommended'
-                  ? 'bg-[#00C8FF] text-black shadow-xs font-black border border-[#00C8FF] dark:border-black'
-                  : 'text-slate-700 dark:text-black hover:bg-slate-100'
+                  ? 'bg-[#00C8FF] text-black shadow-xs font-black border border-[#00C8FF]'
+                  : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#1A1E29]'
               }`}
             >
               <Star className="w-3.5 h-3.5 text-amber-400" />
@@ -195,14 +195,14 @@ export const ProductCatalog: React.FC = () => {
 
       {/* Active Search Notification */}
       {searchQuery && (
-        <div className="mb-6 flex items-center justify-between p-3.5 rounded-2xl bg-white border-2 border-slate-200 dark:border-black text-xs shadow-2xs">
-          <span>
+        <div className="mb-6 flex items-center justify-between p-3.5 rounded-2xl bg-white dark:bg-[#12141C] border-2 border-slate-200 dark:border-slate-800 text-xs shadow-2xs">
+          <span className="text-slate-800 dark:text-slate-200">
             نتائج البحث عن:{' '}
             <strong className="text-[#00C8FF]">"{searchQuery}"</strong> ({filteredProducts.length} حذاء متوفر)
           </span>
           <button
             onClick={() => setSearchQuery('')}
-            className="text-rose-500 hover:underline font-bold"
+            className="text-rose-500 hover:underline font-bold cursor-pointer"
           >
             إلغاء البحث
           </button>
@@ -217,14 +217,14 @@ export const ProductCatalog: React.FC = () => {
           ))}
         </div>
       ) : (
-        <div className="py-16 text-center rounded-3xl bg-white border-2 border-slate-200 dark:border-black p-8 flex flex-col items-center justify-center shadow-xs">
-          <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4 text-slate-400">
+        <div className="py-16 text-center rounded-3xl bg-white dark:bg-[#12141C] border-2 border-slate-200 dark:border-slate-800 p-8 flex flex-col items-center justify-center shadow-xs">
+          <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4 text-slate-400">
             <SearchX className="w-8 h-8" />
           </div>
-          <h3 className="font-bold text-base text-slate-900 dark:text-black mb-1">
+          <h3 className="font-bold text-base text-slate-900 dark:text-white mb-1">
             لم نجد أحذية تطابق هذا القسم أو المعيار
           </h3>
-          <p className="text-xs text-slate-500 max-w-sm mb-6">
+          <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mb-6">
             جرب اختيار قسم آخر أو إلغاء التصفية للاطلاع على كافة الموديلات المتوفرة بالمخزون.
           </p>
           <button
@@ -234,7 +234,7 @@ export const ProductCatalog: React.FC = () => {
               setActiveTab('all');
               setSearchQuery('');
             }}
-            className="px-6 py-2.5 rounded-full bg-[#00C8FF] text-black font-extrabold text-xs shadow-md hover:bg-[#20d0ff] border border-black"
+            className="px-6 py-2.5 rounded-full bg-[#00C8FF] text-black font-extrabold text-xs shadow-md hover:bg-[#20d0ff] border border-[#00C8FF] cursor-pointer"
           >
             عرض جميع الأحذية
           </button>

@@ -106,37 +106,37 @@ export const CartDrawer: React.FC = () => {
     <div className="fixed inset-0 z-50 overflow-hidden text-right">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+        className="absolute inset-0 bg-black/70 backdrop-blur-xs luxury-modal-backdrop transition-opacity"
         onClick={() => setIsCartOpen(false)}
       />
 
       <div className="fixed inset-y-0 left-0 max-w-full flex">
-        <div className="w-screen max-w-md bg-white dark:bg-white border-r-2 border-slate-200 dark:border-black shadow-2xl flex flex-col justify-between text-slate-900 dark:text-black">
+        <div className="w-screen max-w-md bg-white dark:bg-[#0F1117] border-r-2 border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col justify-between text-slate-900 dark:text-white">
           {/* Header */}
-          <div className="p-4 sm:p-5 border-b-2 border-slate-200 dark:border-black flex items-center justify-between">
+          <div className="p-4 sm:p-5 border-b-2 border-slate-200 dark:border-slate-800 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <ShoppingBag className="w-5 h-5 text-[#00C8FF]" />
-              <h2 className="font-bold text-base sm:text-lg text-slate-900 dark:text-black">
+              <h2 className="font-bold text-base sm:text-lg text-slate-900 dark:text-white">
                 سلة المشتريات ({cartCount})
               </h2>
             </div>
             <button
               onClick={() => setIsCartOpen(false)}
-              className="p-2 rounded-full text-slate-500 hover:text-black hover:bg-slate-100 transition-colors"
+              className="p-2 rounded-full text-slate-500 hover:text-black dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
           {/* Free Shipping Alert Bar */}
-          <div className="px-4 py-2.5 bg-slate-50 dark:bg-slate-100 border-b-2 border-slate-200 dark:border-black text-xs">
+          <div className="px-4 py-2.5 bg-slate-50 dark:bg-[#161922] border-b-2 border-slate-200 dark:border-slate-800 text-xs">
             {isFreeShipping ? (
-              <div className="flex items-center gap-2 text-[#0099DD] dark:text-[#0088CC] font-bold">
+              <div className="flex items-center gap-2 text-[#0099DD] dark:text-[#00C8FF] font-bold">
                 <Sparkles className="w-4 h-4 text-[#00C8FF]" />
                 <span>مبروك! لقد حصلت على توصيل مجاني لكافة مدن المغرب.</span>
               </div>
             ) : (
-              <div className="text-slate-700 dark:text-black">
+              <div className="text-slate-700 dark:text-slate-300">
                 <span>أضف </span>
                 <span className="font-bold text-[#00C8FF]">
                   {settings.freeShippingPairThreshold - cartCount} حذاء آخر
@@ -151,13 +151,13 @@ export const CartDrawer: React.FC = () => {
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {cart.length === 0 ? (
               <div className="py-16 text-center flex flex-col items-center justify-center">
-                <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-100 flex items-center justify-center mb-4 text-slate-400">
+                <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-[#161922] flex items-center justify-center mb-4 text-slate-400">
                   <ShoppingBag className="w-8 h-8" />
                 </div>
-                <h3 className="font-bold text-slate-800 dark:text-black text-base mb-1">
+                <h3 className="font-bold text-slate-800 dark:text-white text-base mb-1">
                   سلة المشتريات فارغة
                 </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-600 max-w-xs mb-6">
+                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs mb-6">
                   استكشف تشكيلات BELLA SHOES واختر مقاسك ولونك المفضل.
                 </p>
                 <button
@@ -173,10 +173,10 @@ export const CartDrawer: React.FC = () => {
                 {cart.map((item) => (
                   <div
                     key={item.id}
-                    className="p-3 rounded-2xl bg-white dark:bg-white border-2 border-slate-200 dark:border-black flex gap-3 items-center"
+                    className="p-3 rounded-2xl bg-white dark:bg-[#161922] border-2 border-slate-200 dark:border-slate-800 flex gap-3 items-center"
                   >
                     {/* Item Image */}
-                    <div className="w-20 h-20 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-200 dark:border-black">
+                    <div className="w-20 h-20 rounded-xl overflow-hidden bg-slate-100 dark:bg-[#12141C] shrink-0 border border-slate-200 dark:border-slate-800">
                       <img
                         src={item.selectedColor.image || item.product.colors[0]?.image}
                         alt={item.product.name}
@@ -186,21 +186,21 @@ export const CartDrawer: React.FC = () => {
 
                     {/* Item Details */}
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-bold text-xs text-slate-900 dark:text-black truncate">
+                      <h4 className="font-bold text-xs text-slate-900 dark:text-white truncate">
                         {item.product.name}
                       </h4>
 
                       {/* Color & Size display */}
-                      <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-600 dark:text-black">
-                        <span className="flex items-center gap-1 font-semibold text-slate-800 dark:text-black">
+                      <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-600 dark:text-slate-300">
+                        <span className="flex items-center gap-1 font-semibold text-slate-800 dark:text-slate-200">
                           <span
-                            className="w-2.5 h-2.5 rounded-full inline-block border border-black/30"
+                            className="w-2.5 h-2.5 rounded-full inline-block border border-black/30 dark:border-white/30"
                             style={{ backgroundColor: item.selectedColor.hex }}
                           />
                           <span>{item.selectedColor.name}</span>
                         </span>
                         <span>·</span>
-                        <span className="font-mono font-bold text-slate-800 dark:text-black">
+                        <span className="font-mono font-bold text-slate-800 dark:text-slate-200">
                           نمرة: {item.selectedSize}
                         </span>
                       </div>
@@ -212,19 +212,19 @@ export const CartDrawer: React.FC = () => {
                         </span>
 
                         <div className="flex items-center gap-2">
-                          <div className="flex items-center rounded-lg border-2 border-slate-200 dark:border-black bg-white dark:bg-white">
+                          <div className="flex items-center rounded-lg border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-[#12141C]">
                             <button
                               onClick={() => updateCartQuantity(item.id, item.quantity - 1)}
-                              className="p-1 hover:text-[#00C8FF] transition-colors"
+                              className="p-1 hover:text-[#00C8FF] text-slate-700 dark:text-slate-300 transition-colors"
                             >
                               <Minus className="w-3 h-3" />
                             </button>
-                            <span className="font-mono text-xs font-bold px-2">
+                            <span className="font-mono text-xs font-bold px-2 text-slate-900 dark:text-white">
                               {item.quantity}
                             </span>
                             <button
                               onClick={() => updateCartQuantity(item.id, item.quantity + 1)}
-                              className="p-1 hover:text-[#00C8FF] transition-colors"
+                              className="p-1 hover:text-[#00C8FF] text-slate-700 dark:text-slate-300 transition-colors"
                             >
                               <Plus className="w-3 h-3" />
                             </button>
@@ -253,7 +253,7 @@ export const CartDrawer: React.FC = () => {
             ) : (
               /* Fast Cash on Delivery Form */
               <form onSubmit={handleSubmitOrder} className="space-y-3.5">
-                <div className="p-3 rounded-xl bg-[#00C8FF]/10 border-2 border-[#00C8FF]/40 text-[#0088CC] dark:text-[#0077B5] text-xs font-bold flex items-center gap-2">
+                <div className="p-3 rounded-xl bg-[#00C8FF]/10 border-2 border-[#00C8FF]/40 text-[#0088CC] dark:text-[#00C8FF] text-xs font-bold flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-[#00C8FF] shrink-0" />
                   <span>الدفع نقداً عند استلام ومعاينة الحذاء عند باب منزلك</span>
                 </div>
@@ -266,7 +266,7 @@ export const CartDrawer: React.FC = () => {
                 )}
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-800 dark:text-black mb-1">
+                  <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
                     الاسم الكامل <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -275,12 +275,12 @@ export const CartDrawer: React.FC = () => {
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
                     placeholder="مثال: محمد العلوي"
-                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-100 dark:bg-slate-100 border-2 border-slate-200 dark:border-black text-slate-900 dark:text-black focus:border-[#00C8FF] focus:outline-none"
+                    className="w-full px-3.5 py-2.5 rounded-xl text-xs bg-slate-100 dark:bg-[#161922] border-2 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-[#00C8FF] focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-800 dark:text-black mb-1">
+                  <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
                     رقم الهاتف (واتساب / اتصال) <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -289,30 +289,30 @@ export const CartDrawer: React.FC = () => {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="مثال: 0612345678"
-                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-100 dark:bg-slate-100 border-2 border-slate-200 dark:border-black text-slate-900 dark:text-black focus:border-[#00C8FF] focus:outline-none font-mono"
+                    className="w-full px-3.5 py-2.5 rounded-xl text-xs bg-slate-100 dark:bg-[#161922] border-2 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-[#00C8FF] focus:outline-none font-mono"
                   />
-                  <span className="text-[10px] text-slate-500 mt-0.5 block">
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 block">
                     سنتصل بك لتأكيد المقاس وتوقيت التوصيل المناسب لك.
                   </span>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-800 dark:text-black mb-1">
+                  <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
                     المدينة بالمغرب <span className="text-rose-500">*</span>
                   </label>
                   <select
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
-                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-100 dark:bg-slate-100 border-2 border-slate-200 dark:border-black text-slate-900 dark:text-black focus:border-[#00C8FF] focus:outline-none"
+                    className="w-full px-3.5 py-2.5 rounded-xl text-xs bg-slate-100 dark:bg-[#161922] border-2 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:border-[#00C8FF] focus:outline-none"
                   >
                     {MOROCCAN_CITIES.map((c) => (
-                      <option key={c} value={c}>{c}</option>
+                      <option key={c} value={c} className="bg-white dark:bg-[#161922] text-slate-900 dark:text-white">{c}</option>
                     ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-800 dark:text-black mb-1">
+                  <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
                     عنوان التوصيل أو الحي <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -321,12 +321,12 @@ export const CartDrawer: React.FC = () => {
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     placeholder="مثال: حي المعاريف، زنقة 14، قرب مسجد..."
-                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-100 dark:bg-slate-100 border-2 border-slate-200 dark:border-black text-slate-900 dark:text-black focus:border-[#00C8FF] focus:outline-none"
+                    className="w-full px-3.5 py-2.5 rounded-xl text-xs bg-slate-100 dark:bg-[#161922] border-2 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-[#00C8FF] focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-800 dark:text-black mb-1">
+                  <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
                     ملاحظات إضافية (اختياري)
                   </label>
                   <input
@@ -334,7 +334,7 @@ export const CartDrawer: React.FC = () => {
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="مثال: يرجى الاتصال بعد الساعة 3 زوالاً"
-                    className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-100 dark:bg-slate-100 border-2 border-slate-200 dark:border-black text-slate-900 dark:text-black focus:border-[#00C8FF] focus:outline-none"
+                    className="w-full px-3.5 py-2.5 rounded-xl text-xs bg-slate-100 dark:bg-[#161922] border-2 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-[#00C8FF] focus:outline-none"
                   />
                 </div>
 
@@ -351,7 +351,7 @@ export const CartDrawer: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setIsCheckingOut(false)}
-                    className="w-full mt-2 py-2 text-xs text-slate-600 hover:text-black dark:text-slate-700 dark:hover:text-black font-semibold"
+                    className="w-full mt-2 py-2 text-xs text-slate-600 hover:text-black dark:text-slate-400 dark:hover:text-white font-semibold transition-colors"
                   >
                     الرجوع لمراجعة السلة
                   </button>
@@ -362,19 +362,19 @@ export const CartDrawer: React.FC = () => {
 
           {/* Footer Subtotal & Checkout Trigger */}
           {cart.length > 0 && !isCheckingOut && (
-            <div className="p-4 sm:p-5 border-t-2 border-slate-200 dark:border-black bg-slate-50 dark:bg-slate-50 space-y-3">
+            <div className="p-4 sm:p-5 border-t-2 border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0A0C10] space-y-3">
               <div className="space-y-1.5 text-xs">
-                <div className="flex items-center justify-between text-slate-600 dark:text-black">
+                <div className="flex items-center justify-between text-slate-600 dark:text-slate-400">
                   <span>المجموع الفرعي ({cartCount} حذاء):</span>
-                  <span className="font-mono font-bold text-slate-900 dark:text-black">{cartTotal} MAD</span>
+                  <span className="font-mono font-bold text-slate-900 dark:text-white">{cartTotal} MAD</span>
                 </div>
-                <div className="flex items-center justify-between text-slate-600 dark:text-black">
+                <div className="flex items-center justify-between text-slate-600 dark:text-slate-400">
                   <span>مصاريف التوصيل:</span>
-                  <span className={`font-mono font-bold ${shippingFee === 0 ? 'text-[#00C8FF]' : 'text-slate-900 dark:text-black'}`}>
+                  <span className={`font-mono font-bold ${shippingFee === 0 ? 'text-[#00C8FF]' : 'text-slate-900 dark:text-white'}`}>
                     {shippingFee === 0 ? 'مجاني بالكامل (0 MAD)' : `${shippingFee} MAD`}
                   </span>
                 </div>
-                <div className="pt-2 border-t-2 border-slate-200 dark:border-black flex items-center justify-between text-sm sm:text-base font-extrabold text-slate-900 dark:text-black">
+                <div className="pt-2 border-t-2 border-slate-200 dark:border-slate-800 flex items-center justify-between text-sm sm:text-base font-extrabold text-slate-900 dark:text-white">
                   <span>المبلغ الإجمالي عند الاستلام:</span>
                   <span className="font-mono text-[#00C8FF] text-lg font-black">{orderFinalTotal} MAD</span>
                 </div>

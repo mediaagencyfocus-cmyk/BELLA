@@ -6,7 +6,9 @@ import { isSupabaseConfigured, fetchProductsFromSupabase, fetchSettingsFromSupab
 interface StoreContextType {
   isSupabaseActive: boolean;
   theme: 'dark' | 'light';
+  themeMode: 'auto' | 'manual';
   toggleTheme: () => void;
+  resetToAutoTheme: () => void;
   products: Product[];
   addProduct: (productData: Omit<Product, 'id' | 'createdAt'>) => void;
   updateProduct: (id: string, updates: Partial<Product>) => void;
@@ -60,13 +62,28 @@ interface StoreContextType {
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
+// Helper to determine day vs night automatically based on the current hour (6 AM - 6 PM is day)
+const getTimeBasedTheme = (): 'dark' | 'light' => {
+  const currentHour = new Date().getHours();
+  return (currentHour >= 6 && currentHour < 18) ? 'light' : 'dark';
+};
+
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Theme state
-  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-    const saved = localStorage.getItem('bella_theme');
-    return (saved === 'light' || saved === 'dark') ? saved : 'dark';
+  // Theme state: automatic by time of day, with manual override capability
+  const [themeMode, setThemeMode] = useState<'auto' | 'manual'>(() => {
+    return (localStorage.getItem('bella_theme_mode') as 'auto' | 'manual') || 'auto';
   });
 
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    const savedMode = localStorage.getItem('bella_theme_mode');
+    if (savedMode === 'manual') {
+      const savedTheme = localStorage.getItem('bella_theme');
+      if (savedTheme === 'light' || savedTheme === 'dark') return savedTheme;
+    }
+    return getTimeBasedTheme();
+  });
+
+  // Apply class to HTML root element and save
   useEffect(() => {
     localStorage.setItem('bella_theme', theme);
     if (theme === 'dark') {
@@ -76,8 +93,36 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, [theme]);
 
+  // Periodic check: automatically flip if in auto mode when day turns into night
+  useEffect(() => {
+    const checkTimeTheme = () => {
+      const mode = localStorage.getItem('bella_theme_mode') || 'auto';
+      if (mode === 'auto') {
+        const expectedTheme = getTimeBasedTheme();
+        setTheme(expectedTheme);
+      }
+    };
+
+    const interval = setInterval(checkTimeTheme, 60000); // Check every minute
+    return () => clearInterval(interval);
+  }, []);
+
   const toggleTheme = () => {
-    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
+    setTheme(prev => {
+      const nextTheme = prev === 'dark' ? 'light' : 'dark';
+      setThemeMode('manual');
+      localStorage.setItem('bella_theme_mode', 'manual');
+      localStorage.setItem('bella_theme', nextTheme);
+      return nextTheme;
+    });
+  };
+
+  const resetToAutoTheme = () => {
+    setThemeMode('auto');
+    localStorage.setItem('bella_theme_mode', 'auto');
+    const autoTheme = getTimeBasedTheme();
+    setTheme(autoTheme);
+    localStorage.setItem('bella_theme', autoTheme);
   };
 
   // Settings
@@ -446,7 +491,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       value={{
         isSupabaseActive: isSupabaseConfigured(),
         theme,
+        themeMode,
         toggleTheme,
+        resetToAutoTheme,
         products,
         addProduct,
         updateProduct,
