@@ -19,6 +19,8 @@ interface StoreContextType {
   setActiveTab: (tab: 'all' | 'bestseller' | 'new' | 'offers' | 'recommended') => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
+  showWishlistOnly: boolean;
+  setShowWishlistOnly: (val: boolean) => void;
   cart: CartItem[];
   addToCart: (product: Product, color: ColorVariant, size: number, quantity?: number) => void;
   removeFromCart: (cartItemId: string) => void;
@@ -210,6 +212,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [activeCategory, setActiveCategory] = useState<ShoeCategory | 'all'>('all');
   const [activeTab, setActiveTab] = useState<'all' | 'bestseller' | 'new' | 'offers' | 'recommended'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showWishlistOnly, setShowWishlistOnly] = useState(false);
 
   // Cart
   const [cart, setCart] = useState<CartItem[]>(() => {
@@ -507,6 +510,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setActiveTab,
         searchQuery,
         setSearchQuery,
+        showWishlistOnly,
+        setShowWishlistOnly,
         cart,
         addToCart,
         removeFromCart,

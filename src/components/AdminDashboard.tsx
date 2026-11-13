@@ -263,17 +263,17 @@ export const AdminDashboard: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
             <button
               onClick={() => setIsAdminView(false)}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white dark:bg-[#161922] border border-slate-200 dark:border-slate-800 text-xs font-bold hover:border-[#00C8FF] transition-colors"
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 h-10 rounded-xl bg-white dark:bg-[#161922] border border-slate-200 dark:border-slate-800 text-xs font-bold hover:border-[#00C8FF] transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4 text-[#00C8FF]" />
               <span>العودة إلى واجهة المتجر</span>
             </button>
             <button
               onClick={logout}
-              className="px-3 py-2 rounded-xl bg-rose-500/10 text-rose-500 border border-rose-500/30 text-xs font-bold hover:bg-rose-500 hover:text-white transition-colors"
+              className="px-4 h-10 rounded-xl bg-rose-500/10 text-rose-500 border border-rose-500/30 text-xs font-bold hover:bg-rose-500 hover:text-white transition-colors cursor-pointer"
             >
               خروج
             </button>
@@ -315,9 +315,11 @@ export const AdminDashboard: React.FC = () => {
             }`}
           >
             <ShoppingBag className="w-4 h-4" />
-            <span>الطلبيات الواردة ({orders.length})</span>
+            <span className="tabular-nums">الطلبيات الواردة ({orders.length})</span>
             {pendingOrders.length > 0 && (
-              <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+              <span className="px-1.5 py-0.5 rounded-md bg-rose-500 text-white text-[10px] font-mono font-bold tabular-nums">
+                {pendingOrders.length}
+              </span>
             )}
           </button>
 
@@ -372,7 +374,7 @@ export const AdminDashboard: React.FC = () => {
                   <span className="text-xs font-bold">إجمالي المبيعات المؤكدة</span>
                   <TrendingUp className="w-4 h-4 text-[#00C8FF]" />
                 </div>
-                <div className="text-2xl font-black font-mono text-slate-900 dark:text-white">
+                <div className="text-2xl font-black font-mono tabular-nums text-slate-900 dark:text-white">
                   {totalRevenue} <span className="text-xs font-sans text-[#00C8FF]">MAD</span>
                 </div>
               </div>
@@ -382,7 +384,7 @@ export const AdminDashboard: React.FC = () => {
                   <span className="text-xs font-bold">إجمالي الطلبات</span>
                   <ShoppingBag className="w-4 h-4 text-sky-400" />
                 </div>
-                <div className="text-2xl font-black font-mono text-slate-900 dark:text-white">
+                <div className="text-2xl font-black font-mono tabular-nums text-slate-900 dark:text-white">
                   {orders.length}
                 </div>
               </div>
@@ -392,7 +394,7 @@ export const AdminDashboard: React.FC = () => {
                   <span className="text-xs font-bold">طلبات قيد المعالجة</span>
                   <Clock className="w-4 h-4 text-amber-400" />
                 </div>
-                <div className="text-2xl font-black font-mono text-amber-500">
+                <div className="text-2xl font-black font-mono tabular-nums text-amber-500">
                   {pendingOrders.length}
                 </div>
               </div>
@@ -402,7 +404,7 @@ export const AdminDashboard: React.FC = () => {
                   <span className="text-xs font-bold">الأحذية في المتجر</span>
                   <Package className="w-4 h-4 text-[#00C8FF]" />
                 </div>
-                <div className="text-2xl font-black font-mono text-slate-900 dark:text-white">
+                <div className="text-2xl font-black font-mono tabular-nums text-slate-900 dark:text-white">
                   {products.length}
                 </div>
               </div>
@@ -904,28 +906,30 @@ export const AdminDashboard: React.FC = () => {
               </div>
             ) : (
               <div className="rounded-2xl bg-white dark:bg-[#12141C] border border-slate-200 dark:border-slate-800 overflow-hidden">
-                <table className="w-full text-xs text-right">
-                  <thead>
-                    <tr className="bg-slate-50 dark:bg-[#161922] border-b border-slate-200 dark:border-slate-800 text-slate-400">
-                      <th className="py-3 px-4">اسم الزبون</th>
-                      <th className="px-4">البريد الإلكتروني</th>
-                      <th className="px-4">الهاتف</th>
-                      <th className="px-4">تاريخ التسجيل</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {users.map((u) => (
-                      <tr key={u.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
-                        <td className="py-3 px-4 font-bold text-slate-900 dark:text-white">{u.name}</td>
-                        <td className="px-4 font-mono">{u.email}</td>
-                        <td className="px-4 font-mono">{u.phone || 'غير محدد'}</td>
-                        <td className="px-4 text-slate-400">
-                          {new Date(u.createdAt).toLocaleDateString('ar-MA')}
-                        </td>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs text-right">
+                    <thead>
+                      <tr className="bg-slate-50 dark:bg-[#161922] border-b border-slate-200 dark:border-slate-800 text-slate-400">
+                        <th className="py-3 px-4 whitespace-nowrap">اسم الزبون</th>
+                        <th className="px-4 whitespace-nowrap">البريد الإلكتروني</th>
+                        <th className="px-4 whitespace-nowrap">الهاتف</th>
+                        <th className="px-4 whitespace-nowrap">تاريخ التسجيل</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                      {users.map((u) => (
+                        <tr key={u.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
+                          <td className="py-3 px-4 font-bold text-slate-900 dark:text-white whitespace-nowrap">{u.name}</td>
+                          <td className="px-4 font-mono whitespace-nowrap">{u.email}</td>
+                          <td className="px-4 font-mono tabular-nums whitespace-nowrap">{u.phone || 'غير محدد'}</td>
+                          <td className="px-4 text-slate-400 whitespace-nowrap tabular-nums">
+                            {new Date(u.createdAt).toLocaleDateString('ar-MA')}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
           </div>
@@ -1192,8 +1196,8 @@ export const AdminDashboard: React.FC = () => {
                   ? 'bg-[#00C8FF]/15 border-[#00C8FF]/40 text-[#00C8FF]'
                   : 'bg-amber-500/10 border-amber-500/30 text-amber-500'
               }`}>
-                <span className={`w-2.5 h-2.5 rounded-full ${isSupabaseActive ? 'bg-[#00C8FF] animate-pulse' : 'bg-amber-400'}`} />
-                <span>{isSupabaseActive ? 'قاعدة بيانات Supabase: متصلة بنجاح ✅' : 'وضع التخزين السريع (في انتظار المفاتيح)'}</span>
+                <span className={`w-2 h-2 rounded-full ${isSupabaseActive ? 'bg-[#00C8FF]' : 'bg-amber-400'}`} />
+                <span>{isSupabaseActive ? 'قاعدة بيانات Supabase: متصلة بنجاح' : 'وضع التخزين السريع (في انتظار المفاتيح)'}</span>
               </div>
             </div>
 

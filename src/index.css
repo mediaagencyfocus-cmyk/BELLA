@@ -3,75 +3,71 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ==========================================================================
-   BELLA SHOES LUXURY DESIGN SYSTEM (CSS SPECIFICATION)
-   World-Class E-Commerce Haute Couture & Modern Retail Experience
+   BELLA SHOES LUXURY DESIGN SYSTEM
+   International Haute Couture & Modern Retail Architecture
    ========================================================================== */
 
 @layer base {
   :root {
-    /* Color Palette System */
+    /* 60-30-10 Color Architecture */
     --color-brand-primary: #00C8FF;
     --color-brand-primary-hover: #00B4E6;
-    --color-brand-primary-glow: rgba(0, 200, 255, 0.4);
+    --color-brand-primary-glow: rgba(0, 200, 255, 0.35);
     --color-brand-primary-subtle: rgba(0, 200, 255, 0.12);
-    
+
     --color-canvas-bg: #FFFFFF;
     --color-surface-card: #FFFFFF;
-    --color-surface-muted: #F8FAFC;
+    --color-surface-muted: #F6F8FA;
     --color-surface-elevated: #FFFFFF;
-    
-    --color-border-subtle: #E2E8F0;
+
+    --color-border-subtle: #E5E7EB;
     --color-border-medium: #CBD5E1;
-    --color-border-strong: #000000;
-    
-    --color-text-main: #090A0D;
+
+    --color-text-main: #0A0B0E;
     --color-text-muted: #64748B;
     --color-text-subtle: #94A3B8;
 
-    /* Typography Scale */
-    --font-sans: 'El Messiri', 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    --font-brand: 'Cinzel', 'Playfair Display', serif;
+    /* 2+1 Typography System */
+    --font-sans: 'El Messiri', 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-brand: 'Cinzel', 'Playfair Display', Georgia, serif;
     --font-mono: 'Outfit', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-    /* Spacing & Radii Geometry */
-    --radius-xs: 0.375rem;
+    /* Radii Geometry */
     --radius-sm: 0.5rem;
     --radius-md: 0.75rem;
     --radius-lg: 1rem;
-    --radius-xl: 1.5rem;
-    --radius-2xl: 2rem;
+    --radius-xl: 1.25rem;
     --radius-full: 9999px;
 
-    /* Shadows & Elevation */
-    --shadow-subtle: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
-    --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.06), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
-    --shadow-card-hover: 0 20px 30px -4px rgba(0, 0, 0, 0.1), 0 8px 10px -3px rgba(0, 0, 0, 0.05);
-    --shadow-glow: 0 0 25px rgba(0, 200, 255, 0.45);
-    --shadow-glow-strong: 0 0 35px rgba(0, 200, 255, 0.7);
+    /* Shadows */
+    --shadow-subtle: 0 1px 2px 0 rgba(10, 11, 14, 0.04);
+    --shadow-card: 0 6px 24px -4px rgba(10, 11, 14, 0.06), 0 2px 8px -2px rgba(10, 11, 14, 0.03);
+    --shadow-card-hover: 0 18px 36px -8px rgba(10, 11, 14, 0.11), 0 6px 14px -4px rgba(10, 11, 14, 0.05);
+    --shadow-glow: 0 0 22px rgba(0, 200, 255, 0.35);
 
-    /* Animation Timing */
+    /* Motion Timing */
     --ease-luxury: cubic-bezier(0.16, 1, 0.3, 1);
     --duration-fast: 150ms;
-    --duration-base: 250ms;
-    --duration-slow: 400ms;
+    --duration-base: 200ms;
   }
 
   .dark {
     --color-canvas-bg: #08090C;
-    --color-surface-card: #12141A;
+    --color-surface-card: #111319;
     --color-surface-muted: #161922;
     --color-surface-elevated: #1A1E29;
-    
-    --color-border-subtle: #232733;
+
+    --color-border-subtle: #222634;
     --color-border-medium: #33394D;
-    --color-border-strong: #475569;
-    
-    --color-text-main: #FFFFFF;
+
+    --color-text-main: #F8FAFC;
     --color-text-muted: #94A3B8;
     --color-text-subtle: #64748B;
+
+    --shadow-card: 0 6px 24px -4px rgba(0, 0, 0, 0.35);
+    --shadow-card-hover: 0 18px 38px -8px rgba(0, 0, 0, 0.55);
   }
 
-  /* HTML & Body Core Foundation */
   html {
     scroll-behavior: smooth;
     text-size-adjust: 100%;
@@ -84,37 +80,35 @@
     font-family: var(--font-sans);
     background-color: var(--color-canvas-bg);
     color: var(--color-text-main);
-    overflow-x: hidden;
+    overflow-x: clip;
     letter-spacing: 0.01em;
-    line-height: 1.6;
+    line-height: 1.65;
     min-height: 100vh;
   }
 
-  /* Luxury Display Headings */
   h1, h2, h3, .font-brand {
     font-family: var(--font-brand);
-    letter-spacing: 0.02em;
-    font-feature-settings: 'cv01', 'cv02', 'salt';
+    letter-spacing: 0.015em;
   }
 
-  /* Strict Image Rendering: Prevent Distortion */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
   img, svg, video, canvas {
     max-width: 100%;
-    height: auto;
     vertical-align: middle;
   }
 
-  img {
-    content-visibility: auto;
-  }
-
-  /* Luxury Selection Highlighting */
   ::selection {
     background-color: var(--color-brand-primary);
     color: #000000;
   }
 
-  /* Accessible Focus Rings */
   :focus-visible {
     outline: 2px solid var(--color-brand-primary);
     outline-offset: 2px;
@@ -122,31 +116,10 @@
 }
 
 /* ==========================================================================
-   COMPONENT STYLES & INTERACTION CLASSES
+   COMPONENT INTERACTION UTILITIES
    ========================================================================== */
 
-/* 1. Header & Navigation Animations */
-@keyframes marquee {
-  0% {
-    transform: translateX(0%);
-  }
-  100% {
-    transform: translateX(50%);
-  }
-}
-
-.animate-marquee {
-  display: flex;
-  width: max-content;
-  animation: marquee 32s linear infinite;
-  will-change: transform;
-}
-
-.animate-marquee:hover {
-  animation-play-state: paused;
-}
-
-/* 2. Luxury Product Cards & Presentation */
+/* Compositor-only smooth product card lift */
 .luxury-product-card {
   transition: transform var(--duration-base) var(--ease-luxury),
               box-shadow var(--duration-base) var(--ease-luxury),
@@ -155,15 +128,13 @@
 }
 
 .luxury-product-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-2px);
   box-shadow: var(--shadow-card-hover);
 }
 
-/* Image Showcase Protection */
 .product-image-container {
   position: relative;
   overflow: hidden;
-  background-color: #F8FAFC;
 }
 
 .product-image-container img {
@@ -171,123 +142,14 @@
   height: 100%;
   object-fit: cover;
   object-position: center;
-  transition: transform 0.6s var(--ease-luxury);
+  transition: transform 0.5s var(--ease-luxury);
 }
 
 .luxury-product-card:hover .product-image-container img {
-  transform: scale(1.05);
+  transform: scale(1.04);
 }
 
-/* 3. Luxury Buttons & Micro-Interactions */
-.luxury-btn-primary {
-  background-color: var(--color-brand-primary);
-  color: #000000;
-  font-weight: 800;
-  border-radius: var(--radius-full);
-  padding: 0.75rem 1.75rem;
-  transition: all var(--duration-fast) var(--ease-luxury);
-  box-shadow: var(--shadow-glow);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  border: 2px solid transparent;
-  cursor: pointer;
-}
-
-.luxury-btn-primary:hover {
-  background-color: var(--color-brand-primary-hover);
-  box-shadow: var(--shadow-glow-strong);
-  transform: translateY(-1px);
-}
-
-.luxury-btn-primary:active {
-  transform: scale(0.98);
-}
-
-.luxury-btn-secondary {
-  background-color: #FFFFFF;
-  color: var(--color-text-main);
-  font-weight: 700;
-  border-radius: var(--radius-full);
-  padding: 0.75rem 1.5rem;
-  border: 2px solid var(--color-border-subtle);
-  transition: all var(--duration-fast) var(--ease-luxury);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  cursor: pointer;
-}
-
-.dark .luxury-btn-secondary {
-  border-color: #000000;
-}
-
-.luxury-btn-secondary:hover {
-  border-color: var(--color-brand-primary);
-  background-color: #F8FAFC;
-}
-
-.luxury-btn-secondary:active {
-  transform: scale(0.98);
-}
-
-/* 4. Inputs & Form Fields */
-.luxury-input {
-  width: 100%;
-  padding: 0.625rem 1rem;
-  border-radius: var(--radius-lg);
-  font-size: 0.875rem;
-  background-color: #FFFFFF;
-  color: var(--color-text-main);
-  border: 2px solid var(--color-border-subtle);
-  transition: border-color var(--duration-fast) ease, box-shadow var(--duration-fast) ease;
-}
-
-.dark .luxury-input {
-  border-color: #000000;
-}
-
-.luxury-input:focus {
-  outline: none;
-  border-color: var(--color-brand-primary);
-  box-shadow: 0 0 0 3px var(--color-brand-primary-subtle);
-}
-
-/* 5. Size Selection Chips (المقاسات والنمر) */
-.size-picker-btn {
-  font-family: var(--font-mono);
-  font-weight: 700;
-  padding: 0.625rem 0.25rem;
-  border-radius: var(--radius-lg);
-  border: 2px solid var(--color-border-subtle);
-  transition: all var(--duration-fast) var(--ease-luxury);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  background-color: #F8FAFC;
-}
-
-.dark .size-picker-btn {
-  border-color: #000000;
-}
-
-.size-picker-btn:hover {
-  border-color: var(--color-brand-primary);
-  background-color: #FFFFFF;
-}
-
-.size-picker-btn.active {
-  background-color: var(--color-brand-primary);
-  color: #000000;
-  border-color: var(--color-brand-primary);
-  box-shadow: var(--shadow-glow);
-  transform: scale(1.05);
-}
-
-/* 6. Custom Sleek Scrollbars */
+/* Clean Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -303,14 +165,13 @@
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #2E3446;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-brand-primary);
 }
 
-/* 7. Utility: Hide Scrollbar when using horizontal categories */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -320,17 +181,13 @@
   scrollbar-width: none;
 }
 
-/* 8. Admin Panel Distinct Data Table & Metrics Styling */
+/* Admin Table & Metrics (Harmonized Light & Dark) */
 .admin-metric-card {
-  background-color: #FFFFFF;
-  border: 2px solid var(--color-border-subtle);
+  background-color: var(--color-surface-card);
+  border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-xl);
-  padding: 1.5rem;
+  padding: 1.25rem 1.5rem;
   transition: border-color var(--duration-fast) ease, box-shadow var(--duration-fast) ease;
-}
-
-.dark .admin-metric-card {
-  border-color: #000000;
 }
 
 .admin-metric-card:hover {
@@ -348,16 +205,10 @@
 
 .admin-table th {
   padding: 0.875rem 1rem;
-  background-color: #F8FAFC;
-  color: #64748B;
+  background-color: var(--color-surface-muted);
+  color: var(--color-text-muted);
   font-weight: 700;
-  border-bottom: 2px solid var(--color-border-subtle);
-}
-
-.dark .admin-table th {
-  border-bottom-color: #000000;
-  background-color: #F1F5F9;
-  color: #0F172A;
+  border-bottom: 1px solid var(--color-border-subtle);
 }
 
 .admin-table td {
@@ -366,53 +217,48 @@
   vertical-align: middle;
 }
 
-.dark .admin-table td {
-  border-bottom-color: #E2E8F0;
-}
-
 .admin-table tr:hover td {
   background-color: rgba(0, 200, 255, 0.04);
 }
 
-/* 9. Floating WhatsApp Badge & Pulse Ring */
+/* Floating WhatsApp Subtle Glow */
 @keyframes pulseGlow {
   0%, 100% {
-    box-shadow: 0 0 20px rgba(0, 200, 255, 0.45);
+    box-shadow: 0 4px 20px rgba(0, 200, 255, 0.35);
   }
   50% {
-    box-shadow: 0 0 35px rgba(0, 200, 255, 0.75);
+    box-shadow: 0 6px 28px rgba(0, 200, 255, 0.6);
   }
 }
 
 .whatsapp-float-btn {
-  animation: pulseGlow 3s ease-in-out infinite;
+  animation: pulseGlow 3.2s ease-in-out infinite;
 }
 
-/* 10. Drawer & Modal Backdrop Blur */
+/* Modal Backdrop Blur */
 .luxury-modal-backdrop {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
 
-/* 11. Mobile Touch & Viewport Optimization */
+/* Reduced motion compliance */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Responsive Mobile Safety */
 @media (max-width: 640px) {
-  :root {
-    --radius-xl: 1.25rem;
-    --radius-2xl: 1.5rem;
-  }
-  
-  /* Touch target safety */
-  button, a, input, select {
-    min-height: 40px;
-  }
-  
-  /* Ensure no accidental overflow on small screens */
   .container, section, main {
     max-width: 100vw;
   }
 }
 
-/* High-Contrast Print Rules */
+/* Print Rules */
 @media print {
   body {
     background: white !important;

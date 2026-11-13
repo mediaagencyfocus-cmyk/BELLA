@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Eye, ShoppingBag, Heart, Star } from 'lucide-react';
 import { Product } from '../types';
 import { useStore } from '../context/StoreContext';
@@ -9,135 +9,187 @@ interface ProductCardProps {
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { openProductModal, wishlist, toggleWishlist } = useStore();
+  const [selectedVariantIdx, setSelectedVariantIdx] = useState(0);
+  const [imageError, setImageError] = useState(false);
 
   const isFavorite = wishlist.includes(product.id);
-  const mainImage = product.colors[0]?.image || '/src/assets/images/bella_womens_heels_1794318693049.jpg';
+  const activeColor = product.colors[selectedVariantIdx] || product.colors[0];
+  const mainImage =
+    activeColor?.image || '/src/assets/images/bella_womens_heels_1794318693049.jpg';
 
   const categoryNames = {
     womens: 'أحذية نسائية',
     mens: 'أحذية رجالية',
     kids: 'أحذية أطفال',
-    wholesale: 'البيع بالجملة'
+    wholesale: 'البيع بالجملة',
   };
 
+  // Max 1 quiet corner tag per card for clean international editorial hierarchy
+  const cornerTag = product.discount
+    ? { label: product.discount, className: 'bg-rose-600 text-white' }
+    : product.isBestseller
+      ? { label: 'الأكثر طلباً', className: 'bg-slate-950/85 text-white dark:bg-white dark:text-black' }
+      : product.isNew
+        ? { label: 'جديد', className: 'bg-[#00C8FF] text-black' }
+        : null;
+
   return (
-    <div className="group rounded-2xl sm:rounded-3xl bg-white dark:bg-[#12141C] border-2 border-slate-200 dark:border-slate-800 overflow-hidden shadow-xs hover:shadow-xl hover:border-[#00C8FF] dark:hover:border-[#00C8FF] transition-all flex flex-col justify-between luxury-product-card">
+    <article className="group h-full rounded-2xl bg-white dark:bg-[#111319] border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-xs hover:border-[#00C8FF] dark:hover:border-[#00C8FF] flex flex-col justify-between luxury-product-card">
       {/* Top Image Container */}
-      <div className="relative aspect-[4/3] bg-slate-50 dark:bg-[#0B0D12] overflow-hidden border-b-2 border-slate-100 dark:border-slate-800 product-image-container">
-        <img
-          src={mainImage}
-          alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          loading="lazy"
-        />
+      <div
+        onClick={() => openProductModal(product)}
+        className="relative aspect-[4/3] bg-slate-50 dark:bg-[#0B0D12] overflow-hidden border-b border-slate-100 dark:border-slate-800/80 product-image-container cursor-pointer"
+      >
+        {!imageError ? (
+          <img
+            src={mainImage}
+            alt={product.name}
+            referrerPolicy="no-referrer"
+            onError={() => setImageError(true)}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            loading="lazy"
+          />
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center bg-slate-100 dark:bg-[#141720] text-slate-400 dark:text-slate-500 px-3 text-center">
+            <ShoppingBag className="w-7 h-7 mb-1.5 text-[#00C8FF]/70" />
+            <span className="text-[11px] font-bold font-brand tracking-wider text-slate-600 dark:text-slate-300">
+              BELLA SHOES
+            </span>
+          </div>
+        )}
 
-        {/* Badges */}
-        <div className="absolute top-2 right-2 sm:top-2.5 sm:right-2.5 flex flex-col gap-1 z-10">
-          {product.discount && (
-            <span className="px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-black bg-rose-500 text-white shadow-xs">
-              {product.discount}
-            </span>
-          )}
-          {product.isBestseller && (
-            <span className="px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-amber-400 text-black shadow-xs">
-              الأكثر طلباً
-            </span>
-          )}
-          {product.isNew && (
-            <span className="px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-[#00C8FF] text-black shadow-xs">
-              جديد
-            </span>
-          )}
-        </div>
+        {/* Single Quiet Corner Tag */}
+        {cornerTag && (
+          <span
+            className={`absolute top-2.5 right-2.5 z-10 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold shadow-xs tabular-nums ${cornerTag.className}`}
+          >
+            {cornerTag.label}
+          </span>
+        )}
 
-        {/* Wishlist Button */}
+        {/* Wishlist Toggle Button */}
         <button
+          type="button"
           onClick={(e) => {
             e.stopPropagation();
             toggleWishlist(product.id);
           }}
-          className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5 p-1.5 sm:p-2 rounded-full bg-white/80 dark:bg-[#12141C]/80 backdrop-blur-md text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:text-rose-500 transition-all z-10 shadow-xs cursor-pointer"
+          className="absolute top-2 left-2 z-10 w-9 h-9 rounded-full bg-white/90 dark:bg-[#111319]/90 backdrop-blur-md text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700 hover:text-rose-500 flex items-center justify-center transition-colors shadow-xs cursor-pointer"
           title={isFavorite ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}
+          aria-label={isFavorite ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}
         >
-          <Heart className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isFavorite ? 'fill-rose-500 text-rose-500' : ''}`} />
+          <Heart className={`w-4 h-4 ${isFavorite ? 'fill-rose-500 text-rose-500' : ''}`} />
         </button>
 
-        {/* Eye icon overlay button for instant preview on hover */}
-        <button
-          onClick={() => openProductModal(product)}
-          className="absolute inset-0 bg-black/35 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-bold text-xs cursor-pointer hidden sm:flex"
-          title="مشاهدة التفاصيل"
-        >
-          <span className="p-3 rounded-full bg-[#00C8FF] text-black shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform border border-black">
-            <Eye className="w-5 h-5 stroke-[2.5]" />
+        {/* Subtle Desktop Quick View Overlay */}
+        <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex items-center justify-center pointer-events-none">
+          <span className="px-3.5 py-2 rounded-full bg-white/95 dark:bg-[#111319]/95 text-slate-950 dark:text-white text-xs font-bold shadow-lg flex items-center gap-1.5 border border-slate-200/60 dark:border-slate-700">
+            <Eye className="w-3.5 h-3.5 text-[#00C8FF]" />
+            <span>معاينة سريعة</span>
           </span>
-        </button>
+        </div>
       </div>
 
       {/* Product Content Details */}
-      <div className="p-3 sm:p-5 flex-1 flex flex-col justify-between bg-white dark:bg-[#12141C]">
+      <div className="p-3 sm:p-4 flex-1 flex flex-col justify-between bg-white dark:bg-[#111319] text-right">
         <div>
-          {/* Category & Rating */}
-          <div className="flex items-center justify-between text-[10px] sm:text-xs mb-1 sm:mb-1.5 text-slate-500 dark:text-slate-400">
-            <span className="font-bold text-[#00a8dc] dark:text-[#00C8FF] uppercase tracking-wider font-sans truncate max-w-[85px] sm:max-w-none">
+          {/* Unboxed Single-Line Category & Rating Metadata */}
+          <div className="flex items-center justify-between gap-2 text-[11px] sm:text-xs mb-1.5 text-slate-500 dark:text-slate-400">
+            <span className="font-semibold text-[#0099CC] dark:text-[#00C8FF] truncate">
               {categoryNames[product.category]}
             </span>
-            <div className="flex items-center gap-1 font-mono font-medium text-slate-800 dark:text-slate-200 shrink-0">
-              <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-amber-400 text-amber-400" />
+            <div className="flex items-center gap-1 font-mono font-semibold text-slate-700 dark:text-slate-200 shrink-0 tabular-nums">
+              <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
               <span>{product.rating}</span>
             </div>
           </div>
 
-          {/* Title */}
-          <h3 
+          {/* Product Title */}
+          <h3
             onClick={() => openProductModal(product)}
-            className="font-bold text-xs sm:text-sm text-slate-950 dark:text-white line-clamp-2 hover:text-[#00C8FF] dark:hover:text-[#00C8FF] transition-colors cursor-pointer mb-2 leading-snug font-sans h-8 sm:h-10"
+            className="font-bold text-xs sm:text-sm text-slate-950 dark:text-white line-clamp-2 hover:text-[#0099CC] dark:hover:text-[#00C8FF] transition-colors cursor-pointer mb-2.5 leading-snug font-sans min-h-[2.25rem] sm:min-h-[2.5rem]"
           >
             {product.name}
           </h3>
+
+          {/* Color Swatches Preview */}
+          {product.colors.length > 0 && (
+            <div className="flex items-center gap-1.5 mb-3">
+              {product.colors.slice(0, 4).map((color, idx) => (
+                <button
+                  key={color.id || idx}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setImageError(false);
+                    setSelectedVariantIdx(idx);
+                  }}
+                  title={color.name}
+                  aria-label={`اختيار لون ${color.name}`}
+                  className={`w-4 h-4 rounded-full border transition-transform cursor-pointer ${
+                    selectedVariantIdx === idx
+                      ? 'ring-2 ring-[#00C8FF] ring-offset-1 ring-offset-white dark:ring-offset-[#111319] border-black/30 dark:border-white/40 scale-110'
+                      : 'border-slate-300 dark:border-slate-700 hover:scale-105'
+                  }`}
+                  style={{ backgroundColor: color.hex }}
+                />
+              ))}
+              {product.colors.length > 4 && (
+                <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500">
+                  +{product.colors.length - 4}
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Price & Action Buttons */}
-        <div className="pt-2 sm:pt-3 border-t border-slate-100 dark:border-slate-800">
-          <div className="flex items-baseline justify-between mb-2 sm:mb-3">
-            <div className="flex items-baseline gap-1 sm:gap-2">
-              <span className="text-sm sm:text-lg font-black text-slate-950 dark:text-white font-mono">
-                {product.price} <span className="text-[10px] sm:text-xs font-sans text-[#00a8dc] dark:text-[#00C8FF] font-bold">MAD</span>
+        <div className="pt-2.5 border-t border-slate-100 dark:border-slate-800/80">
+          <div className="flex items-baseline justify-between gap-2 mb-2.5">
+            <div className="flex items-baseline gap-1.5 flex-wrap">
+              <span className="text-sm sm:text-base font-black text-slate-950 dark:text-white font-mono tabular-nums">
+                {product.price}{' '}
+                <span className="text-[10px] sm:text-xs font-sans text-[#0099CC] dark:text-[#00C8FF] font-bold">
+                  MAD
+                </span>
               </span>
               {product.oldPrice && (
-                <span className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-500 line-through font-mono">
+                <span className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-500 line-through font-mono tabular-nums">
                   {product.oldPrice}
                 </span>
               )}
             </div>
 
             {product.wholesaleMinQty && (
-              <span className="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 font-semibold">
-                (سلسلة)
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold shrink-0">
+                سلسلة
               </span>
             )}
           </div>
 
-          {/* Action Row: Eye button + Add to Cart button */}
+          {/* Action Row: Touch-safe min 40px buttons */}
           <div className="flex items-center gap-1.5 sm:gap-2">
             <button
+              type="button"
               onClick={() => openProductModal(product)}
-              className="p-1.5 sm:p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#181B24] dark:hover:bg-[#202531] text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+              className="w-10 h-10 rounded-xl bg-slate-50 hover:bg-slate-100 dark:bg-[#181B24] dark:hover:bg-[#202531] text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 flex items-center justify-center transition-colors cursor-pointer shrink-0"
               title="مشاهدة تفاصيل الحذاء"
+              aria-label="مشاهدة تفاصيل الحذاء"
             >
-              <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <Eye className="w-4 h-4" />
             </button>
 
             <button
+              type="button"
               onClick={() => openProductModal(product)}
-              className="flex-1 py-1.5 sm:py-2 px-2 sm:px-3 rounded-xl bg-slate-900 hover:bg-[#00C8FF] dark:bg-[#181B24] dark:hover:bg-[#00C8FF] text-white hover:text-black dark:text-slate-200 dark:hover:text-black border border-slate-900 dark:border-slate-700 hover:border-[#00C8FF] dark:hover:border-[#00C8FF] font-bold text-[11px] sm:text-xs flex items-center justify-center gap-1 sm:gap-1.5 transition-all shadow-xs cursor-pointer group/btn truncate"
+              className="flex-1 h-10 px-2.5 sm:px-3 rounded-xl bg-slate-950 hover:bg-[#00C8FF] dark:bg-[#181B24] dark:hover:bg-[#00C8FF] text-white hover:text-black dark:text-slate-100 dark:hover:text-black border border-slate-950 dark:border-slate-700 hover:border-[#00C8FF] dark:hover:border-[#00C8FF] font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer truncate"
             >
-              <ShoppingBag className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0 group-hover/btn:scale-110 transition-transform" />
+              <ShoppingBag className="w-3.5 h-3.5 shrink-0" />
               <span className="truncate">طلب الحذاء</span>
             </button>
           </div>
         </div>
       </div>
-    </div>
+    </article>
   );
 };
