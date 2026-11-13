@@ -1,7 +1,43 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Product, ShoeCategory, ColorVariant, CartItem, Order, OrderStatus, User, StoreSettings } from '../types';
+import { onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
+import {
+  Product,
+  ShoeCategory,
+  ColorVariant,
+  CartItem,
+  Order,
+  OrderStatus,
+  User,
+  StoreSettings,
+} from '../types';
 import { defaultProducts, initialSettings } from '../data/defaultProducts';
-import { isSupabaseConfigured, fetchProductsFromSupabase, fetchSettingsFromSupabase, saveOrderToSupabase, updateSettingsInSupabase } from '../lib/supabase';
+import {
+  isSupabaseConfigured,
+  fetchProductsFromSupabase,
+  createProductInSupabase,
+  updateProductInSupabase,
+  deleteProductInSupabase,
+  fetchSettingsFromSupabase,
+  saveOrderToSupabase,
+  updateOrderStatusInSupabase,
+  deleteOrderInSupabase,
+  saveUserToSupabase,
+  updateSettingsInSupabase,
+} from '../lib/supabase';
+import { auth, googleAuthProvider } from '../lib/firebase';
+import {
+  subscribeProductsFromFirestore,
+  subscribeSettingsFromFirestore,
+  subscribeOrdersFromFirestore,
+  seedInitialCatalogIfEmpty,
+  saveProductToFirestore,
+  deleteProductFromFirestore,
+  saveSettingsToFirestore,
+  saveOrderAndPaymentToFirestore,
+  updateOrderStatusInFirestore,
+  deleteOrderFromFirestore,
+  syncFirebaseUserProfile,
+} from '../lib/firestoreStore';
 
 interface StoreContextType {
   isSupabaseActive: boolean;
@@ -44,8 +80,21 @@ interface StoreContextType {
   deleteOrder: (orderId: string) => void;
   user: User | null;
   users: User[];
-  login: (email: string, pass: string) => { success: boolean; role?: 'admin' | 'customer'; error?: string };
-  signup: (name: string, email: string, pass: string, phone?: string) => { success: boolean; error?: string };
+  login: (
+    email: string,
+    pass: string
+  ) => { success: boolean; role?: 'admin' | 'customer'; error?: string };
+  loginWithGoogle: () => Promise<{
+    success: boolean;
+    role?: 'admin' | 'customer';
+    error?: string;
+  }>;
+  signup: (
+    name: string,
+    email: string,
+    pass: string,
+    phone?: string
+  ) => { success: boolean; error?: string };
   logout: () => void;
   isAdminView: boolean;
   setIsAdminView: (val: boolean) => void;
@@ -64,10 +113,15 @@ interface StoreContextType {
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
+const ADMIN_EMAILS = new Set([
+  'jarfouribrahim51@gmail.com',
+  'mediaagencyfocus@gmail.com',
+]);
+
 // Helper to determine day vs night automatically based on the current hour (6 AM - 6 PM is day)
 const getTimeBasedTheme = (): 'dark' | 'light' => {
   const currentHour = new Date().getHours();
-  return (currentHour >= 6 && currentHour < 18) ? 'light' : 'dark';
+  return currentHour >= 6 && currentHour < 18 ? 'light' : 'dark';
 };
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -85,7 +139,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return getTimeBasedTheme();
   });
 
-  // Apply class to HTML root element and save
   useEffect(() => {
     localStorage.setItem('bella_theme', theme);
     if (theme === 'dark') {
@@ -95,7 +148,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, [theme]);
 
-  // Periodic check: automatically flip if in auto mode when day turns into night
   useEffect(() => {
     const checkTimeTheme = () => {
       const mode = localStorage.getItem('bella_theme_mode') || 'auto';
@@ -105,12 +157,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       }
     };
 
-    const interval = setInterval(checkTimeTheme, 60000); // Check every minute
+    const interval = setInterval(checkTimeTheme, 60000);
     return () => clearInterval(interval);
   }, []);
 
   const toggleTheme = () => {
-    setTheme(prev => {
+    setTheme((prev) => {
       const nextTheme = prev === 'dark' ? 'light' : 'dark';
       setThemeMode('manual');
       localStorage.setItem('bella_theme_mode', 'manual');
@@ -139,9 +191,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   });
 
   const updateSettings = (newSettings: Partial<StoreSettings>) => {
-    setSettings(prev => {
+    setSettings((prev) => {
       const updated = { ...prev, ...newSettings };
       localStorage.setItem('bella_settings', JSON.stringify(updated));
+      saveSettingsToFirestore(updated).catch(() => {});
       return updated;
     });
     if (isSupabaseConfigured()) {
@@ -163,8 +216,21 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return defaultProducts;
   });
 
-  // Supabase sync on mount if configured
+  // Live Database Subscriptions (Firestore + Supabase SQL sync)
   useEffect(() => {
+    const unsubProducts = subscribeProductsFromFirestore((remoteProducts) => {
+      setProducts(remoteProducts);
+      localStorage.setItem('bella_products', JSON.stringify(remoteProducts));
+    });
+
+    const unsubSettings = subscribeSettingsFromFirestore((remoteSettings) => {
+      setSettings((prev) => {
+        const merged = { ...prev, ...remoteSettings };
+        localStorage.setItem('bella_settings', JSON.stringify(merged));
+        return merged;
+      });
+    });
+
     if (isSupabaseConfigured()) {
       fetchProductsFromSupabase().then((remoteProducts) => {
         if (remoteProducts && remoteProducts.length > 0) {
@@ -182,6 +248,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }
       });
     }
+
+    return () => {
+      unsubProducts();
+      unsubSettings();
+    };
   }, []);
 
   const saveProducts = (newProducts: Product[]) => {
@@ -193,24 +264,42 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const newProd: Product = {
       ...productData,
       id: `prod-${Date.now()}`,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
     saveProducts([newProd, ...products]);
+    saveProductToFirestore(newProd).catch(() => {});
+    if (isSupabaseConfigured()) {
+      createProductInSupabase(newProd);
+    }
   };
 
   const updateProduct = (id: string, updates: Partial<Product>) => {
-    const updated = products.map(p => (p.id === id ? { ...p, ...updates } : p));
+    const target = products.find((p) => p.id === id);
+    const updatedProduct = target ? { ...target, ...updates } : null;
+    const updated = products.map((p) => (p.id === id ? { ...p, ...updates } : p));
     saveProducts(updated);
+    if (updatedProduct) {
+      saveProductToFirestore(updatedProduct).catch(() => {});
+      if (isSupabaseConfigured()) {
+        updateProductInSupabase(updatedProduct);
+      }
+    }
   };
 
   const deleteProduct = (id: string) => {
-    const filtered = products.filter(p => p.id !== id);
+    const filtered = products.filter((p) => p.id !== id);
     saveProducts(filtered);
+    deleteProductFromFirestore(id).catch(() => {});
+    if (isSupabaseConfigured()) {
+      deleteProductInSupabase(id);
+    }
   };
 
   // Filtering & Navigation
   const [activeCategory, setActiveCategory] = useState<ShoeCategory | 'all'>('all');
-  const [activeTab, setActiveTab] = useState<'all' | 'bestseller' | 'new' | 'offers' | 'recommended'>('all');
+  const [activeTab, setActiveTab] = useState<
+    'all' | 'bestseller' | 'new' | 'offers' | 'recommended'
+  >('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [showWishlistOnly, setShowWishlistOnly] = useState(false);
 
@@ -230,12 +319,17 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  const addToCart = (product: Product, color: ColorVariant, size: number, quantity: number = 1) => {
-    setCart(prev => {
+  const addToCart = (
+    product: Product,
+    color: ColorVariant,
+    size: number,
+    quantity: number = 1
+  ) => {
+    setCart((prev) => {
       const itemKey = `${product.id}-${color.id}-${size}`;
-      const existing = prev.find(item => item.id === itemKey);
+      const existing = prev.find((item) => item.id === itemKey);
       if (existing) {
-        return prev.map(item =>
+        return prev.map((item) =>
           item.id === itemKey ? { ...item, quantity: item.quantity + quantity } : item
         );
       }
@@ -246,15 +340,15 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           product,
           selectedColor: color,
           selectedSize: size,
-          quantity
-        }
+          quantity,
+        },
       ];
     });
     setIsCartOpen(true);
   };
 
   const removeFromCart = (cartItemId: string) => {
-    setCart(prev => prev.filter(i => i.id !== cartItemId));
+    setCart((prev) => prev.filter((i) => i.id !== cartItemId));
   };
 
   const updateCartQuantity = (cartItemId: string, quantity: number) => {
@@ -262,8 +356,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       removeFromCart(cartItemId);
       return;
     }
-    setCart(prev =>
-      prev.map(i => (i.id === cartItemId ? { ...i, quantity } : i))
+    setCart((prev) =>
+      prev.map((i) => (i.id === cartItemId ? { ...i, quantity } : i))
     );
   };
 
@@ -283,8 +377,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   });
 
   const toggleWishlist = (productId: string) => {
-    setWishlist(prev => {
-      const next = prev.includes(productId) ? prev.filter(id => id !== productId) : [...prev, productId];
+    setWishlist((prev) => {
+      const next = prev.includes(productId)
+        ? prev.filter((id) => id !== productId)
+        : [...prev, productId];
       localStorage.setItem('bella_wishlist', JSON.stringify(next));
       return next;
     });
@@ -321,12 +417,13 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const newOrder: Order = {
       id: `ord-${Date.now()}`,
       orderNumber: `BS-${Math.floor(10000 + Math.random() * 90000)}`,
+      customerUid: auth.currentUser?.uid,
       customerName: orderData.customerName,
       phone: orderData.phone,
       city: orderData.city,
       address: orderData.address,
       notes: orderData.notes,
-      items: cart.map(c => ({
+      items: cart.map((c) => ({
         productId: c.product.id,
         productName: c.product.name,
         colorName: c.selectedColor.name,
@@ -334,7 +431,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         size: c.selectedSize,
         price: c.product.price,
         quantity: c.quantity,
-        image: c.selectedColor.image || c.product.colors[0]?.image || ''
+        image: c.selectedColor.image || c.product.colors[0]?.image || '',
       })),
       subtotal: cartTotal,
       shippingFee,
@@ -342,12 +439,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       status: 'pending',
       createdAt: new Date().toISOString(),
       paymentMethod: 'cod',
-      customerEmail: user?.email
+      customerEmail: user?.email,
     };
 
     saveOrders([newOrder, ...orders]);
-    
-    // Save to Supabase in background if configured
+    saveOrderAndPaymentToFirestore(newOrder).catch(() => {});
+
     if (isSupabaseConfigured()) {
       saveOrderToSupabase(newOrder);
     }
@@ -359,16 +456,24 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const updateOrderStatus = (orderId: string, status: OrderStatus) => {
-    const updated = orders.map(o => (o.id === orderId ? { ...o, status } : o));
+    const updated = orders.map((o) => (o.id === orderId ? { ...o, status } : o));
     saveOrders(updated);
+    updateOrderStatusInFirestore(orderId, status).catch(() => {});
+    if (isSupabaseConfigured()) {
+      updateOrderStatusInSupabase(orderId, status);
+    }
   };
 
   const deleteOrder = (orderId: string) => {
-    const filtered = orders.filter(o => o.id !== orderId);
+    const filtered = orders.filter((o) => o.id !== orderId);
     saveOrders(filtered);
+    deleteOrderFromFirestore(orderId).catch(() => {});
+    if (isSupabaseConfigured()) {
+      deleteOrderInSupabase(orderId);
+    }
   };
 
-  // Authentication
+  // Authentication & Users
   const [users, setUsers] = useState<User[]>(() => {
     try {
       const saved = localStorage.getItem('bella_users');
@@ -389,24 +494,115 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const [isAdminView, setIsAdminView] = useState(false);
 
-  const login = (email: string, pass: string): { success: boolean; role?: 'admin' | 'customer'; error?: string } => {
+  // Sync Firebase Auth session & authenticated Firestore listeners
+  useEffect(() => {
+    let unsubOrders: (() => void) | null = null;
+
+    const unsubAuth = onAuthStateChanged(auth, async (fbUser) => {
+      if (unsubOrders) {
+        unsubOrders();
+        unsubOrders = null;
+      }
+
+      if (fbUser && fbUser.email && fbUser.emailVerified) {
+        const cleanEmail = fbUser.email.toLowerCase();
+        const isAdm =
+          ADMIN_EMAILS.has(cleanEmail) ||
+          cleanEmail === settings.adminEmail.toLowerCase();
+        const syncedUser: User = {
+          id: fbUser.uid,
+          name: fbUser.displayName || cleanEmail.split('@')[0],
+          email: fbUser.email,
+          role: isAdm ? 'admin' : 'customer',
+          createdAt: fbUser.metadata.creationTime || new Date().toISOString(),
+        };
+
+        setUser(syncedUser);
+        localStorage.setItem('bella_user', JSON.stringify(syncedUser));
+
+        syncFirebaseUserProfile(syncedUser).catch(() => {});
+        if (isAdm) {
+          seedInitialCatalogIfEmpty(defaultProducts, initialSettings).catch(() => {});
+        }
+
+        unsubOrders = subscribeOrdersFromFirestore((remoteOrders) => {
+          if (remoteOrders.length > 0) {
+            setOrders(remoteOrders);
+            localStorage.setItem('bella_orders', JSON.stringify(remoteOrders));
+          }
+        });
+      }
+    });
+
+    return () => {
+      unsubAuth();
+      if (unsubOrders) unsubOrders();
+    };
+  }, [settings.adminEmail]);
+
+  const loginWithGoogle = async (): Promise<{
+    success: boolean;
+    role?: 'admin' | 'customer';
+    error?: string;
+  }> => {
+    try {
+      const cred = await signInWithPopup(auth, googleAuthProvider);
+      const fbUser = cred.user;
+      const email = (fbUser.email || '').toLowerCase();
+      const isAdm =
+        ADMIN_EMAILS.has(email) || email === settings.adminEmail.toLowerCase();
+
+      const loggedUser: User = {
+        id: fbUser.uid,
+        name: fbUser.displayName || email.split('@')[0],
+        email: fbUser.email || '',
+        role: isAdm ? 'admin' : 'customer',
+        createdAt: fbUser.metadata.creationTime || new Date().toISOString(),
+      };
+
+      setUser(loggedUser);
+      localStorage.setItem('bella_user', JSON.stringify(loggedUser));
+
+      if (!isAdm) {
+        setUsers((prev) => {
+          if (prev.some((u) => u.email.toLowerCase() === email)) return prev;
+          const next = [...prev, loggedUser];
+          localStorage.setItem('bella_users', JSON.stringify(next));
+          return next;
+        });
+      }
+
+      if (isSupabaseConfigured()) {
+        saveUserToSupabase(loggedUser);
+      }
+
+      setIsAdminView(isAdm);
+      return { success: true, role: loggedUser.role };
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'تعذر تسجيل الدخول عبر Google';
+      return { success: false, error: msg };
+    }
+  };
+
+  const login = (
+    email: string,
+    pass: string
+  ): { success: boolean; role?: 'admin' | 'customer'; error?: string } => {
     const cleanEmail = email.trim().toLowerCase();
     const cleanPass = pass.trim();
 
-    // Check if matching Admin credentials (primary: jarfouribrahim51@gmail.com or configured adminEmail)
     const isAdminMatch =
       (cleanEmail === settings.adminEmail.toLowerCase() ||
-        cleanEmail === 'jarfouribrahim51@gmail.com' ||
-        cleanEmail === 'mediaagencyfocus@gmail.com') &&
+        ADMIN_EMAILS.has(cleanEmail)) &&
       cleanPass === settings.adminPasswordHash;
 
     if (isAdminMatch) {
       const adminUser: User = {
         id: 'admin-01',
         name: 'إبراهيم المسؤول',
-        email: settings.adminEmail,
+        email: cleanEmail,
         role: 'admin',
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       };
       setUser(adminUser);
       localStorage.setItem('bella_user', JSON.stringify(adminUser));
@@ -414,8 +610,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return { success: true, role: 'admin' };
     }
 
-    // Check customer login
-    const found = users.find(u => u.email.toLowerCase() === cleanEmail);
+    const found = users.find((u) => u.email.toLowerCase() === cleanEmail);
     if (found) {
       setUser(found);
       localStorage.setItem('bella_user', JSON.stringify(found));
@@ -423,21 +618,22 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return { success: true, role: 'customer' };
     }
 
-    // Direct password-less login for non-existent customer on clean form
-    // Create new customer account seamlessly
     if (cleanEmail && cleanPass.length >= 4) {
       const newCustomer: User = {
         id: `usr-${Date.now()}`,
         name: cleanEmail.split('@')[0],
         email: cleanEmail,
         role: 'customer',
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       };
       const newUsers = [...users, newCustomer];
       setUsers(newUsers);
       localStorage.setItem('bella_users', JSON.stringify(newUsers));
       setUser(newCustomer);
       localStorage.setItem('bella_user', JSON.stringify(newCustomer));
+      if (isSupabaseConfigured()) {
+        saveUserToSupabase(newCustomer);
+      }
       setIsAdminView(false);
       return { success: true, role: 'customer' };
     }
@@ -445,18 +641,28 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return { success: false, error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' };
   };
 
-  const signup = (name: string, email: string, pass: string, phone?: string): { success: boolean; error?: string } => {
+  const signup = (
+    name: string,
+    email: string,
+    pass: string,
+    phone?: string
+  ): { success: boolean; error?: string } => {
     const cleanEmail = email.trim().toLowerCase();
     if (!name.trim() || !cleanEmail || !pass) {
       return { success: false, error: 'يرجى ملء جميع الحقول المطلوبة' };
     }
 
-    // Prevent customer from taking admin email
-    if (cleanEmail === settings.adminEmail.toLowerCase() || cleanEmail === 'jarfouribrahim51@gmail.com') {
-      return { success: false, error: 'هذا البريد مخصص لإدارة المتجر، يرجى تسجيل الدخول مباشرة' };
+    if (
+      cleanEmail === settings.adminEmail.toLowerCase() ||
+      ADMIN_EMAILS.has(cleanEmail)
+    ) {
+      return {
+        success: false,
+        error: 'هذا البريد مخصص لإدارة المتجر، يرجى تسجيل الدخول مباشرة',
+      };
     }
 
-    const existing = users.find(u => u.email.toLowerCase() === cleanEmail);
+    const existing = users.find((u) => u.email.toLowerCase() === cleanEmail);
     if (existing) {
       return { success: false, error: 'هذا البريد الإلكتروني مسجل بالفعل' };
     }
@@ -467,7 +673,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       email: cleanEmail,
       phone: phone?.trim(),
       role: 'customer',
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
 
     const newUsers = [...users, newCustomer];
@@ -475,6 +681,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     localStorage.setItem('bella_users', JSON.stringify(newUsers));
     setUser(newCustomer);
     localStorage.setItem('bella_user', JSON.stringify(newCustomer));
+    if (isSupabaseConfigured()) {
+      saveUserToSupabase(newCustomer);
+    }
     return { success: true };
   };
 
@@ -482,6 +691,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setUser(null);
     localStorage.removeItem('bella_user');
     setIsAdminView(false);
+    signOut(auth).catch(() => {});
   };
 
   // Modals
@@ -530,6 +740,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         user,
         users,
         login,
+        loginWithGoogle,
         signup,
         logout,
         isAdminView,
@@ -544,7 +755,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         authModalMode,
         setAuthModalMode,
         lastPlacedOrder,
-        setLastPlacedOrder
+        setLastPlacedOrder,
       }}
     >
       {children}

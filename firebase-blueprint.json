@@ -1,0 +1,196 @@
+{
+  "entities": {
+    "Category": {
+      "title": "Category",
+      "description": "Footwear product category (womens, mens, kids, wholesale).",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "slug": { "type": "string", "enum": ["womens", "mens", "kids", "wholesale"] },
+        "nameAr": { "type": "string", "minLength": 2, "maxLength": 120 },
+        "descriptionAr": { "type": "string", "maxLength": 500 },
+        "displayOrder": { "type": "integer" },
+        "isActive": { "type": "boolean" }
+      },
+      "required": ["id", "slug", "nameAr", "displayOrder", "isActive"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Luxury shoe product stored in Firestore catalog.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "name": { "type": "string", "minLength": 2, "maxLength": 255 },
+        "category": { "type": "string", "enum": ["womens", "mens", "kids", "wholesale"] },
+        "price": { "type": "number" },
+        "oldPrice": { "type": "number" },
+        "rating": { "type": "number" },
+        "reviewsCount": { "type": "integer" },
+        "isNew": { "type": "boolean" },
+        "isBestseller": { "type": "boolean" },
+        "discount": { "type": "string", "maxLength": 20 },
+        "description": { "type": "string", "minLength": 2, "maxLength": 3000 },
+        "features": { "type": "array" },
+        "images": { "type": "array" },
+        "colors": { "type": "array" },
+        "sizes": { "type": "array" },
+        "inStock": { "type": "boolean" },
+        "stockCount": { "type": "integer" },
+        "wholesaleMinQty": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time", "maxLength": 64 }
+      },
+      "required": ["id", "name", "category", "price", "description", "colors", "sizes", "inStock", "stockCount", "createdAt"]
+    },
+    "UserPublic": {
+      "title": "UserPublic",
+      "description": "Publicly visible non-PII user display profile.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "displayName": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "createdAt": { "type": "string", "format": "date-time", "maxLength": 64 }
+      },
+      "required": ["uid", "displayName", "createdAt"]
+    },
+    "UserPrivateInfo": {
+      "title": "UserPrivateInfo",
+      "description": "Isolated PII record for customer account (email, phone, city, address).",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 150 },
+        "email": { "type": "string", "format": "email", "maxLength": 255 },
+        "phone": { "type": "string", "maxLength": 40 },
+        "city": { "type": "string", "maxLength": 100 },
+        "address": { "type": "string", "maxLength": 400 },
+        "createdAt": { "type": "string", "format": "date-time", "maxLength": 64 }
+      },
+      "required": ["uid", "name", "email", "createdAt"]
+    },
+    "AdminUser": {
+      "title": "AdminUser",
+      "description": "Trusted administrator marker document keyed by Firebase UID.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "email": { "type": "string", "format": "email", "maxLength": 255 },
+        "displayName": { "type": "string", "maxLength": 150 },
+        "grantedAt": { "type": "string", "format": "date-time", "maxLength": 64 }
+      },
+      "required": ["uid", "email", "grantedAt"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Customer order supporting Cash on Delivery in Morocco.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "orderNumber": { "type": "string", "minLength": 3, "maxLength": 40 },
+        "customerUid": { "type": "string", "maxLength": 128 },
+        "customerName": { "type": "string", "minLength": 2, "maxLength": 200 },
+        "phone": { "type": "string", "minLength": 8, "maxLength": 40 },
+        "city": { "type": "string", "minLength": 2, "maxLength": 100 },
+        "address": { "type": "string", "minLength": 2, "maxLength": 400 },
+        "notes": { "type": "string", "maxLength": 500 },
+        "items": { "type": "array" },
+        "subtotal": { "type": "number" },
+        "shippingFee": { "type": "number" },
+        "total": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "processing", "shipped", "delivered", "cancelled"] },
+        "paymentMethod": { "type": "string", "enum": ["cod"] },
+        "customerEmail": { "type": "string", "maxLength": 255 },
+        "createdAt": { "type": "string", "format": "date-time", "maxLength": 64 }
+      },
+      "required": ["id", "orderNumber", "customerName", "phone", "city", "address", "items", "subtotal", "shippingFee", "total", "status", "paymentMethod", "createdAt"]
+    },
+    "Payment": {
+      "title": "Payment",
+      "description": "Payment ledger record associated with an order.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "orderId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "orderNumber": { "type": "string", "minLength": 3, "maxLength": 40 },
+        "customerUid": { "type": "string", "maxLength": 128 },
+        "amount": { "type": "number" },
+        "currency": { "type": "string", "enum": ["MAD"] },
+        "method": { "type": "string", "enum": ["cod", "card", "transfer"] },
+        "status": { "type": "string", "enum": ["pending", "paid", "failed", "refunded"] },
+        "createdAt": { "type": "string", "format": "date-time", "maxLength": 64 }
+      },
+      "required": ["id", "orderId", "orderNumber", "amount", "currency", "method", "status", "createdAt"]
+    },
+    "StoreSettings": {
+      "title": "StoreSettings",
+      "description": "Public storefront configuration and contact settings (no credentials).",
+      "type": "object",
+      "properties": {
+        "storeName": { "type": "string", "minLength": 2, "maxLength": 120 },
+        "tagline": { "type": "string", "maxLength": 300 },
+        "phone": { "type": "string", "maxLength": 50 },
+        "whatsapp": { "type": "string", "minLength": 8, "maxLength": 50 },
+        "email": { "type": "string", "maxLength": 150 },
+        "address": { "type": "string", "maxLength": 400 },
+        "city": { "type": "string", "maxLength": 100 },
+        "deliveryFee": { "type": "number" },
+        "freeShippingPairThreshold": { "type": "integer" },
+        "instagramUrl": { "type": "string", "maxLength": 300 },
+        "facebookUrl": { "type": "string", "maxLength": 300 },
+        "tiktokUrl": { "type": "string", "maxLength": 300 },
+        "announcementText": { "type": "string", "maxLength": 500 },
+        "updatedAt": { "type": "string", "format": "date-time", "maxLength": 64 }
+      },
+      "required": ["storeName", "phone", "whatsapp", "deliveryFee", "freeShippingPairThreshold"]
+    },
+    "WhatsAppSettings": {
+      "title": "WhatsAppSettings",
+      "description": "Dedicated WhatsApp channel configuration synced across store buttons and checkout.",
+      "type": "object",
+      "properties": {
+        "whatsapp": { "type": "string", "minLength": 8, "maxLength": 50 },
+        "normalizedNumber": { "type": "string", "minLength": 8, "maxLength": 30 },
+        "defaultGreeting": { "type": "string", "maxLength": 400 },
+        "updatedAt": { "type": "string", "format": "date-time", "maxLength": 64 }
+      },
+      "required": ["whatsapp", "normalizedNumber"]
+    }
+  },
+  "firestore": {
+    "/categories/{categoryId}": {
+      "schema": { "$ref": "#/entities/Category" },
+      "description": "Publicly readable footwear categories managed by admins."
+    },
+    "/products/{productId}": {
+      "schema": { "$ref": "#/entities/Product" },
+      "description": "Publicly readable footwear catalog with colors, sizes, and images managed by admins."
+    },
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserPublic" },
+      "description": "Owner-readable and public-minimal user stub."
+    },
+    "/users/{userId}/private/{docId}": {
+      "schema": { "$ref": "#/entities/UserPrivateInfo" },
+      "description": "Isolated PII for registered customers, strictly restricted to owner or admin."
+    },
+    "/admins/{adminId}": {
+      "schema": { "$ref": "#/entities/AdminUser" },
+      "description": "Trusted admin lookup table for RBAC verification."
+    },
+    "/orders/{orderId}": {
+      "schema": { "$ref": "#/entities/Order" },
+      "description": "Orders collection. Supports guest/customer order creation in pending state; reads/updates restricted to order owner or admin."
+    },
+    "/payments/{paymentId}": {
+      "schema": { "$ref": "#/entities/Payment" },
+      "description": "Payment ledger linked to orders."
+    },
+    "/settings/store": {
+      "schema": { "$ref": "#/entities/StoreSettings" },
+      "description": "Global public store settings (delivery fee, social links, WhatsApp)."
+    },
+    "/settings/whatsapp": {
+      "schema": { "$ref": "#/entities/WhatsAppSettings" },
+      "description": "Global WhatsApp number and greeting configuration."
+    }
+  }
+}

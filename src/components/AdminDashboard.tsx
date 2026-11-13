@@ -75,6 +75,7 @@ export const AdminDashboard: React.FC = () => {
       inStock: true
     }
   ]);
+  const [formImages, setFormImages] = useState<string[]>([]);
   const [formWholesaleQty, setFormWholesaleQty] = useState<number | undefined>(undefined);
 
   // Store Settings Form States
@@ -123,6 +124,7 @@ export const AdminDashboard: React.FC = () => {
     setFormStock(prod.stockCount);
     setFormSizesInput(prod.sizes.join(', '));
     setFormColors(prod.colors);
+    setFormImages(prod.images || []);
     setFormWholesaleQty(prod.wholesaleMinQty);
     setIsAddingProduct(false);
   };
@@ -145,6 +147,7 @@ export const AdminDashboard: React.FC = () => {
         inStock: true
       }
     ]);
+    setFormImages([]);
     setFormWholesaleQty(undefined);
     setIsAddingProduct(true);
   };
@@ -174,6 +177,7 @@ export const AdminDashboard: React.FC = () => {
         'خدمة المعاينة والقياس عند التوصيل'
       ],
       colors: formColors,
+      images: formImages.map(u => u.trim()).filter(Boolean),
       sizes: parsedSizes.length > 0 ? parsedSizes : [38, 39, 40, 41],
       inStock: formStock > 0,
       stockCount: Number(formStock),
@@ -237,6 +241,20 @@ export const AdminDashboard: React.FC = () => {
   const removeColorVariant = (idx: number) => {
     if (formColors.length <= 1) return;
     setFormColors(formColors.filter((_, i) => i !== idx));
+  };
+
+  const addExtraImage = () => {
+    setFormImages([...formImages, '']);
+  };
+
+  const updateExtraImage = (idx: number, url: string) => {
+    const updated = [...formImages];
+    updated[idx] = url;
+    setFormImages(updated);
+  };
+
+  const removeExtraImage = (idx: number) => {
+    setFormImages(formImages.filter((_, i) => i !== idx));
   };
 
   return (
@@ -686,6 +704,51 @@ export const AdminDashboard: React.FC = () => {
                     </div>
                   </div>
 
+                  {/* EXTRA PRODUCT GALLERY IMAGES (Product_Images) */}
+                  <div className="pt-3 border-t border-slate-200 dark:border-slate-800">
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                        معرض الصور الإضافية للمنتج (Product_Images):
+                      </label>
+                      <button
+                        type="button"
+                        onClick={addExtraImage}
+                        className="text-xs text-[#00C8FF] font-bold hover:underline flex items-center gap-1 cursor-pointer"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>إضافة صورة أخرى</span>
+                      </button>
+                    </div>
+
+                    {formImages.length === 0 ? (
+                      <p className="text-[11px] text-slate-400 py-2">
+                        لا توجد صور إضافية حالياً. يمكنك إضافة عدة زوايا أو صور للمنتج لتظهر في نافذة التفاصيل.
+                      </p>
+                    ) : (
+                      <div className="space-y-2">
+                        {formImages.map((imgUrl, idx) => (
+                          <div key={idx} className="flex items-center gap-2">
+                            <input
+                              type="text"
+                              value={imgUrl}
+                              onChange={(e) => updateExtraImage(idx, e.target.value)}
+                              placeholder="https://... أو /src/assets/images/..."
+                              className="flex-1 px-3 py-1.5 rounded-xl text-xs font-mono bg-slate-50 dark:bg-[#1A1E29] border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeExtraImage(idx)}
+                              className="p-1.5 text-slate-400 hover:text-rose-500"
+                              title="حذف الصورة"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
                   <div className="flex items-center gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
                     <button
                       type="submit"
@@ -878,10 +941,25 @@ export const AdminDashboard: React.FC = () => {
                       ))}
                     </div>
 
-                    <div className="flex items-center justify-between text-xs pt-2">
-                      <span className="text-slate-500">
-                        طريقة الدفع: الدفع عند الاستلام بعد المعاينة والقياس
-                      </span>
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs pt-2 border-t border-slate-100 dark:border-slate-800">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-slate-500">
+                          طريقة الدفع: الدفع عند الاستلام بعد المعاينة والقياس
+                        </span>
+                        <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${
+                          ord.status === 'delivered'
+                            ? 'bg-emerald-500/15 text-emerald-500'
+                            : ord.status === 'cancelled'
+                            ? 'bg-rose-500/15 text-rose-500'
+                            : 'bg-amber-500/15 text-amber-500'
+                        }`}>
+                          {ord.status === 'delivered'
+                            ? 'حالة الدفع: تم التحصيل بنجاح'
+                            : ord.status === 'cancelled'
+                            ? 'حالة الدفع: ملغى'
+                            : 'حالة الدفع: معلق (الدفع عند الاستلام)'}
+                        </span>
+                      </div>
                       <span className="font-mono font-bold text-sm text-[#00C8FF]">
                         المجموع: {ord.total} MAD
                       </span>
@@ -1312,9 +1390,11 @@ export const AdminDashboard: React.FC = () => {
                 </div>
 
                 <div className="p-4 rounded-2xl bg-black text-slate-300 font-mono text-[11px] max-h-56 overflow-y-auto border border-slate-800" dir="ltr">
-                  <pre className="whitespace-pre-wrap">{`-- BELLA SHOES Supabase Schema
+                  <pre className="whitespace-pre-wrap">{`-- BELLA SHOES Complete 12-Table PostgreSQL Schema
+CREATE TABLE categories ( id TEXT PRIMARY KEY, slug VARCHAR(50) UNIQUE, name_ar VARCHAR(120), ... );
 CREATE TABLE products (
     id TEXT PRIMARY KEY,
+    category_id TEXT NOT NULL REFERENCES categories(id),
     name VARCHAR(255) NOT NULL,
     category VARCHAR(50) NOT NULL CHECK (category IN ('womens', 'mens', 'kids', 'wholesale')),
     price NUMERIC(10, 2) NOT NULL,
@@ -1331,28 +1411,17 @@ CREATE TABLE products (
     wholesale_min_qty INTEGER,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
-
-CREATE TABLE product_colors (
-    id TEXT PRIMARY KEY,
-    product_id TEXT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
-    name VARCHAR(100) NOT NULL,
-    hex VARCHAR(20) NOT NULL,
-    image TEXT NOT NULL,
-    in_stock BOOLEAN DEFAULT TRUE
-);
-
-CREATE TABLE product_sizes (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    product_id TEXT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
-    size INTEGER NOT NULL,
-    in_stock BOOLEAN DEFAULT TRUE,
-    UNIQUE(product_id, size)
-);
-
-CREATE TABLE store_settings ( ... );
-CREATE TABLE orders ( ... );
-CREATE TABLE order_items ( ... );
--- + Row Level Security (RLS) + Initial Seed Data`}</pre>
+CREATE TABLE product_images ( id UUID PRIMARY KEY, product_id TEXT REFERENCES products(id) ON DELETE CASCADE, image_url TEXT NOT NULL, ... );
+CREATE TABLE product_colors ( id TEXT PRIMARY KEY, product_id TEXT REFERENCES products(id) ON DELETE CASCADE, name VARCHAR(100), hex VARCHAR(20), image TEXT, ... );
+CREATE TABLE product_sizes  ( id UUID PRIMARY KEY, product_id TEXT REFERENCES products(id) ON DELETE CASCADE, size INTEGER, UNIQUE(product_id, size) );
+CREATE TABLE users          ( id TEXT PRIMARY KEY, name VARCHAR(150), email VARCHAR(255) UNIQUE, phone VARCHAR(50), ... );
+CREATE TABLE admins         ( id TEXT PRIMARY KEY, email VARCHAR(255) UNIQUE, role VARCHAR(50), is_active BOOLEAN );
+CREATE TABLE orders         ( id TEXT PRIMARY KEY, order_number VARCHAR(50) UNIQUE, user_id TEXT REFERENCES users(id), customer_name VARCHAR(150), total NUMERIC(10,2), status VARCHAR(30), ... );
+CREATE TABLE order_items    ( id UUID PRIMARY KEY, order_id TEXT REFERENCES orders(id) ON DELETE CASCADE, product_id TEXT REFERENCES products(id), ... );
+CREATE TABLE payments       ( id UUID PRIMARY KEY, order_id TEXT UNIQUE REFERENCES orders(id) ON DELETE CASCADE, payment_method VARCHAR(50), payment_status VARCHAR(30), amount NUMERIC(10,2), ... );
+CREATE TABLE store_settings ( id INTEGER PRIMARY KEY, email VARCHAR(255), address TEXT, delivery_fee NUMERIC(10,2), ... ); -- + VIEW settings
+CREATE TABLE whatsapp_settings ( id INTEGER PRIMARY KEY, whatsapp_number VARCHAR(50), phone_display VARCHAR(50), default_message TEXT );
+-- + Indexes + Triggers + Row Level Security (RLS) + Full Seed Data`}</pre>
                 </div>
               </div>
             </div>

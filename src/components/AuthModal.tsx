@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { X, Lock, Mail, User as UserIcon, Phone, AlertCircle, CheckCircle, ShieldCheck } from 'lucide-react';
+import {
+  X,
+  Lock,
+  Mail,
+  User as UserIcon,
+  Phone,
+  AlertCircle,
+  CheckCircle,
+  ShieldCheck,
+} from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 
 export const AuthModal: React.FC = () => {
@@ -9,6 +18,7 @@ export const AuthModal: React.FC = () => {
     authModalMode,
     setAuthModalMode,
     login,
+    loginWithGoogle,
     signup,
   } = useStore();
 
@@ -21,6 +31,28 @@ export const AuthModal: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   if (!isAuthModalOpen) return null;
+
+  const handleGoogleSignIn = async () => {
+    setError('');
+    setSuccessMsg('');
+    setIsLoading(true);
+    const res = await loginWithGoogle();
+    setIsLoading(false);
+
+    if (res.success) {
+      if (res.role === 'admin') {
+        setSuccessMsg('مرحباً بك أيها المسؤول! جاري فتح لوحة الإدارة...');
+      } else {
+        setSuccessMsg('تم تسجيل الدخول بحساب Google بنجاح!');
+      }
+      setTimeout(() => {
+        setIsAuthModalOpen(false);
+        setSuccessMsg('');
+      }, 750);
+    } else {
+      setError(res.error || 'تعذر تسجيل الدخول عبر Google');
+    }
+  };
 
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,7 +80,7 @@ export const AuthModal: React.FC = () => {
       } else {
         setError(res.error || 'البريد الإلكتروني أو كلمة المرور غير صحيحة');
       }
-    }, 400);
+    }, 350);
   };
 
   const handleSignupSubmit = (e: React.FormEvent) => {
@@ -74,7 +106,7 @@ export const AuthModal: React.FC = () => {
       } else {
         setError(res.error || 'حدث خطأ أثناء إنشاء الحساب');
       }
-    }, 400);
+    }, 350);
   };
 
   return (
@@ -97,7 +129,7 @@ export const AuthModal: React.FC = () => {
         </button>
 
         {/* Modal Brand Title */}
-        <div className="text-center mb-6">
+        <div className="text-center mb-5">
           <div className="w-11 h-11 rounded-2xl bg-black dark:bg-[#161922] border border-[#00C8FF]/60 flex items-center justify-center mx-auto mb-3 shadow-[0_0_15px_rgba(0,200,255,0.28)]">
             <span className="text-[#00C8FF] font-black text-xl">B</span>
           </div>
@@ -106,7 +138,7 @@ export const AuthModal: React.FC = () => {
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             {authModalMode === 'login'
-              ? 'أدخل بياناتك للمتابعة - يتعرف النظام تلقائياً على حسابك'
+              ? 'أدخل بياناتك أو استخدم حساب Google للمتابعة'
               : 'سجل حسابك للاستفادة من متابعة الطلبات والعروض الحصرية'}
           </p>
         </div>
@@ -125,6 +157,42 @@ export const AuthModal: React.FC = () => {
             <span>{successMsg}</span>
           </div>
         )}
+
+        {/* Quick Google Sign-In */}
+        <button
+          type="button"
+          disabled={isLoading}
+          onClick={handleGoogleSignIn}
+          className="w-full h-11 mb-4 px-4 rounded-xl bg-white hover:bg-slate-50 dark:bg-[#161922] dark:hover:bg-[#1D212D] border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white text-xs font-bold flex items-center justify-center gap-2.5 transition-colors cursor-pointer disabled:opacity-50"
+        >
+          <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0" aria-hidden="true">
+            <path
+              fill="#EA4335"
+              d="M12 5c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 1.19 14.97 0 12 0 7.31 0 3.26 2.69 1.27 6.6l3.66 2.84C5.79 6.86 8.63 5 12 5z"
+            />
+            <path
+              fill="#4285F4"
+              d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58l3.69 2.87c2.16-1.99 3.73-4.93 3.73-8.69z"
+            />
+            <path
+              fill="#FBBC05"
+              d="M4.93 14.44A7.01 7.01 0 0 1 4.57 12c0-.85.15-1.67.36-2.44L1.27 6.72A11.97 11.97 0 0 0 0 12c0 1.93.46 3.76 1.27 5.28l3.66-2.84z"
+            />
+            <path
+              fill="#34A853"
+              d="M12 24c3.24 0 5.95-1.07 7.93-2.9l-3.69-2.87c-1.08.72-2.46 1.16-4.24 1.16-3.37 0-6.21-1.86-7.07-4.44L1.27 17.79C3.26 21.7 7.31 24 12 24z"
+            />
+          </svg>
+          <span>المتابعة بحساب Google الآمن</span>
+        </button>
+
+        <div className="relative flex items-center justify-center mb-4">
+          <div className="border-t border-slate-200 dark:border-slate-800 w-full" />
+          <span className="bg-white dark:bg-[#111319] px-3 text-[11px] text-slate-400 shrink-0">
+            أو بالبريد الإلكتروني
+          </span>
+          <div className="border-t border-slate-200 dark:border-slate-800 w-full" />
+        </div>
 
         {/* Form */}
         {authModalMode === 'login' ? (

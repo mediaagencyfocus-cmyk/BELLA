@@ -163,10 +163,10 @@ export const ProductModal: React.FC = () => {
                 )}
               </div>
 
-              {/* Color Thumbnails */}
+              {/* Color & Extra Gallery Thumbnails */}
               <div className="mt-4">
                 <label className="text-xs font-bold text-slate-600 dark:text-slate-300 block mb-2">
-                  معاينة صور الألوان المتوفرة:
+                  معرض صور الحذاء والألوان المتوفرة:
                 </label>
                 <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
                   {product.colors.map((c) => (
@@ -175,7 +175,7 @@ export const ProductModal: React.FC = () => {
                       type="button"
                       onClick={() => handleColorChange(c)}
                       className={`relative w-16 h-12 rounded-xl overflow-hidden border transition-all shrink-0 cursor-pointer ${
-                        selectedColor?.id === c.id
+                        selectedColor?.id === c.id && activeImage === c.image
                           ? 'border-2 border-[#00C8FF] shadow-[0_0_10px_rgba(0,200,255,0.35)]'
                           : 'border-slate-300 dark:border-slate-700 opacity-75 hover:opacity-100'
                       }`}
@@ -183,6 +183,28 @@ export const ProductModal: React.FC = () => {
                       <img
                         src={c.image}
                         alt={c.name}
+                        referrerPolicy="no-referrer"
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                  {(product.images || []).map((imgUrl, idx) => (
+                    <button
+                      key={`gallery-${idx}`}
+                      type="button"
+                      onClick={() => {
+                        setMainImgError(false);
+                        setActiveImage(imgUrl);
+                      }}
+                      className={`relative w-16 h-12 rounded-xl overflow-hidden border transition-all shrink-0 cursor-pointer ${
+                        activeImage === imgUrl
+                          ? 'border-2 border-[#00C8FF] shadow-[0_0_10px_rgba(0,200,255,0.35)]'
+                          : 'border-slate-300 dark:border-slate-700 opacity-75 hover:opacity-100'
+                      }`}
+                    >
+                      <img
+                        src={imgUrl}
+                        alt={`${product.name} ${idx + 1}`}
                         referrerPolicy="no-referrer"
                         className="w-full h-full object-cover"
                       />

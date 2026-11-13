@@ -1,5 +1,14 @@
 export type ShoeCategory = 'womens' | 'mens' | 'kids' | 'wholesale';
 
+export interface CategoryRecord {
+  id: string;
+  slug: ShoeCategory;
+  nameAr: string;
+  descriptionAr?: string;
+  displayOrder: number;
+  isActive: boolean;
+}
+
 export interface ColorVariant {
   id: string;
   name: string;
@@ -21,6 +30,7 @@ export interface Product {
   discount?: string;
   description: string;
   features: string[];
+  images?: string[]; // Additional gallery photos (Product_Images)
   colors: ColorVariant[];
   sizes: number[]; // e.g. [37, 38, 39, 40]
   inStock: boolean;
@@ -53,6 +63,7 @@ export type OrderStatus = 'pending' | 'processing' | 'shipped' | 'delivered' | '
 export interface Order {
   id: string;
   orderNumber: string;
+  customerUid?: string;
   customerName: string;
   phone: string;
   city: string;
@@ -68,11 +79,26 @@ export interface Order {
   customerEmail?: string;
 }
 
+export interface PaymentRecord {
+  id: string;
+  orderId: string;
+  orderNumber: string;
+  customerUid?: string;
+  amount: number;
+  currency: 'MAD';
+  method: 'cod' | 'card' | 'transfer';
+  status: 'pending' | 'paid' | 'failed' | 'refunded';
+  createdAt: string;
+  paidAt?: string;
+}
+
 export interface User {
   id: string;
   name: string;
   email: string;
   phone?: string;
+  city?: string;
+  address?: string;
   role: 'customer' | 'admin';
   createdAt: string;
 }
@@ -88,9 +114,16 @@ export interface StoreSettings {
   deliveryFee: number;
   freeShippingPairThreshold: number; // e.g., 2 pairs
   adminEmail: string;
-  adminPasswordHash: string; // Stored securely
+  adminPasswordHash: string;
   instagramUrl: string;
   facebookUrl: string;
   tiktokUrl: string;
   announcementText: string;
+}
+
+export interface WhatsAppSettings {
+  whatsapp: string;
+  normalizedNumber: string;
+  defaultGreeting?: string;
+  updatedAt?: string;
 }
