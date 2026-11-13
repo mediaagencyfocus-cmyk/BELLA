@@ -12,6 +12,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
+import { resolveImageUrl } from '../assets/shoeImages';
 
 const MOROCCAN_CITIES = [
   'الدار البيضاء',
@@ -109,8 +110,8 @@ export const CartDrawer: React.FC = () => {
         onClick={() => setIsCartOpen(false)}
       />
 
-      <div className="fixed inset-y-0 left-0 max-w-full flex">
-        <div className="w-screen max-w-md bg-white dark:bg-[#0E1016] border-r border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col justify-between text-slate-900 dark:text-white">
+      <div className="fixed inset-y-0 left-0 w-full max-w-md flex">
+        <div className="w-full bg-white dark:bg-[#0E1016] border-r border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col justify-between text-slate-900 dark:text-white overflow-x-clip">
           {/* Header */}
           <div className="p-4 sm:p-5 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -180,7 +181,7 @@ export const CartDrawer: React.FC = () => {
                   >
                     <div className="w-20 h-20 rounded-xl overflow-hidden bg-slate-100 dark:bg-[#111319] shrink-0 border border-slate-200/80 dark:border-slate-800">
                       <img
-                        src={item.selectedColor.image || item.product.colors[0]?.image}
+                        src={resolveImageUrl(item.selectedColor.image || item.product.colors[0]?.image)}
                         alt={item.product.name}
                         referrerPolicy="no-referrer"
                         className="w-full h-full object-cover"

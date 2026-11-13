@@ -112,11 +112,11 @@ export const ProductCatalog: React.FC = () => {
   return (
     <section
       id="catalog-section"
-      className="py-8 sm:py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-right scroll-mt-24"
+      className="py-8 sm:py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-right scroll-mt-24 overflow-x-clip"
     >
       {/* Catalog Header & Segmented Filter Bar */}
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5 mb-7 sm:mb-9">
-        <div>
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5 mb-7 sm:mb-9 min-w-0">
+        <div className="min-w-0">
           <p className="text-[11px] sm:text-xs font-bold text-[#0099CC] dark:text-[#00C8FF] tracking-wider mb-1.5 font-sans">
             {showWishlistOnly ? 'قائمة المفضلة المختارة' : 'BELLA SHOES · التشكيلة المعتمدة'}
           </p>
@@ -133,7 +133,7 @@ export const ProductCatalog: React.FC = () => {
 
         {/* Dynamic Category / Sub-category Segmented Controls */}
         {!showWishlistOnly && activeCategory !== 'all' ? (
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar bg-slate-100/80 dark:bg-[#111319] p-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-800 max-w-full">
+          <div className="w-full lg:w-auto min-w-0 flex items-center gap-1.5 overflow-x-auto no-scrollbar bg-slate-100/80 dark:bg-[#111319] p-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-800">
             {subcategoryMap[activeCategory].map((sub) => (
               <button
                 key={sub.id}
@@ -151,7 +151,7 @@ export const ProductCatalog: React.FC = () => {
             ))}
           </div>
         ) : !showWishlistOnly ? (
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar bg-slate-100/80 dark:bg-[#111319] p-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-800 max-w-full">
+          <div className="w-full lg:w-auto min-w-0 flex items-center gap-1.5 overflow-x-auto no-scrollbar bg-slate-100/80 dark:bg-[#111319] p-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-800">
             <button
               type="button"
               onClick={() => setActiveTab('all')}
@@ -247,9 +247,9 @@ export const ProductCatalog: React.FC = () => {
         </div>
       )}
 
-      {/* Responsive Product Grid: 2 cols Mobile, 3 cols Tablet, 4 cols Desktop */}
+      {/* Responsive Product Grid: 1 col Narrow Mobile, 2 cols Wide Phone, 3 cols Tablet, 4 cols Desktop */}
       {filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5 lg:gap-6">
+        <div className="grid grid-cols-1 min-[480px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
           {filteredProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}

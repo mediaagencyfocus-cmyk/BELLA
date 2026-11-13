@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
+import { SHOE_IMAGES } from '../assets/shoeImages';
 
 export const Hero: React.FC = () => {
   const { setActiveCategory, setShowWishlistOnly } = useStore();
@@ -20,9 +21,9 @@ export const Hero: React.FC = () => {
   return (
     <section className="relative overflow-hidden bg-slate-50/50 dark:bg-[#08090C] border-b border-slate-200/80 dark:border-slate-800/80 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 lg:py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 items-stretch gap-6 lg:gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 items-stretch gap-6 lg:gap-10 min-w-0">
           {/* Editorial Copy & Primary CTA (Right column in RTL) */}
-          <div className="lg:col-span-5 flex flex-col justify-between text-right py-2 lg:py-4">
+          <div className="lg:col-span-5 min-w-0 flex flex-col justify-between text-right py-2 lg:py-4">
             <div className="space-y-4 sm:space-y-5">
               {/* Quiet unboxed editorial kicker */}
               <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400">
@@ -92,10 +93,10 @@ export const Hero: React.FC = () => {
           </div>
 
           {/* Editorial Footwear Studio Showcase (Left column in RTL) */}
-          <div className="lg:col-span-7 flex">
+          <div className="lg:col-span-7 min-w-0 flex">
             <div className="relative w-full aspect-[16/10] lg:aspect-auto lg:min-h-[380px] rounded-2xl overflow-hidden bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-lg">
               <img
-                src="/src/assets/images/bella_hero_editorial_1794577994863.jpg"
+                src={SHOE_IMAGES.heroEditorial}
                 alt="تشكيلة أحذية BELLA SHOES الفاخرة — كعب نسائي، أكسفورد رجالي، وسنيكرز فاخر"
                 referrerPolicy="no-referrer"
                 className="w-full h-full object-cover object-center"

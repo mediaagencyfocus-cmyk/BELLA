@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Eye, ShoppingBag, Heart, Star } from 'lucide-react';
 import { Product } from '../types';
 import { useStore } from '../context/StoreContext';
+import { resolveImageUrl } from '../assets/shoeImages';
 
 interface ProductCardProps {
   product: Product;
@@ -14,8 +15,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   const isFavorite = wishlist.includes(product.id);
   const activeColor = product.colors[selectedVariantIdx] || product.colors[0];
-  const mainImage =
-    activeColor?.image || '/src/assets/images/bella_womens_heels_1794318693049.jpg';
+  const mainImage = resolveImageUrl(activeColor?.image);
 
   const categoryNames = {
     womens: 'أحذية نسائية',
@@ -34,7 +34,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         : null;
 
   return (
-    <article className="group h-full rounded-2xl bg-white dark:bg-[#111319] border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-xs hover:border-[#00C8FF] dark:hover:border-[#00C8FF] flex flex-col justify-between luxury-product-card">
+    <article className="group w-full min-w-0 h-full rounded-2xl bg-white dark:bg-[#111319] border border-slate-200/80 dark:border-slate-800 overflow-hidden shadow-xs hover:border-[#00C8FF] dark:hover:border-[#00C8FF] flex flex-col justify-between luxury-product-card">
       {/* Top Image Container */}
       <div
         onClick={() => openProductModal(product)}

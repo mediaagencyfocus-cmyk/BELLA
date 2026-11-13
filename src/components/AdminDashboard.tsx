@@ -31,6 +31,7 @@ import { useStore } from '../context/StoreContext';
 import { Product, ShoeCategory, ColorVariant, OrderStatus } from '../types';
 import { WhatsAppIcon, InstagramIcon, FacebookIcon, TikTokIcon } from './SocialIcons';
 import { normalizeWhatsAppNumber, buildWhatsAppLink } from '../utils/phone';
+import { SHOE_IMAGES, resolveImageUrl } from '../assets/shoeImages';
 
 export const AdminDashboard: React.FC = () => {
   const {
@@ -71,7 +72,7 @@ export const AdminDashboard: React.FC = () => {
       id: 'c-1',
       name: 'أسود ملكي',
       hex: '#0A0A0A',
-      image: '/src/assets/images/bella_womens_heels_1794318693049.jpg',
+      image: SHOE_IMAGES.womensHeels,
       inStock: true
     }
   ]);
@@ -143,7 +144,7 @@ export const AdminDashboard: React.FC = () => {
         id: `c-${Date.now()}`,
         name: 'أسود ملكي',
         hex: '#000000',
-        image: '/src/assets/images/bella_womens_heels_1794318693049.jpg',
+        image: SHOE_IMAGES.womensHeels,
         inStock: true
       }
     ]);
@@ -226,7 +227,7 @@ export const AdminDashboard: React.FC = () => {
         id: `c-${Date.now()}`,
         name: 'لون جديد',
         hex: '#00C8FF',
-        image: '/src/assets/images/bella_luxury_sneaker_1794318695413.jpg',
+        image: SHOE_IMAGES.luxurySneaker,
         inStock: true
       }
     ]);
@@ -793,7 +794,7 @@ export const AdminDashboard: React.FC = () => {
                       <tr key={prod.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                         <td className="py-2.5 px-4">
                           <img
-                            src={prod.colors[0]?.image}
+                            src={resolveImageUrl(prod.colors[0]?.image)}
                             alt={prod.name}
                             className="w-12 h-12 rounded-xl object-cover border border-slate-200 dark:border-slate-800"
                           />
@@ -925,7 +926,7 @@ export const AdminDashboard: React.FC = () => {
                           className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#161922] border border-slate-200 dark:border-slate-800 flex items-center gap-2.5"
                         >
                           <img
-                            src={item.image}
+                            src={resolveImageUrl(item.image)}
                             alt={item.productName}
                             className="w-12 h-12 rounded-lg object-cover"
                           />

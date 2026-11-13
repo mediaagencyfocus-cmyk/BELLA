@@ -1,4 +1,5 @@
 import { Product, StoreSettings } from '../types';
+import { SHOE_IMAGES } from '../assets/shoeImages';
 
 export const initialSettings: StoreSettings = {
   storeName: 'BELLA SHOES',
@@ -43,14 +44,14 @@ export const defaultProducts: Product[] = [
         id: 'c-black',
         name: 'أسود ملكي فاخر',
         hex: '#0A0A0A',
-        image: '/src/assets/images/bella_womens_heels_1794318693049.jpg',
+        image: SHOE_IMAGES.womensHeels,
         inStock: true
       },
       {
         id: 'c-nude',
         name: 'بيج نود كلاسيكي',
         hex: '#D7B49E',
-        image: '/src/assets/images/bella_womens_heels_1794318693049.jpg',
+        image: SHOE_IMAGES.womensHeels,
         inStock: true
       }
     ],
@@ -81,14 +82,14 @@ export const defaultProducts: Product[] = [
         id: 'c-white-gold',
         name: 'أبيض عاجي بلمسة زرقاء خفيفة',
         hex: '#00C8FF',
-        image: '/src/assets/images/bella_luxury_sneaker_1794318695413.jpg',
+        image: SHOE_IMAGES.luxurySneaker,
         inStock: true
       },
       {
         id: 'c-black-onyx',
         name: 'أسود فحمي مطفي',
         hex: '#171717',
-        image: '/src/assets/images/bella_luxury_sneaker_1794318695413.jpg',
+        image: SHOE_IMAGES.luxurySneaker,
         inStock: true
       }
     ],
@@ -122,14 +123,14 @@ export const defaultProducts: Product[] = [
         id: 'c-cognac',
         name: 'بني كوجناك محروق',
         hex: '#7A3E1D',
-        image: '/src/assets/images/bella_mens_oxford_1794318693998.jpg',
+        image: SHOE_IMAGES.mensOxford,
         inStock: true
       },
       {
         id: 'c-black-classic',
         name: 'أسود كلاسيكي لامع',
         hex: '#111111',
-        image: '/src/assets/images/bella_mens_oxford_1794318693998.jpg',
+        image: SHOE_IMAGES.mensOxford,
         inStock: true
       }
     ],
@@ -160,14 +161,14 @@ export const defaultProducts: Product[] = [
         id: 'c-black-neon',
         name: 'أسود بلمسات أزرق فاتح (#00C8FF)',
         hex: '#00C8FF',
-        image: '/src/assets/images/bella_luxury_sneaker_1794318695413.jpg',
+        image: SHOE_IMAGES.luxurySneaker,
         inStock: true
       },
       {
         id: 'c-pure-black',
         name: 'أسود كامل Stealth Black',
         hex: '#18181B',
-        image: '/src/assets/images/bella_luxury_sneaker_1794318695413.jpg',
+        image: SHOE_IMAGES.luxurySneaker,
         inStock: true
       }
     ],
@@ -200,14 +201,14 @@ export const defaultProducts: Product[] = [
         id: 'c-tan-navy',
         name: 'بيج مع كحلي وبرتقالي متناسق',
         hex: '#C49A6C',
-        image: '/src/assets/images/bella_kids_sneaker_1794318694569.jpg',
+        image: SHOE_IMAGES.kidsSneaker,
         inStock: true
       },
       {
         id: 'c-white-blue',
         name: 'أبيض عاجي مع أزرق ملكي',
         hex: '#2563EB',
-        image: '/src/assets/images/bella_kids_sneaker_1794318694569.jpg',
+        image: SHOE_IMAGES.kidsSneaker,
         inStock: true
       }
     ],
@@ -241,7 +242,7 @@ export const defaultProducts: Product[] = [
         id: 'c-series-mixed',
         name: 'تشكيلة ألوان منوعة الأكثر طلباً',
         hex: '#00C8FF',
-        image: '/src/assets/images/bella_mens_oxford_1794318693998.jpg',
+        image: SHOE_IMAGES.mensOxford,
         inStock: true
       }
     ],

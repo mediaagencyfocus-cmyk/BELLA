@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { ColorVariant } from '../types';
+import { resolveImageUrl } from '../assets/shoeImages';
 
 export const ProductModal: React.FC = () => {
   const {
@@ -41,7 +42,7 @@ export const ProductModal: React.FC = () => {
     if (product) {
       const defaultColor = product.colors.find((c) => c.inStock) || product.colors[0];
       setSelectedColor(defaultColor);
-      setActiveImage(defaultColor?.image || '');
+      setActiveImage(resolveImageUrl(defaultColor?.image));
       setMainImgError(false);
       setSelectedSize(null);
       setQuantity(1);
@@ -58,7 +59,7 @@ export const ProductModal: React.FC = () => {
     setSelectedColor(color);
     setMainImgError(false);
     if (color.image) {
-      setActiveImage(color.image);
+      setActiveImage(resolveImageUrl(color.image));
     }
   };
 
@@ -98,28 +99,28 @@ export const ProductModal: React.FC = () => {
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 z-50 bg-black/75 luxury-modal-backdrop flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+        className="fixed inset-0 z-50 bg-black/75 luxury-modal-backdrop flex items-start sm:items-center justify-center p-2.5 sm:p-4 overflow-y-auto"
         onClick={closeProductModal}
       >
         {/* Modal Dialog */}
         <div
-          className="relative w-full max-w-4xl bg-white dark:bg-[#111319] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl overflow-hidden my-auto text-right text-slate-900 dark:text-white"
+          className="relative w-full max-w-4xl bg-white dark:bg-[#111319] border border-slate-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden my-2 sm:my-auto text-right text-slate-900 dark:text-white"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close button */}
           <button
             type="button"
             onClick={closeProductModal}
-            className="absolute top-3.5 left-3.5 z-20 w-9 h-9 rounded-full bg-white/90 hover:bg-white dark:bg-[#1A1E29] dark:hover:bg-[#252B3B] border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 flex items-center justify-center transition-colors cursor-pointer shadow-xs"
+            className="absolute top-3 left-3 sm:top-3.5 sm:left-3.5 z-20 w-9 h-9 rounded-full bg-white/95 hover:bg-white dark:bg-[#1A1E29] dark:hover:bg-[#252B3B] border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 flex items-center justify-center transition-colors cursor-pointer shadow-xs"
             title="إغلاق"
             aria-label="إغلاق"
           >
             <X className="w-4 h-4" />
           </button>
 
-          <div className="grid grid-cols-1 md:grid-cols-12 max-h-[90vh] overflow-y-auto">
+          <div className="grid grid-cols-1 md:grid-cols-12 md:max-h-[90vh] md:overflow-y-auto min-w-0">
             {/* Gallery Column (6 cols on desktop) */}
-            <div className="md:col-span-6 bg-slate-50 dark:bg-[#0B0D12] p-4 sm:p-6 flex flex-col justify-between border-b md:border-b-0 md:border-l border-slate-200/80 dark:border-slate-800">
+            <div className="md:col-span-6 min-w-0 bg-slate-50 dark:bg-[#0B0D12] p-4 sm:p-6 flex flex-col justify-between border-b md:border-b-0 md:border-l border-slate-200/80 dark:border-slate-800">
               <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100 dark:bg-[#161922] border border-slate-200/80 dark:border-slate-800">
                 {!mainImgError && activeImage ? (
                   <img
@@ -168,48 +169,54 @@ export const ProductModal: React.FC = () => {
                 <label className="text-xs font-bold text-slate-600 dark:text-slate-300 block mb-2">
                   معرض صور الحذاء والألوان المتوفرة:
                 </label>
-                <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-                  {product.colors.map((c) => (
-                    <button
-                      key={c.id}
-                      type="button"
-                      onClick={() => handleColorChange(c)}
-                      className={`relative w-16 h-12 rounded-xl overflow-hidden border transition-all shrink-0 cursor-pointer ${
-                        selectedColor?.id === c.id && activeImage === c.image
-                          ? 'border-2 border-[#00C8FF] shadow-[0_0_10px_rgba(0,200,255,0.35)]'
-                          : 'border-slate-300 dark:border-slate-700 opacity-75 hover:opacity-100'
-                      }`}
-                    >
-                      <img
-                        src={c.image}
-                        alt={c.name}
-                        referrerPolicy="no-referrer"
-                        className="w-full h-full object-cover"
-                      />
-                    </button>
-                  ))}
-                  {(product.images || []).map((imgUrl, idx) => (
-                    <button
-                      key={`gallery-${idx}`}
-                      type="button"
-                      onClick={() => {
-                        setMainImgError(false);
-                        setActiveImage(imgUrl);
-                      }}
-                      className={`relative w-16 h-12 rounded-xl overflow-hidden border transition-all shrink-0 cursor-pointer ${
-                        activeImage === imgUrl
-                          ? 'border-2 border-[#00C8FF] shadow-[0_0_10px_rgba(0,200,255,0.35)]'
-                          : 'border-slate-300 dark:border-slate-700 opacity-75 hover:opacity-100'
-                      }`}
-                    >
-                      <img
-                        src={imgUrl}
-                        alt={`${product.name} ${idx + 1}`}
-                        referrerPolicy="no-referrer"
-                        className="w-full h-full object-cover"
-                      />
-                    </button>
-                  ))}
+                <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar max-w-full">
+                  {product.colors.map((c) => {
+                    const resolvedCImg = resolveImageUrl(c.image);
+                    return (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => handleColorChange(c)}
+                        className={`relative w-16 h-12 rounded-xl overflow-hidden border transition-all shrink-0 cursor-pointer ${
+                          selectedColor?.id === c.id && activeImage === resolvedCImg
+                            ? 'border-2 border-[#00C8FF] shadow-[0_0_10px_rgba(0,200,255,0.35)]'
+                            : 'border-slate-300 dark:border-slate-700 opacity-75 hover:opacity-100'
+                        }`}
+                      >
+                        <img
+                          src={resolvedCImg}
+                          alt={c.name}
+                          referrerPolicy="no-referrer"
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    );
+                  })}
+                  {(product.images || []).map((imgUrl, idx) => {
+                    const resolvedExtra = resolveImageUrl(imgUrl);
+                    return (
+                      <button
+                        key={`gallery-${idx}`}
+                        type="button"
+                        onClick={() => {
+                          setMainImgError(false);
+                          setActiveImage(resolvedExtra);
+                        }}
+                        className={`relative w-16 h-12 rounded-xl overflow-hidden border transition-all shrink-0 cursor-pointer ${
+                          activeImage === resolvedExtra
+                            ? 'border-2 border-[#00C8FF] shadow-[0_0_10px_rgba(0,200,255,0.35)]'
+                            : 'border-slate-300 dark:border-slate-700 opacity-75 hover:opacity-100'
+                        }`}
+                      >
+                        <img
+                          src={resolvedExtra}
+                          alt={`${product.name} ${idx + 1}`}
+                          referrerPolicy="no-referrer"
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -231,7 +238,7 @@ export const ProductModal: React.FC = () => {
             </div>
 
             {/* Purchase Module Column (6 cols) */}
-            <div className="md:col-span-6 p-5 sm:p-7 flex flex-col justify-between bg-white dark:bg-[#111319] text-slate-900 dark:text-white">
+            <div className="md:col-span-6 min-w-0 p-4 sm:p-7 flex flex-col justify-between bg-white dark:bg-[#111319] text-slate-900 dark:text-white">
               <div>
                 {/* Header Metadata */}
                 <div className="flex flex-wrap items-center gap-2 text-xs mb-2">

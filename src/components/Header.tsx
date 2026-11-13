@@ -128,15 +128,15 @@ export const Header: React.FC = () => {
   return (
     <header
       ref={searchContainerRef}
-      className="sticky top-0 z-40 w-full bg-white/95 dark:bg-[#0A0B0E]/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 transition-colors duration-200"
+      className="sticky top-0 z-40 w-full max-w-full overflow-x-clip bg-white/95 dark:bg-[#0A0B0E]/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 transition-colors duration-200"
     >
       {/* Primary Navigation Row */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-3 sm:gap-6">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2 sm:gap-6 min-w-0">
         {/* Zone 1: Brand Wordmark */}
         <button
           type="button"
           onClick={() => handleSelectCategory('all')}
-          className="text-lg sm:text-xl font-black tracking-wider text-slate-950 dark:text-white font-brand whitespace-nowrap shrink-0 cursor-pointer flex items-center gap-2 focus-visible:outline-none"
+          className="text-base sm:text-xl font-black tracking-wide sm:tracking-wider text-slate-950 dark:text-white font-brand whitespace-nowrap shrink-0 cursor-pointer flex items-center gap-1.5 focus-visible:outline-none"
         >
           <span>{settings.storeName || 'BELLA SHOES'}</span>
         </button>
@@ -166,12 +166,12 @@ export const Header: React.FC = () => {
         </nav>
 
         {/* Zone 3: Utility & Primary Cart Action */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
           {/* Search Trigger */}
           <button
             type="button"
             onClick={() => setIsSearchOpen((prev) => !prev)}
-            className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full border flex items-center justify-center transition-colors cursor-pointer ${
+            className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full border flex items-center justify-center transition-colors cursor-pointer ${
               isSearchOpen || searchQuery
                 ? 'border-[#00C8FF] bg-[#00C8FF]/10 text-[#0099CC] dark:text-[#00C8FF]'
                 : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111319] text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700'
@@ -179,21 +179,21 @@ export const Header: React.FC = () => {
             title="البحث في المتجر"
             aria-label="البحث في المتجر"
           >
-            <Search className="w-4 h-4" />
+            <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
 
           {/* Day / Night Switcher */}
           <button
             type="button"
             onClick={toggleTheme}
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111319] text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700 flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111319] text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700 flex items-center justify-center transition-colors cursor-pointer"
             title={theme === 'dark' ? 'التبديل للوضع النهاري' : 'التبديل للوضع الليلي'}
             aria-label="تبديل المظهر النهاري والليلي"
           >
             {theme === 'dark' ? (
-              <Sun className="w-4 h-4 text-[#00C8FF]" />
+              <Sun className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#00C8FF]" />
             ) : (
-              <Moon className="w-4 h-4 text-slate-800" />
+              <Moon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-800" />
             )}
           </button>
 
@@ -201,7 +201,7 @@ export const Header: React.FC = () => {
           <button
             type="button"
             onClick={handleToggleWishlistView}
-            className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full border flex items-center justify-center relative transition-colors cursor-pointer ${
+            className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full border flex items-center justify-center relative transition-colors cursor-pointer ${
               showWishlistOnly
                 ? 'border-rose-500 bg-rose-500/10 text-rose-500'
                 : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111319] text-slate-700 dark:text-slate-200 hover:text-rose-500 hover:border-slate-300 dark:hover:border-slate-700'
@@ -209,9 +209,9 @@ export const Header: React.FC = () => {
             title="المفضلة"
             aria-label="عرض المفضلة"
           >
-            <Heart className={`w-4 h-4 ${wishlist.length > 0 || showWishlistOnly ? 'fill-rose-500 text-rose-500' : ''}`} />
+            <Heart className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${wishlist.length > 0 || showWishlistOnly ? 'fill-rose-500 text-rose-500' : ''}`} />
             {wishlist.length > 0 && (
-              <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold tabular-nums">
+              <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold tabular-nums">
                 {wishlist.length}
               </span>
             )}
@@ -224,12 +224,12 @@ export const Header: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="h-9 sm:h-10 px-2.5 sm:px-3 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111319] text-slate-900 dark:text-white flex items-center gap-1.5 text-xs font-semibold hover:border-[#00C8FF] transition-colors cursor-pointer"
+                  className="h-8 sm:h-10 px-2 sm:px-3 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111319] text-slate-900 dark:text-white flex items-center gap-1 text-xs font-semibold hover:border-[#00C8FF] transition-colors cursor-pointer"
                   title="حسابي"
                 >
-                  <UserIcon className="w-4 h-4 text-[#00C8FF]" />
+                  <UserIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#00C8FF]" />
                   <span className="max-w-[70px] truncate hidden md:inline">{user.name}</span>
-                  <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                  <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-400" />
                 </button>
 
                 {isUserMenuOpen && (
@@ -279,11 +279,11 @@ export const Header: React.FC = () => {
                   setAuthModalMode('login');
                   setIsAuthModalOpen(true);
                 }}
-                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111319] text-slate-700 dark:text-slate-200 hover:text-[#00C8FF] hover:border-slate-300 dark:hover:border-slate-700 flex items-center justify-center transition-colors cursor-pointer"
+                className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111319] text-slate-700 dark:text-slate-200 hover:text-[#00C8FF] hover:border-slate-300 dark:hover:border-slate-700 flex items-center justify-center transition-colors cursor-pointer"
                 title="تسجيل الدخول / حسابي"
                 aria-label="تسجيل الدخول"
               >
-                <UserIcon className="w-4 h-4" />
+                <UserIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
             )}
           </div>
@@ -292,10 +292,10 @@ export const Header: React.FC = () => {
           <button
             type="button"
             onClick={() => setIsCartOpen(true)}
-            className="h-9 sm:h-10 px-3 sm:px-4 rounded-full bg-[#00C8FF] hover:bg-[#00B4E6] text-black font-extrabold text-xs flex items-center gap-1.5 shadow-[0_2px_14px_rgba(0,200,255,0.35)] transition-all cursor-pointer whitespace-nowrap shrink-0"
+            className="h-8 sm:h-10 px-2.5 sm:px-4 rounded-full bg-[#00C8FF] hover:bg-[#00B4E6] text-black font-extrabold text-xs flex items-center gap-1 sm:gap-1.5 shadow-[0_2px_14px_rgba(0,200,255,0.35)] transition-all cursor-pointer whitespace-nowrap shrink-0"
             title="سلة المشتريات"
           >
-            <ShoppingBag className="w-4 h-4 stroke-[2.25]" />
+            <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.25]" />
             <span className="font-mono font-black tabular-nums">{cartCount}</span>
             <span className="hidden sm:inline opacity-60">·</span>
             <span className="hidden sm:inline font-mono font-bold tabular-nums">{cartTotal} MAD</span>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Truck, Gift, ShieldCheck, RotateCcw } from 'lucide-react';
+import { SHOE_IMAGES } from '../assets/shoeImages';
 
 export const FeatureCards: React.FC = () => {
   const [atelierImgError, setAtelierImgError] = useState(false);
@@ -30,13 +31,13 @@ export const FeatureCards: React.FC = () => {
   return (
     <section className="py-12 sm:py-16 bg-slate-50/60 dark:bg-[#0A0B0E] border-t border-slate-200/80 dark:border-slate-800/80 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch min-w-0">
           {/* Editorial Craftsmanship Card (5 cols on desktop) */}
-          <div className="lg:col-span-5 flex">
+          <div className="lg:col-span-5 min-w-0 flex">
             <div className="relative w-full aspect-[4/3] lg:aspect-auto rounded-2xl overflow-hidden bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
               {!atelierImgError ? (
                 <img
-                  src="/src/assets/images/bella_atelier_craft_1794577996182.jpg"
+                  src={SHOE_IMAGES.atelierCraft}
                   alt="حرفية صناعة الجلود والأحذية الفاخرة في مشغل BELLA SHOES"
                   referrerPolicy="no-referrer"
                   onError={() => setAtelierImgError(true)}

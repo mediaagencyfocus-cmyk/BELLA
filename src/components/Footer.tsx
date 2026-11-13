@@ -42,11 +42,11 @@ export const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="bg-white dark:bg-[#060709] text-slate-800 dark:text-slate-300 border-t border-slate-200/80 dark:border-slate-800/80 transition-colors duration-200 text-right pt-12 pb-8">
+    <footer className="bg-white dark:bg-[#060709] text-slate-800 dark:text-slate-300 border-t border-slate-200/80 dark:border-slate-800/80 transition-colors duration-200 text-right pt-12 pb-24 sm:pb-8 overflow-x-clip">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 pb-10 border-b border-slate-200/80 dark:border-slate-800/80">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 pb-10 border-b border-slate-200/80 dark:border-slate-800/80 min-w-0">
           {/* Col 1: Brand & Identity */}
-          <div className="space-y-4">
+          <div className="space-y-4 min-w-0">
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-xl bg-black dark:bg-[#111319] border border-[#00C8FF]/60 flex items-center justify-center text-[#00C8FF] font-black text-lg shadow-[0_0_12px_rgba(0,200,255,0.25)]">
                 B
@@ -122,7 +122,7 @@ export const Footer: React.FC = () => {
           </div>
 
           {/* Col 2: Store Categories */}
-          <div className="space-y-3">
+          <div className="space-y-3 min-w-0">
             <h4 className="text-sm font-bold text-slate-950 dark:text-white">
               الأقسام المعتمدة
             </h4>
@@ -176,7 +176,7 @@ export const Footer: React.FC = () => {
           </div>
 
           {/* Col 3: Customer Service & Contact Info */}
-          <div className="space-y-3">
+          <div className="space-y-3 min-w-0">
             <h4 className="text-sm font-bold text-slate-950 dark:text-white">
               خدمة الزبائن والدعم
             </h4>
@@ -223,7 +223,7 @@ export const Footer: React.FC = () => {
           </div>
 
           {/* Col 4: Quick Direct Contact Form */}
-          <div className="space-y-3">
+          <div className="space-y-3 min-w-0">
             <h4 className="text-sm font-bold text-slate-950 dark:text-white">
               تواصل معنا مباشرة
             </h4>
