@@ -1,13 +1,14 @@
 import React from 'react';
 import { useStore } from '../context/StoreContext';
 import { WhatsAppIcon } from './SocialIcons';
-import { buildWhatsAppLink } from '../utils/phone';
 
 export const FloatingWhatsApp: React.FC = () => {
-  const { settings } = useStore();
+  const { whatsappNumber, getWhatsAppUrl } = useStore();
 
   const greeting = 'السلام عليكم، أود الاستفسار عن تشكيلات أحذية BELLA SHOES وخدمة التوصيل.';
-  const waUrl = buildWhatsAppLink(settings.whatsapp, greeting);
+  const waUrl = getWhatsAppUrl(greeting);
+
+  if (!whatsappNumber || waUrl === '#') return null;
 
   return (
     <div className="fixed bottom-4 left-4 sm:bottom-5 sm:left-5 z-40 flex items-center select-none max-w-[calc(100vw-2rem)]">

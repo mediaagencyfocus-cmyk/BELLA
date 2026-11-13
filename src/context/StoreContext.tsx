@@ -28,6 +28,7 @@ import { auth, googleAuthProvider } from '../lib/firebase';
 import {
   subscribeProductsFromFirestore,
   subscribeSettingsFromFirestore,
+  fetchFreshSettingsFromFirestore,
   subscribeOrdersFromFirestore,
   seedInitialCatalogIfEmpty,
   saveProductToFirestore,
@@ -37,7 +38,9 @@ import {
   updateOrderStatusInFirestore,
   deleteOrderFromFirestore,
   syncFirebaseUserProfile,
+  isFirebaseAdminUser,
 } from '../lib/firestoreStore';
+import { buildWhatsAppLink, isValidWhatsAppNumber } from '../utils/phone';
 
 interface StoreContextType {
   isSupabaseActive: boolean;
@@ -98,8 +101,13 @@ interface StoreContextType {
   logout: () => void;
   isAdminView: boolean;
   setIsAdminView: (val: boolean) => void;
+  isCloudAdminVerified: boolean;
   settings: StoreSettings;
-  updateSettings: (newSettings: Partial<StoreSettings>) => void;
+  whatsappNumber: string;
+  getWhatsAppUrl: (message?: string) => string;
+  updateSettings: (
+    newSettings: Partial<StoreSettings>
+  ) => Promise<{ success: boolean; cloudSynced: boolean; error?: string }>;
   selectedProductForModal: Product | null;
   openProductModal: (prod: Product) => void;
   closeProductModal: () => void;
@@ -179,7 +187,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     localStorage.setItem('bella_theme', autoTheme);
   };
 
-  // Settings
+  // Settings (Single Centralized Source synced with Cloud DB)
   const [settings, setSettings] = useState<StoreSettings>(() => {
     try {
       const saved = localStorage.getItem('bella_settings');
@@ -190,16 +198,49 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return initialSettings;
   });
 
-  const updateSettings = (newSettings: Partial<StoreSettings>) => {
-    setSettings((prev) => {
-      const updated = { ...prev, ...newSettings };
-      localStorage.setItem('bella_settings', JSON.stringify(updated));
-      saveSettingsToFirestore(updated).catch(() => {});
-      return updated;
-    });
-    if (isSupabaseConfigured()) {
-      updateSettingsInSupabase(newSettings);
+  const [isCloudAdminVerified, setIsCloudAdminVerified] = useState<boolean>(() =>
+    isFirebaseAdminUser()
+  );
+
+  const getWhatsAppUrl = (message?: string): string => {
+    return buildWhatsAppLink(settings.whatsapp, message);
+  };
+
+  const updateSettings = async (
+    newSettings: Partial<StoreSettings>
+  ): Promise<{ success: boolean; cloudSynced: boolean; error?: string }> => {
+    if (newSettings.whatsapp !== undefined && !isValidWhatsAppNumber(newSettings.whatsapp)) {
+      return {
+        success: false,
+        cloudSynced: false,
+        error: 'يرجى إدخال رقم واتساب صحيح (مثال: 0612345678 أو +212612345678)',
+      };
     }
+
+    const updated = { ...settings, ...newSettings };
+
+    const [firestoreRes, supabaseRes] = await Promise.all([
+      saveSettingsToFirestore(updated),
+      isSupabaseConfigured()
+        ? updateSettingsInSupabase(newSettings)
+        : Promise.resolve(false),
+    ]);
+
+    const cloudSynced = firestoreRes.saved || supabaseRes;
+
+    // Apply updated settings locally only after validation succeeds
+    setSettings(updated);
+    localStorage.setItem('bella_settings', JSON.stringify(updated));
+
+    if (!cloudSynced) {
+      return {
+        success: true,
+        cloudSynced: false,
+        error: firestoreRes.error,
+      };
+    }
+
+    return { success: true, cloudSynced: true };
   };
 
   // Products
@@ -218,17 +259,26 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Live Database Subscriptions (Firestore + Supabase SQL sync)
   useEffect(() => {
+    const applyRemoteSettings = (remoteSettings: Partial<StoreSettings>) => {
+      setSettings((prev) => {
+        const merged = { ...prev, ...remoteSettings };
+        localStorage.setItem('bella_settings', JSON.stringify(merged));
+        return merged;
+      });
+    };
+
+    // Always force a fresh server read on mount so customers never see stale cached numbers
+    fetchFreshSettingsFromFirestore().then((fresh) => {
+      if (fresh) applyRemoteSettings(fresh);
+    });
+
     const unsubProducts = subscribeProductsFromFirestore((remoteProducts) => {
       setProducts(remoteProducts);
       localStorage.setItem('bella_products', JSON.stringify(remoteProducts));
     });
 
     const unsubSettings = subscribeSettingsFromFirestore((remoteSettings) => {
-      setSettings((prev) => {
-        const merged = { ...prev, ...remoteSettings };
-        localStorage.setItem('bella_settings', JSON.stringify(merged));
-        return merged;
-      });
+      applyRemoteSettings(remoteSettings);
     });
 
     if (isSupabaseConfigured()) {
@@ -240,11 +290,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       });
       fetchSettingsFromSupabase().then((remoteSettings) => {
         if (remoteSettings) {
-          setSettings((prev) => {
-            const merged = { ...prev, ...remoteSettings };
-            localStorage.setItem('bella_settings', JSON.stringify(merged));
-            return merged;
-          });
+          applyRemoteSettings(remoteSettings);
         }
       });
     }
@@ -519,6 +565,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
         setUser(syncedUser);
         localStorage.setItem('bella_user', JSON.stringify(syncedUser));
+        setIsCloudAdminVerified(isAdm && isFirebaseAdminUser());
 
         syncFirebaseUserProfile(syncedUser).catch(() => {});
         if (isAdm) {
@@ -531,6 +578,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             localStorage.setItem('bella_orders', JSON.stringify(remoteOrders));
           }
         });
+      } else {
+        setIsCloudAdminVerified(false);
       }
     });
 
@@ -745,7 +794,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         logout,
         isAdminView,
         setIsAdminView,
+        isCloudAdminVerified,
         settings,
+        whatsappNumber: settings.whatsapp,
+        getWhatsAppUrl,
         updateSettings,
         selectedProductForModal,
         openProductModal,

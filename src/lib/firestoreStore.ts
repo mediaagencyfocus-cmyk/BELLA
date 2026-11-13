@@ -3,8 +3,8 @@ import {
   doc,
   getDocs,
   getDoc,
+  getDocFromServer,
   setDoc,
-  updateDoc,
   deleteDoc,
   writeBatch,
   query,
@@ -143,11 +143,37 @@ export async function deleteProductFromFirestore(productId: string): Promise<voi
   }
 }
 
+export async function fetchFreshSettingsFromFirestore(): Promise<Partial<StoreSettings> | null> {
+  try {
+    const [storeSnap, waSnap] = await Promise.all([
+      getDocFromServer(doc(db, 'settings', 'store')).catch(() => getDoc(doc(db, 'settings', 'store'))),
+      getDocFromServer(doc(db, 'settings', 'whatsapp')).catch(() => getDoc(doc(db, 'settings', 'whatsapp'))),
+    ]);
+
+    const merged: Partial<StoreSettings> = {};
+    if (storeSnap.exists()) {
+      Object.assign(merged, storeSnap.data() as Partial<StoreSettings>);
+    }
+    if (waSnap.exists()) {
+      const waData = waSnap.data() as { whatsapp?: string };
+      if (waData.whatsapp) {
+        merged.whatsapp = waData.whatsapp;
+      }
+    }
+    return Object.keys(merged).length > 0 ? merged : null;
+  } catch (error) {
+    console.warn('Could not fetch fresh settings from Firestore server:', error);
+    return null;
+  }
+}
+
 export function subscribeSettingsFromFirestore(
   onUpdate: (settings: Partial<StoreSettings>) => void
 ): Unsubscribe {
-  const path = 'settings/store';
-  return onSnapshot(
+  const storePath = 'settings/store';
+  const waPath = 'settings/whatsapp';
+
+  const unsubStore = onSnapshot(
     doc(db, 'settings', 'store'),
     (snap) => {
       if (snap.exists()) {
@@ -156,29 +182,67 @@ export function subscribeSettingsFromFirestore(
     },
     (error) => {
       try {
-        handleFirestoreError(error, OperationType.GET, path);
+        handleFirestoreError(error, OperationType.GET, storePath);
       } catch {
         // Logged via handleFirestoreError
       }
     }
   );
+
+  const unsubWhatsapp = onSnapshot(
+    doc(db, 'settings', 'whatsapp'),
+    (snap) => {
+      if (snap.exists()) {
+        const waData = snap.data() as { whatsapp?: string };
+        if (waData.whatsapp) {
+          onUpdate({ whatsapp: waData.whatsapp });
+        }
+      }
+    },
+    (error) => {
+      try {
+        handleFirestoreError(error, OperationType.GET, waPath);
+      } catch {
+        // Logged via handleFirestoreError
+      }
+    }
+  );
+
+  return () => {
+    unsubStore();
+    unsubWhatsapp();
+  };
 }
 
-export async function saveSettingsToFirestore(settings: Partial<StoreSettings>): Promise<void> {
-  if (!isFirebaseAdminUser()) return;
+export async function saveSettingsToFirestore(
+  settings: Partial<StoreSettings>
+): Promise<{ saved: boolean; error?: string }> {
+  if (!isFirebaseAdminUser()) {
+    return {
+      saved: false,
+      error: 'يجب تسجيل الدخول بحساب الإدارة المعتمد على Google لتفعيل الحفظ السحابي لجميع الأجهزة.',
+    };
+  }
   const path = 'settings/store';
   const now = new Date().toISOString();
+  const cleanWhatsapp = (settings.whatsapp || '').trim();
+  const cleanPhone = (settings.phone || cleanWhatsapp).trim();
+
+  if (cleanWhatsapp.length < 8) {
+    return { saved: false, error: 'رقم الواتساب غير صالح' };
+  }
+
   try {
     const storePayload: Record<string, unknown> = {
       storeName: settings.storeName || 'BELLA SHOES',
       tagline: settings.tagline || 'الأناقة تبدأ من خطواتك · أسلوب حياة وفخامة لا تضاهى',
-      phone: settings.phone || '+212 600 123 456',
-      whatsapp: settings.whatsapp || '+212 600 123 456',
-      email: settings.email || 'contact@bellashoes.ma',
+      phone: cleanPhone.length >= 5 ? cleanPhone : cleanWhatsapp,
+      whatsapp: cleanWhatsapp,
+      email: settings.email || '',
       address: settings.address || '',
       city: settings.city || 'الدار البيضاء',
       deliveryFee: Number(settings.deliveryFee ?? 35),
-      freeShippingPairThreshold: Number(settings.freeShippingPairThreshold ?? 2),
+      freeShippingPairThreshold: Math.max(1, Number(settings.freeShippingPairThreshold ?? 2)),
       instagramUrl: settings.instagramUrl || '',
       facebookUrl: settings.facebookUrl || '',
       tiktokUrl: settings.tiktokUrl || '',
@@ -188,21 +252,28 @@ export async function saveSettingsToFirestore(settings: Partial<StoreSettings>):
 
     const batch = writeBatch(db);
     batch.set(doc(db, 'settings', 'store'), storePayload, { merge: true });
-    if (settings.whatsapp) {
-      batch.set(
-        doc(db, 'settings', 'whatsapp'),
-        {
-          whatsapp: settings.whatsapp,
-          normalizedNumber: normalizeWhatsAppNumber(settings.whatsapp),
-          defaultGreeting: 'السلام عليكم، أود الاستفسار عن تشكيلات أحذية BELLA SHOES وخدمة التوصيل.',
-          updatedAt: now,
-        },
-        { merge: true }
-      );
-    }
+    batch.set(
+      doc(db, 'settings', 'whatsapp'),
+      {
+        whatsapp: cleanWhatsapp,
+        normalizedNumber: normalizeWhatsAppNumber(cleanWhatsapp),
+        defaultGreeting: 'السلام عليكم، أود الاستفسار عن تشكيلات أحذية BELLA SHOES وخدمة التوصيل.',
+        updatedAt: now,
+      },
+      { merge: true }
+    );
     await batch.commit();
+    return { saved: true };
   } catch (error) {
-    handleFirestoreError(error, OperationType.WRITE, path);
+    try {
+      handleFirestoreError(error, OperationType.WRITE, path);
+    } catch (wrapped) {
+      return {
+        saved: false,
+        error: wrapped instanceof Error ? wrapped.message : 'فشل الحفظ في قاعدة البيانات السحابية',
+      };
+    }
+    return { saved: false, error: 'فشل الحفظ في قاعدة البيانات السحابية' };
   }
 }
 

@@ -17,6 +17,7 @@ import {
 import { useStore } from '../context/StoreContext';
 import { ColorVariant } from '../types';
 import { resolveImageUrl } from '../assets/shoeImages';
+import { WhatsAppIcon } from './SocialIcons';
 
 export const ProductModal: React.FC = () => {
   const {
@@ -26,6 +27,8 @@ export const ProductModal: React.FC = () => {
     wishlist,
     toggleWishlist,
     setIsCartOpen,
+    whatsappNumber,
+    getWhatsAppUrl,
   } = useStore();
 
   const product = selectedProductForModal;
@@ -93,6 +96,27 @@ export const ProductModal: React.FC = () => {
     addToCart(product, selectedColor, selectedSize, quantity);
     closeProductModal();
     setIsCartOpen(true);
+  };
+
+  const handleWhatsAppOrder = () => {
+    if (!selectedSize) {
+      setErrorMessage('يرجى اختيار النمرة / المقاس أولاً لإرسال الطلب عبر واتساب');
+      return;
+    }
+    if (!selectedColor) {
+      setErrorMessage('يرجى اختيار اللون المطلوب');
+      return;
+    }
+    setErrorMessage('');
+    const total = product.price * quantity;
+    const message = `السلام عليكم، أود طلب هذا الحذاء من متجر BELLA SHOES:\nالمنتج: ${product.name}\nاللون: ${selectedColor.name}\nالنمرة / المقاس: ${selectedSize}\nالكمية: ${quantity}\nالمجموع: ${total} MAD (الدفع عند الاستلام)`;
+    const url = getWhatsAppUrl(message);
+    if (url === '#') return;
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.target = '_blank';
+    anchor.rel = 'noopener noreferrer';
+    anchor.click();
   };
 
   return (
@@ -411,6 +435,17 @@ export const ProductModal: React.FC = () => {
                   <ShoppingBag className="w-4 h-4 text-[#00C8FF]" />
                   <span>إضافة إلى سلة المشتريات</span>
                 </button>
+
+                {whatsappNumber && (
+                  <button
+                    type="button"
+                    onClick={handleWhatsAppOrder}
+                    className="w-full h-11 px-4 rounded-2xl bg-[#25D366]/12 hover:bg-[#25D366]/20 text-[#128C7E] dark:text-[#25D366] border border-[#25D366]/40 font-extrabold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  >
+                    <WhatsAppIcon className="w-4 h-4" />
+                    <span>اطلب هذا الحذاء مباشرة عبر واتساب</span>
+                  </button>
+                )}
               </div>
             </div>
           </div>

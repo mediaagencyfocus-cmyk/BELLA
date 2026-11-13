@@ -30,12 +30,14 @@ import {
 import { useStore } from '../context/StoreContext';
 import { Product, ShoeCategory, ColorVariant, OrderStatus } from '../types';
 import { WhatsAppIcon, InstagramIcon, FacebookIcon, TikTokIcon } from './SocialIcons';
-import { normalizeWhatsAppNumber, buildWhatsAppLink } from '../utils/phone';
+import { normalizeWhatsAppNumber, buildWhatsAppLink, isValidWhatsAppNumber, formatDisplayPhone } from '../utils/phone';
 import { SHOE_IMAGES, resolveImageUrl } from '../assets/shoeImages';
 
 export const AdminDashboard: React.FC = () => {
   const {
     isSupabaseActive,
+    isCloudAdminVerified,
+    loginWithGoogle,
     products,
     addProduct,
     updateProduct,
@@ -45,6 +47,8 @@ export const AdminDashboard: React.FC = () => {
     deleteOrder,
     users,
     settings,
+    whatsappNumber,
+    getWhatsAppUrl,
     updateSettings,
     setIsAdminView,
     logout
@@ -91,10 +95,14 @@ export const AdminDashboard: React.FC = () => {
   const [settingsTiktok, setSettingsTiktok] = useState(settings.tiktokUrl);
   const [adminPass, setAdminPass] = useState(settings.adminPasswordHash);
   const [settingsSavedAlert, setSettingsSavedAlert] = useState(false);
+  const [settingsErrorAlert, setSettingsErrorAlert] = useState<string | null>(null);
+  const [settingsCloudWarning, setSettingsCloudWarning] = useState<string | null>(null);
+  const [isVerifyingCloud, setIsVerifyingCloud] = useState(false);
+  const [hasEditedSettings, setHasEditedSettings] = useState(false);
 
   const [isSavingSettings, setIsSavingSettings] = useState(false);
 
-  // Sync settings into form states only when switching to settings tab
+  // Sync settings into form states when switching to settings tab
   useEffect(() => {
     if (activeTab === 'settings') {
       setSettingsPhone(settings.phone);
@@ -107,8 +115,26 @@ export const AdminDashboard: React.FC = () => {
       setSettingsFacebook(settings.facebookUrl);
       setSettingsTiktok(settings.tiktokUrl);
       setAdminPass(settings.adminPasswordHash);
+      setHasEditedSettings(false);
+      setSettingsErrorAlert(null);
     }
   }, [activeTab]);
+
+  // Also keep form synced with remote cloud updates unless admin has unsaved edits
+  useEffect(() => {
+    if (activeTab === 'settings' && !hasEditedSettings && !isSavingSettings) {
+      setSettingsPhone(settings.phone);
+      setSettingsWhatsapp(settings.whatsapp);
+      setSettingsEmail(settings.email);
+      setSettingsAddress(settings.address);
+      setSettingsDeliveryFee(settings.deliveryFee);
+      setSettingsFreeThreshold(settings.freeShippingPairThreshold);
+      setSettingsInstagram(settings.instagramUrl);
+      setSettingsFacebook(settings.facebookUrl);
+      setSettingsTiktok(settings.tiktokUrl);
+      setAdminPass(settings.adminPasswordHash);
+    }
+  }, [settings, activeTab, hasEditedSettings, isSavingSettings]);
 
   // Stats calculation
   const totalRevenue = orders.reduce((sum, o) => sum + (o.status !== 'cancelled' ? o.total : 0), 0);
@@ -194,30 +220,82 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleSaveSettings = (e: React.FormEvent) => {
+  const buildSettingsPayload = () => ({
+    phone: settingsPhone.trim(),
+    whatsapp: settingsWhatsapp.trim(),
+    email: settingsEmail.trim(),
+    address: settingsAddress.trim(),
+    deliveryFee: Number(settingsDeliveryFee) || 0,
+    freeShippingPairThreshold: Number(settingsFreeThreshold) || 2,
+    instagramUrl: settingsInstagram.trim(),
+    facebookUrl: settingsFacebook.trim(),
+    tiktokUrl: settingsTiktok.trim(),
+    adminPasswordHash: adminPass.trim(),
+  });
+
+  const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSettingsErrorAlert(null);
+    setSettingsCloudWarning(null);
+    setSettingsSavedAlert(false);
+
+    if (!isValidWhatsAppNumber(settingsWhatsapp)) {
+      setSettingsErrorAlert(
+        'رقم الواتساب المدخل غير صالح. تم الإبقاء على الرقم السابق دون تغيير. يرجى إدخال رقم صحيح (مثال: 0612345678 أو +212612345678).'
+      );
+      return;
+    }
+
     setIsSavingSettings(true);
-
-    const updated = {
-      phone: settingsPhone.trim(),
-      whatsapp: settingsWhatsapp.trim(),
-      email: settingsEmail.trim(),
-      address: settingsAddress.trim(),
-      deliveryFee: Number(settingsDeliveryFee) || 0,
-      freeShippingPairThreshold: Number(settingsFreeThreshold) || 2,
-      instagramUrl: settingsInstagram.trim(),
-      facebookUrl: settingsFacebook.trim(),
-      tiktokUrl: settingsTiktok.trim(),
-      adminPasswordHash: adminPass.trim()
-    };
-
-    updateSettings(updated);
-    setSettingsSavedAlert(true);
+    const updated = buildSettingsPayload();
+    const res = await updateSettings(updated);
     setIsSavingSettings(false);
+
+    if (!res.success) {
+      setSettingsErrorAlert(res.error || 'تعذر حفظ الإعدادات. تم الاحتفاظ بالرقم القديم.');
+      return;
+    }
+
+    setHasEditedSettings(false);
+    setSettingsSavedAlert(true);
+
+    if (!res.cloudSynced) {
+      setSettingsCloudWarning(
+        res.error ||
+          'تم حفظ الإعدادات على هذا الجهاز فقط. لكي يتحدث رقم الواتساب تلقائياً عند جميع الزبائن على الهواتف والأجهزة الأخرى، يرجى توثيق جلسة الإدارة بحساب Google المعتمد.'
+      );
+    }
 
     setTimeout(() => {
       setSettingsSavedAlert(false);
-    }, 4500);
+    }, 5500);
+  };
+
+  const handleVerifyCloudAndSync = async () => {
+    setIsVerifyingCloud(true);
+    setSettingsErrorAlert(null);
+    const authRes = await loginWithGoogle();
+    if (!authRes.success) {
+      setIsVerifyingCloud(false);
+      setSettingsErrorAlert(authRes.error || 'تعذر توثيق حساب الإدارة السحابي عبر Google.');
+      return;
+    }
+
+    if (authRes.role !== 'admin') {
+      setIsVerifyingCloud(false);
+      setSettingsErrorAlert('حساب Google المختار غير مصرح له بصلاحيات الإدارة لتعديل الإعدادات المركزية.');
+      return;
+    }
+
+    if (isValidWhatsAppNumber(settingsWhatsapp)) {
+      const syncRes = await updateSettings(buildSettingsPayload());
+      if (syncRes.success && syncRes.cloudSynced) {
+        setSettingsCloudWarning(null);
+        setHasEditedSettings(false);
+        setSettingsSavedAlert(true);
+      }
+    }
+    setIsVerifyingCloud(false);
   };
 
   const addColorVariant = () => {
@@ -1016,18 +1094,94 @@ export const AdminDashboard: React.FC = () => {
 
         {/* 5. SETTINGS TAB */}
         {activeTab === 'settings' && (
-          <div className="max-w-2xl space-y-6">
-            <h3 className="font-bold text-base text-slate-900 dark:text-white">
-              إعدادات المتجر، أرقام التواصل وروابط المنصات
-            </h3>
+          <div className="max-w-2xl space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 className="font-bold text-base text-slate-900 dark:text-white">
+                  النظام المركزي لإعدادات المتجر ورقم الواتساب
+                </h3>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  أي تعديل تحفظه هنا يُعتمد تلقائياً في جميع أزرار وروابط وطلبات الواتساب عبر جميع الأجهزة.
+                </p>
+              </div>
 
-            {settingsSavedAlert && (
-              <div className="p-4 rounded-2xl bg-emerald-500/15 border-2 border-emerald-500/40 text-emerald-700 dark:text-emerald-300 text-xs font-bold flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md animate-in fade-in duration-200">
+              <div
+                className={`px-3 py-1.5 rounded-xl text-[11px] font-bold border flex items-center gap-2 shrink-0 ${
+                  isCloudAdminVerified
+                    ? 'bg-emerald-500/12 border-emerald-500/35 text-emerald-700 dark:text-emerald-300'
+                    : 'bg-amber-500/12 border-amber-500/35 text-amber-700 dark:text-amber-300'
+                }`}
+              >
+                <span
+                  className={`w-2 h-2 rounded-full ${
+                    isCloudAdminVerified ? 'bg-emerald-500' : 'bg-amber-500'
+                  }`}
+                />
+                <span>
+                  {isCloudAdminVerified
+                    ? 'المزامنة السحابية المركزية مفعلة'
+                    : 'توثيق Google مطلوب للمزامنة لكل الأجهزة'}
+                </span>
+              </div>
+            </div>
+
+            {!isCloudAdminVerified && (
+              <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/35 text-amber-900 dark:text-amber-200 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-start gap-2.5">
+                  <ShieldAlert className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="block font-bold">تنبيه المزامنة المركزية عبر السحابة</span>
+                    <span className="text-[11px] opacity-90">
+                      لتحديث رقم الواتساب مركزياً على هواتف وحواسيب الزبائن فوراً عند الحفظ، يرجى ربط جلستك بحساب Google المعتمد للإدارة.
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleVerifyCloudAndSync}
+                  disabled={isVerifyingCloud}
+                  className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-xs transition-colors shrink-0 cursor-pointer disabled:opacity-50"
+                >
+                  {isVerifyingCloud ? 'جاري التوثيق...' : 'تفعيل المزامنة السحابية عبر Google'}
+                </button>
+              </div>
+            )}
+
+            {settingsErrorAlert && (
+              <div className="p-4 rounded-2xl bg-rose-500/12 border-2 border-rose-500/40 text-rose-700 dark:text-rose-300 text-xs font-bold flex items-center gap-2.5">
+                <AlertTriangle className="w-5 h-5 text-rose-500 shrink-0" />
+                <span>{settingsErrorAlert}</span>
+              </div>
+            )}
+
+            {settingsCloudWarning && (
+              <div className="p-4 rounded-2xl bg-amber-500/12 border-2 border-amber-500/40 text-amber-900 dark:text-amber-200 text-xs font-bold flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-start gap-2.5">
+                  <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                  <span>{settingsCloudWarning}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleVerifyCloudAndSync}
+                  disabled={isVerifyingCloud}
+                  className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-[11px] shrink-0 cursor-pointer"
+                >
+                  مزامنة مع السحابة الآن
+                </button>
+              </div>
+            )}
+
+            {settingsSavedAlert && !settingsCloudWarning && (
+              <div className="p-4 rounded-2xl bg-emerald-500/15 border-2 border-emerald-500/40 text-emerald-700 dark:text-emerald-300 text-xs font-bold flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
                 <div className="flex items-center gap-2.5">
                   <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0" />
                   <div>
-                    <span className="block font-black text-sm text-slate-900 dark:text-white">تم حفظ كافة الباراميترات بنجاح!</span>
-                    <span className="text-[11px] font-medium text-slate-600 dark:text-slate-300">تم تحديث رقم الواتساب، الهاتف، روابط المنصات، ومصاريف التوصيل في المتجر فوراً.</span>
+                    <span className="block font-black text-sm text-slate-900 dark:text-white">
+                      تم حفظ ومزامنة رقم الواتساب والإعدادات مركزياً!
+                    </span>
+                    <span className="text-[11px] font-medium text-slate-600 dark:text-slate-300">
+                      تم اعتماد الرقم الجديد في قاعدة البيانات السحابية، وجميع أزرار وروابط الواتساب للزبائن على الهاتف والكمبيوتر والتابلت تعمل به الآن.
+                    </span>
                   </div>
                 </div>
                 <button
@@ -1041,43 +1195,82 @@ export const AdminDashboard: React.FC = () => {
               </div>
             )}
 
+            {/* Active Published Number Card */}
+            <div className="p-4 rounded-2xl bg-white dark:bg-[#12141C] border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#25D366]/15 border border-[#25D366]/35 flex items-center justify-center text-[#25D366] shrink-0">
+                  <WhatsAppIcon className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 block">
+                    الرقم النشط حالياً في كافة واجهات المتجر للزبائن:
+                  </span>
+                  <span className="font-mono font-black text-sm text-slate-950 dark:text-white tabular-nums" dir="ltr">
+                    {formatDisplayPhone(whatsappNumber) || 'غير محدد'}
+                  </span>
+                </div>
+              </div>
+              {whatsappNumber && (
+                <a
+                  href={getWhatsAppUrl('السلام عليكم، تجربة رقم واتساب BELLA SHOES المعتمد حالياً.')}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#25D366]/12 hover:bg-[#25D366]/20 text-[#128C7E] dark:text-[#25D366] border border-[#25D366]/35 font-bold text-xs transition-colors"
+                >
+                  <WhatsAppIcon className="w-3.5 h-3.5" />
+                  <span>فتح الرقم النشط</span>
+                </a>
+              )}
+            </div>
+
             <form onSubmit={handleSaveSettings} className="p-6 rounded-2xl bg-white dark:bg-[#12141C] border border-slate-200 dark:border-slate-800 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    رقم واتساب الإدارة (الزر العائم) <span className="text-rose-500">*</span>
+                    رقم الواتساب المركزي للمتجر <span className="text-rose-500">*</span>
                   </label>
                   <div className="relative">
                     <input
                       type="text"
                       required
+                      dir="ltr"
                       value={settingsWhatsapp}
-                      onChange={(e) => setSettingsWhatsapp(e.target.value)}
+                      onChange={(e) => {
+                        setSettingsWhatsapp(e.target.value);
+                        setHasEditedSettings(true);
+                        setSettingsErrorAlert(null);
+                      }}
                       placeholder="0612345678 أو +212612345678"
-                      className="w-full px-3.5 py-2 rounded-xl text-xs bg-slate-100 dark:bg-[#181B24] border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-mono"
+                      className="w-full pl-9 pr-3.5 py-2 rounded-xl text-xs bg-slate-100 dark:bg-[#181B24] border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-mono text-left"
                     />
                     <WhatsAppIcon className="w-4 h-4 text-[#25D366] absolute left-3 top-1/2 -translate-y-1/2" />
                   </div>
-                  
+
                   {/* Real-time WhatsApp Link Preview & Direct Test */}
                   <div className="mt-2 p-2.5 rounded-xl bg-slate-50 dark:bg-[#161922] border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-right">
                     <div className="text-[11px] text-slate-600 dark:text-slate-300">
-                      <span>الرقم المعتمد: </span>
-                      <span className="font-mono font-bold text-[#00C8FF]">+{normalizeWhatsAppNumber(settingsWhatsapp)}</span>
+                      <span>المعاينة قبل الحفظ: </span>
+                      <span className="font-mono font-bold text-[#00C8FF]" dir="ltr">
+                        {isValidWhatsAppNumber(settingsWhatsapp)
+                          ? `+${normalizeWhatsAppNumber(settingsWhatsapp)}`
+                          : 'رقم غير مكتمل'}
+                      </span>
                     </div>
-                    <a
-                      href={buildWhatsAppLink(settingsWhatsapp, 'السلام عليكم، تجربة فتح واتساب BELLA SHOES بعد تعديل الرقم.')}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#25D366] text-black font-extrabold text-[11px] shadow-xs hover:bg-[#20ba5a] transition-all"
-                      title="انقر لتجربة فتح واتساب الآن على هاتفك أو حاسوبك"
-                    >
-                      <WhatsAppIcon className="w-3.5 h-3.5" />
-                      <span>اختبر فتح واتساب الخاص بك الآن</span>
-                    </a>
+                    {isValidWhatsAppNumber(settingsWhatsapp) && (
+                      <a
+                        href={buildWhatsAppLink(settingsWhatsapp, 'السلام عليكم، تجربة فتح واتساب BELLA SHOES بالرقم الجديد.')}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#25D366] text-black font-extrabold text-[11px] shadow-xs hover:bg-[#20ba5a] transition-all"
+                        title="انقر لتجربة فتح واتساب بالرقم المدخل قبل الحفظ"
+                      >
+                        <WhatsAppIcon className="w-3.5 h-3.5" />
+                        <span>تجربة الرقم</span>
+                      </a>
+                    )}
                   </div>
                   <span className="text-[10px] text-slate-400 mt-1 block">
-                    يقبل الأرقام المحلية (مثل 0661234567 أو 07...) أو الدولية (+212...) ويتم تحويلها وتحديثها فورياً في كامل المتجر.
+                    يقبل الأرقام المغربية (06... / 07...) أو الدولية (+212...)، ويبقى الرقم القديم سارياً حتى تضغط حفظ برقم صحيح.
                   </span>
                 </div>
 

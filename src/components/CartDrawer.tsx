@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { resolveImageUrl } from '../assets/shoeImages';
+import { WhatsAppIcon } from './SocialIcons';
 
 const MOROCCAN_CITIES = [
   'الدار البيضاء',
@@ -50,6 +51,8 @@ export const CartDrawer: React.FC = () => {
     clearCart,
     placeOrder,
     settings,
+    whatsappNumber,
+    getWhatsAppUrl,
   } = useStore();
 
   const [isCheckingOut, setIsCheckingOut] = useState(false);
@@ -66,6 +69,15 @@ export const CartDrawer: React.FC = () => {
   const isFreeShipping = cartCount >= settings.freeShippingPairThreshold;
   const shippingFee = isFreeShipping ? 0 : cartCount > 0 ? settings.deliveryFee : 0;
   const orderFinalTotal = cartTotal + shippingFee;
+
+  const cartItemsSummary = cart
+    .map(
+      (item, idx) =>
+        `${idx + 1}. ${item.product.name} (${item.selectedColor.name} - نمرة ${item.selectedSize}) × ${item.quantity} = ${item.product.price * item.quantity} MAD`
+    )
+    .join('\n');
+  const cartWaMessage = `السلام عليكم، أود طلب محتويات سلتي من متجر BELLA SHOES:\n${cartItemsSummary}\n\nالتوصيل: ${shippingFee === 0 ? 'مجاني' : `${shippingFee} MAD`}\nالمجموع الإجمالي: ${orderFinalTotal} MAD (الدفع عند الاستلام)`;
+  const cartWaUrl = getWhatsAppUrl(cartWaMessage);
 
   const handleSubmitOrder = (e: React.FormEvent) => {
     e.preventDefault();
@@ -406,6 +418,18 @@ export const CartDrawer: React.FC = () => {
                 <span>متابعة تأكيد الطلب</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
+
+              {whatsappNumber && cartWaUrl !== '#' && (
+                <a
+                  href={cartWaUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full h-11 px-4 rounded-2xl bg-[#25D366]/12 hover:bg-[#25D366]/20 text-[#128C7E] dark:text-[#25D366] border border-[#25D366]/40 font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors"
+                >
+                  <WhatsAppIcon className="w-4 h-4" />
+                  <span>إرسال طلب السلة مباشرة عبر واتساب</span>
+                </a>
+              )}
             </div>
           )}
         </div>

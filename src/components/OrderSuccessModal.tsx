@@ -2,10 +2,9 @@ import React from 'react';
 import { CheckCircle2, X, PhoneCall, ShieldCheck } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { WhatsAppIcon } from './SocialIcons';
-import { buildWhatsAppLink } from '../utils/phone';
 
 export const OrderSuccessModal: React.FC = () => {
-  const { lastPlacedOrder, setLastPlacedOrder, settings } = useStore();
+  const { lastPlacedOrder, setLastPlacedOrder, getWhatsAppUrl } = useStore();
 
   if (!lastPlacedOrder) return null;
 
@@ -19,7 +18,7 @@ export const OrderSuccessModal: React.FC = () => {
     .join('\n');
 
   const rawMessage = `السلام عليكم ورحمة الله،\nلقد قمت بطلب حذاء من متجر BELLA SHOES رقم الطلب: ${order.orderNumber}\nالاسم: ${order.customerName}\nالهاتف: ${order.phone}\nالمدينة: ${order.city}\nالعنوان: ${order.address}\n\nتفاصيل الأحذية:\n${itemsText}\n\nالمجموع النهائي: ${order.total} درهم (الدفع عند الاستلام مع إمكانية القياس).\nشكراً لكم.`;
-  const waUrl = buildWhatsAppLink(settings.whatsapp, rawMessage);
+  const waUrl = getWhatsAppUrl(rawMessage);
 
   return (
     <div className="fixed inset-0 z-60 bg-black/75 luxury-modal-backdrop flex items-center justify-center p-4 overflow-y-auto text-right">

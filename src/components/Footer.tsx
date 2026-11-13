@@ -10,15 +10,21 @@ import {
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { WhatsAppIcon, InstagramIcon, FacebookIcon, TikTokIcon } from './SocialIcons';
-import { buildWhatsAppLink, formatDisplayPhone } from '../utils/phone';
+import { formatDisplayPhone } from '../utils/phone';
 
 export const Footer: React.FC = () => {
-  const { settings, setActiveCategory, setShowWishlistOnly } = useStore();
+  const {
+    settings,
+    whatsappNumber,
+    getWhatsAppUrl,
+    setActiveCategory,
+    setShowWishlistOnly,
+  } = useStore();
   const [contactName, setContactName] = useState('');
   const [contactMessage, setContactMessage] = useState('');
   const [contactSent, setContactSent] = useState(false);
 
-  const directWaLink = buildWhatsAppLink(settings.whatsapp);
+  const directWaLink = getWhatsAppUrl();
 
   const handleCategoryJump = (category: 'all' | 'womens' | 'mens' | 'kids' | 'wholesale') => {
     setShowWishlistOnly(false);
@@ -31,8 +37,13 @@ export const Footer: React.FC = () => {
     if (!contactMessage.trim()) return;
 
     const message = `رسالة من موقع BELLA SHOES:\nالاسم: ${contactName || 'زبون'}\nالرسالة: ${contactMessage}`;
-    const url = buildWhatsAppLink(settings.whatsapp, message);
-    window.open(url, '_blank');
+    const url = getWhatsAppUrl(message);
+    if (url === '#') return;
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.target = '_blank';
+    anchor.rel = 'noopener noreferrer';
+    anchor.click();
     setContactSent(true);
     setTimeout(() => {
       setContactSent(false);
@@ -190,7 +201,7 @@ export const Footer: React.FC = () => {
                 >
                   <WhatsAppIcon className="w-4 h-4 text-[#25D366] shrink-0" />
                   <span className="font-mono font-semibold tabular-nums" dir="ltr">
-                    {formatDisplayPhone(settings.whatsapp)}
+                    {formatDisplayPhone(whatsappNumber)}
                   </span>
                   <span className="text-[10px] text-slate-400 dark:text-slate-500">(واتساب)</span>
                 </a>
