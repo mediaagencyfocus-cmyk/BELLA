@@ -13,10 +13,14 @@ import {
   Minus,
   Sparkles,
   AlertCircle,
+  Play,
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { ColorVariant } from '../types';
 import { resolveImageUrl } from '../assets/shoeImages';
+import { extractProductMedia, isVideoMedia } from '../utils/media';
+import { HarmonizedProductImage } from './HarmonizedProductImage';
+import { ProductVideoPlayer, VideoLightboxModal } from './ProductVideoPlayer';
 import { WhatsAppIcon } from './SocialIcons';
 
 export const ProductModal: React.FC = () => {
@@ -36,33 +40,35 @@ export const ProductModal: React.FC = () => {
   const [selectedColor, setSelectedColor] = useState<ColorVariant | null>(null);
   const [selectedSize, setSelectedSize] = useState<number | null>(null);
   const [quantity, setQuantity] = useState<number>(1);
-  const [activeImage, setActiveImage] = useState<string>('');
-  const [mainImgError, setMainImgError] = useState(false);
-  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [activeMedia, setActiveMedia] = useState<string>('');
+  const [isImageLightboxOpen, setIsImageLightboxOpen] = useState(false);
+  const [isVideoLightboxOpen, setIsVideoLightboxOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
 
   useEffect(() => {
     if (product) {
       const defaultColor = product.colors.find((c) => c.inStock) || product.colors[0];
       setSelectedColor(defaultColor);
-      setActiveImage(resolveImageUrl(defaultColor?.image));
-      setMainImgError(false);
+      setActiveMedia(resolveImageUrl(defaultColor?.image));
       setSelectedSize(null);
       setQuantity(1);
       setErrorMessage('');
+      setIsImageLightboxOpen(false);
+      setIsVideoLightboxOpen(false);
     }
   }, [product]);
 
   if (!product) return null;
 
   const isFavorite = wishlist.includes(product.id);
+  const { images: extraImages, videos } = extractProductMedia(product, selectedColor?.image);
+  const activeIsVideo = isVideoMedia(activeMedia);
 
   const handleColorChange = (color: ColorVariant) => {
     if (!color.inStock) return;
     setSelectedColor(color);
-    setMainImgError(false);
     if (color.image) {
-      setActiveImage(resolveImageUrl(color.image));
+      setActiveMedia(resolveImageUrl(color.image));
     }
   };
 
@@ -119,6 +125,10 @@ export const ProductModal: React.FC = () => {
     anchor.click();
   };
 
+  // Deduplicated image gallery thumbnails (beyond color swatches)
+  const colorImageSet = new Set(product.colors.map((c) => resolveImageUrl(c.image)));
+  const standaloneGalleryImages = extraImages.filter((img) => !colorImageSet.has(img));
+
   return (
     <>
       {/* Backdrop */}
@@ -128,7 +138,7 @@ export const ProductModal: React.FC = () => {
       >
         {/* Modal Dialog */}
         <div
-          className="relative w-full max-w-4xl bg-white dark:bg-[#111319] border border-slate-200 dark:border-slate-800 rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden my-2 sm:my-auto text-right text-slate-900 dark:text-white"
+          className="relative w-full max-w-4xl bg-white dark:bg-[#111319] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden my-2 sm:my-auto text-right text-slate-900 dark:text-white"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close button */}
@@ -144,117 +154,137 @@ export const ProductModal: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-12 md:max-h-[90vh] md:overflow-y-auto min-w-0">
             {/* Gallery Column (6 cols on desktop) */}
-            <div className="md:col-span-6 min-w-0 bg-slate-50 dark:bg-[#0B0D12] p-4 sm:p-6 flex flex-col justify-between border-b md:border-b-0 md:border-l border-slate-200/80 dark:border-slate-800">
-              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100 dark:bg-[#161922] border border-slate-200/80 dark:border-slate-800">
-                {!mainImgError && activeImage ? (
-                  <img
-                    src={activeImage}
-                    alt={product.name}
-                    referrerPolicy="no-referrer"
-                    onError={() => setMainImgError(true)}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center text-slate-400">
-                    <ShoppingBag className="w-9 h-9 mb-2 text-[#00C8FF]/70" />
-                    <span className="text-xs font-brand font-bold">BELLA SHOES</span>
+            <div className="md:col-span-6 min-w-0 bg-slate-50/70 dark:bg-[#0B0D12] p-4 sm:p-6 flex flex-col justify-between border-b md:border-b-0 md:border-l border-slate-200/80 dark:border-slate-800">
+              <div className="relative rounded-[8px] overflow-hidden">
+                {activeIsVideo ? (
+                  <div className="w-full min-h-[280px] flex items-center justify-center bg-neutral-950 rounded-[8px]">
+                    <ProductVideoPlayer
+                      src={activeMedia}
+                      poster={resolveImageUrl(selectedColor?.image)}
+                      title={product.name}
+                      onExpand={() => setIsVideoLightboxOpen(true)}
+                    />
                   </div>
-                )}
+                ) : (
+                  <div className="relative">
+                    <HarmonizedProductImage
+                      src={activeMedia || resolveImageUrl(selectedColor?.image)}
+                      alt={product.name}
+                      priority
+                    />
 
-                {!mainImgError && activeImage && (
-                  <button
-                    type="button"
-                    onClick={() => setIsLightboxOpen(true)}
-                    className="absolute bottom-3 left-3 px-3 py-1.5 rounded-full bg-black/70 backdrop-blur-md text-white text-xs font-semibold flex items-center gap-1.5 hover:bg-black transition-colors cursor-pointer"
-                  >
-                    <ZoomIn className="w-3.5 h-3.5" />
-                    <span>تكبير الصورة</span>
-                  </button>
-                )}
+                    {activeMedia && (
+                      <button
+                        type="button"
+                        onClick={() => setIsImageLightboxOpen(true)}
+                        className="absolute bottom-3 left-3 z-10 px-3 py-1.5 rounded-[8px] bg-black/70 backdrop-blur-md text-white text-xs font-semibold flex items-center gap-1.5 hover:bg-black transition-colors cursor-pointer"
+                      >
+                        <ZoomIn className="w-3.5 h-3.5" />
+                        <span>تكبير الصورة</span>
+                      </button>
+                    )}
 
-                <button
-                  type="button"
-                  onClick={() => toggleWishlist(product.id)}
-                  className="absolute top-3 left-3 w-9 h-9 rounded-full bg-black/60 backdrop-blur-md text-white hover:text-rose-500 flex items-center justify-center transition-colors cursor-pointer"
-                  aria-label="المفضلة"
-                >
-                  <Heart className={`w-4 h-4 ${isFavorite ? 'fill-rose-500 text-rose-500' : ''}`} />
-                </button>
-
-                {product.discount && (
-                  <span className="absolute top-3 right-3 px-2.5 py-0.5 rounded-full text-xs font-black bg-rose-600 text-white shadow-xs tabular-nums">
-                    {product.discount} تخفيض
-                  </span>
+                    <button
+                      type="button"
+                      onClick={() => toggleWishlist(product.id)}
+                      className="absolute top-3 left-3 z-10 w-9 h-9 rounded-full bg-white/85 dark:bg-[#111319]/85 backdrop-blur-sm text-slate-700 dark:text-slate-200 hover:text-rose-500 flex items-center justify-center transition-colors cursor-pointer"
+                      aria-label="المفضلة"
+                    >
+                      <Heart className={`w-4 h-4 ${isFavorite ? 'fill-rose-500 text-rose-500' : ''}`} />
+                    </button>
+                  </div>
                 )}
               </div>
 
-              {/* Color & Extra Gallery Thumbnails */}
+              {/* Color, Extra Image & Video Thumbnails */}
               <div className="mt-4">
                 <label className="text-xs font-bold text-slate-600 dark:text-slate-300 block mb-2">
-                  معرض صور الحذاء والألوان المتوفرة:
+                  معرض صور وفيديوهات الحذاء والألوان المتوفرة:
                 </label>
                 <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar max-w-full">
                   {product.colors.map((c) => {
                     const resolvedCImg = resolveImageUrl(c.image);
+                    const isActive = !activeIsVideo && selectedColor?.id === c.id && activeMedia === resolvedCImg;
                     return (
                       <button
                         key={c.id}
                         type="button"
                         onClick={() => handleColorChange(c)}
-                        className={`relative w-16 h-12 rounded-xl overflow-hidden border transition-all shrink-0 cursor-pointer ${
-                          selectedColor?.id === c.id && activeImage === resolvedCImg
-                            ? 'border-2 border-[#00C8FF] shadow-[0_0_10px_rgba(0,200,255,0.35)]'
-                            : 'border-slate-300 dark:border-slate-700 opacity-75 hover:opacity-100'
+                        className={`relative w-14 h-14 rounded-[8px] overflow-hidden border transition-all shrink-0 cursor-pointer bg-[#F5F5F3] dark:bg-[#13151B] ${
+                          isActive
+                            ? 'border-2 border-[#00C8FF]'
+                            : 'border-slate-200 dark:border-slate-800 opacity-75 hover:opacity-100'
                         }`}
                       >
                         <img
                           src={resolvedCImg}
                           alt={c.name}
                           referrerPolicy="no-referrer"
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-contain"
                         />
                       </button>
                     );
                   })}
-                  {(product.images || []).map((imgUrl, idx) => {
-                    const resolvedExtra = resolveImageUrl(imgUrl);
-                    return (
-                      <button
-                        key={`gallery-${idx}`}
-                        type="button"
-                        onClick={() => {
-                          setMainImgError(false);
-                          setActiveImage(resolvedExtra);
-                        }}
-                        className={`relative w-16 h-12 rounded-xl overflow-hidden border transition-all shrink-0 cursor-pointer ${
-                          activeImage === resolvedExtra
-                            ? 'border-2 border-[#00C8FF] shadow-[0_0_10px_rgba(0,200,255,0.35)]'
-                            : 'border-slate-300 dark:border-slate-700 opacity-75 hover:opacity-100'
-                        }`}
-                      >
-                        <img
-                          src={resolvedExtra}
-                          alt={`${product.name} ${idx + 1}`}
-                          referrerPolicy="no-referrer"
-                          className="w-full h-full object-cover"
-                        />
-                      </button>
-                    );
-                  })}
+
+                  {standaloneGalleryImages.map((resolvedExtra, idx) => (
+                    <button
+                      key={`gallery-img-${idx}`}
+                      type="button"
+                      onClick={() => setActiveMedia(resolvedExtra)}
+                      className={`relative w-14 h-14 rounded-[8px] overflow-hidden border transition-all shrink-0 cursor-pointer bg-[#F5F5F3] dark:bg-[#13151B] ${
+                        !activeIsVideo && activeMedia === resolvedExtra
+                          ? 'border-2 border-[#00C8FF]'
+                          : 'border-slate-200 dark:border-slate-800 opacity-75 hover:opacity-100'
+                      }`}
+                    >
+                      <img
+                        src={resolvedExtra}
+                        alt={`${product.name} ${idx + 1}`}
+                        referrerPolicy="no-referrer"
+                        className="w-full h-full object-contain"
+                      />
+                    </button>
+                  ))}
+
+                  {videos.map((videoUrl, idx) => (
+                    <button
+                      key={`gallery-vid-${idx}`}
+                      type="button"
+                      onClick={() => setActiveMedia(videoUrl)}
+                      title="عرض الفيديو"
+                      className={`relative w-14 h-14 rounded-[8px] overflow-hidden border transition-all shrink-0 cursor-pointer bg-neutral-950 flex items-center justify-center ${
+                        activeIsVideo && activeMedia === videoUrl
+                          ? 'border-2 border-[#00C8FF]'
+                          : 'border-slate-300 dark:border-slate-700 opacity-85 hover:opacity-100'
+                      }`}
+                    >
+                      <video
+                        src={videoUrl}
+                        muted
+                        preload="metadata"
+                        className="w-full h-full object-contain opacity-80"
+                      />
+                      <span className="absolute inset-0 flex items-center justify-center">
+                        <span className="w-6 h-6 rounded-full bg-white/90 text-slate-950 flex items-center justify-center shadow-sm">
+                          <Play className="w-3 h-3 fill-slate-950 ms-0.5" />
+                        </span>
+                      </span>
+                    </button>
+                  ))}
                 </div>
               </div>
 
               {/* Guarantee Trio */}
               <div className="mt-5 pt-4 border-t border-slate-200/80 dark:border-slate-800 grid grid-cols-3 gap-2 text-center text-[11px] text-slate-700 dark:text-slate-300 font-semibold">
-                <div className="p-2.5 rounded-xl bg-white dark:bg-[#161922] border border-slate-200/80 dark:border-slate-800 flex flex-col items-center gap-1">
+                <div className="p-2.5 rounded-[8px] bg-white dark:bg-[#161922] border border-slate-200/70 dark:border-slate-800 flex flex-col items-center gap-1">
                   <Truck className="w-4 h-4 text-[#00C8FF]" />
                   <span>توصيل 24 ساعة</span>
                 </div>
-                <div className="p-2.5 rounded-xl bg-white dark:bg-[#161922] border border-slate-200/80 dark:border-slate-800 flex flex-col items-center gap-1">
+                <div className="p-2.5 rounded-[8px] bg-white dark:bg-[#161922] border border-slate-200/70 dark:border-slate-800 flex flex-col items-center gap-1">
                   <ShieldCheck className="w-4 h-4 text-[#00C8FF]" />
                   <span>جلد طبيعي 100%</span>
                 </div>
-                <div className="p-2.5 rounded-xl bg-white dark:bg-[#161922] border border-slate-200/80 dark:border-slate-800 flex flex-col items-center gap-1">
+                <div className="p-2.5 rounded-[8px] bg-white dark:bg-[#161922] border border-slate-200/70 dark:border-slate-800 flex flex-col items-center gap-1">
                   <RotateCcw className="w-4 h-4 text-[#00C8FF]" />
                   <span>قياس عند الباب</span>
                 </div>
@@ -275,6 +305,14 @@ export const ProductModal: React.FC = () => {
                     <span className="font-bold text-slate-900 dark:text-white">{product.rating}</span>
                     <span>({product.reviewsCount} تقييم)</span>
                   </div>
+                  {product.discount && (
+                    <>
+                      <span className="text-slate-300 dark:text-slate-700" aria-hidden="true">·</span>
+                      <span className="font-bold text-rose-600 dark:text-rose-400 tabular-nums">
+                        تخفيض {product.discount}
+                      </span>
+                    </>
+                  )}
                 </div>
 
                 <h2 className="text-xl sm:text-2xl font-black text-slate-950 dark:text-white mb-2 leading-snug text-balance">
@@ -329,9 +367,9 @@ export const ProductModal: React.FC = () => {
                           key={c.id}
                           type="button"
                           onClick={() => handleColorChange(c)}
-                          className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
+                          className={`flex items-center gap-2 px-3 py-2 rounded-[8px] border text-xs font-semibold transition-all cursor-pointer ${
                             isSelected
-                              ? 'bg-slate-100 dark:bg-[#1E2330] border-[#00C8FF] text-slate-950 dark:text-white shadow-xs'
+                              ? 'bg-slate-100 dark:bg-[#1E2330] border-[#00C8FF] text-slate-950 dark:text-white'
                               : 'bg-white dark:bg-[#161922] border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-400 dark:hover:border-slate-600'
                           }`}
                         >
@@ -374,9 +412,9 @@ export const ProductModal: React.FC = () => {
                             setSelectedSize(size);
                             setErrorMessage('');
                           }}
-                          className={`h-10 rounded-xl font-mono text-sm font-bold border transition-all cursor-pointer flex items-center justify-center tabular-nums ${
+                          className={`h-10 rounded-[8px] font-mono text-sm font-bold border transition-all cursor-pointer flex items-center justify-center tabular-nums ${
                             isSelected
-                              ? 'bg-[#00C8FF] text-black border-[#00C8FF] shadow-[0_0_12px_rgba(0,200,255,0.35)]'
+                              ? 'bg-[#00C8FF] text-black border-[#00C8FF]'
                               : 'bg-slate-50 hover:bg-slate-100 dark:bg-[#161922] dark:hover:bg-[#1E2330] text-slate-900 dark:text-white border-slate-200 dark:border-slate-800 hover:border-[#00C8FF]/50'
                           }`}
                         >
@@ -388,7 +426,7 @@ export const ProductModal: React.FC = () => {
                 </div>
 
                 {/* 3. Quantity Selector */}
-                <div className="flex items-center justify-between mb-6 p-3 rounded-2xl bg-slate-50 dark:bg-[#161922] border border-slate-200/80 dark:border-slate-800">
+                <div className="flex items-center justify-between mb-6 p-3 rounded-[8px] bg-slate-50 dark:bg-[#161922] border border-slate-200/80 dark:border-slate-800">
                   <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
                     الكمية المطلوبة:
                   </span>
@@ -396,7 +434,7 @@ export const ProductModal: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="w-9 h-9 rounded-lg bg-white dark:bg-[#111319] border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-800 dark:text-slate-200 hover:border-[#00C8FF] transition-colors cursor-pointer"
+                      className="w-9 h-9 rounded-[8px] bg-white dark:bg-[#111319] border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-800 dark:text-slate-200 hover:border-[#00C8FF] transition-colors cursor-pointer"
                       aria-label="إنقاص الكمية"
                     >
                       <Minus className="w-3.5 h-3.5" />
@@ -407,7 +445,7 @@ export const ProductModal: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setQuantity(quantity + 1)}
-                      className="w-9 h-9 rounded-lg bg-white dark:bg-[#111319] border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-800 dark:text-slate-200 hover:border-[#00C8FF] transition-colors cursor-pointer"
+                      className="w-9 h-9 rounded-[8px] bg-white dark:bg-[#111319] border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-800 dark:text-slate-200 hover:border-[#00C8FF] transition-colors cursor-pointer"
                       aria-label="زيادة الكمية"
                     >
                       <Plus className="w-3.5 h-3.5" />
@@ -421,7 +459,7 @@ export const ProductModal: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleFastOrder}
-                  className="w-full h-12 px-4 rounded-2xl bg-[#00C8FF] hover:bg-[#00B4E6] text-black font-extrabold text-sm flex items-center justify-center gap-2 shadow-[0_4px_18px_rgba(0,200,255,0.3)] transition-colors cursor-pointer"
+                  className="w-full h-12 px-4 rounded-[8px] bg-[#00C8FF] hover:bg-[#00B4E6] text-black font-extrabold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 >
                   <Sparkles className="w-4 h-4 fill-black" />
                   <span>اطلب الآن - الدفع عند الاستلام</span>
@@ -430,7 +468,7 @@ export const ProductModal: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => handleAddToCart(true)}
-                  className="w-full h-11 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-[#161922] dark:hover:bg-[#1E2330] text-slate-900 dark:text-white border border-slate-200 dark:border-slate-800 font-bold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  className="w-full h-11 px-4 rounded-[8px] bg-slate-100 hover:bg-slate-200 dark:bg-[#161922] dark:hover:bg-[#1E2330] text-slate-900 dark:text-white border border-slate-200 dark:border-slate-800 font-bold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 >
                   <ShoppingBag className="w-4 h-4 text-[#00C8FF]" />
                   <span>إضافة إلى سلة المشتريات</span>
@@ -440,7 +478,7 @@ export const ProductModal: React.FC = () => {
                   <button
                     type="button"
                     onClick={handleWhatsAppOrder}
-                    className="w-full h-11 px-4 rounded-2xl bg-[#25D366]/12 hover:bg-[#25D366]/20 text-[#128C7E] dark:text-[#25D366] border border-[#25D366]/40 font-extrabold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                    className="w-full h-11 px-4 rounded-[8px] bg-[#25D366]/12 hover:bg-[#25D366]/20 text-[#128C7E] dark:text-[#25D366] border border-[#25D366]/40 font-extrabold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
                   >
                     <WhatsAppIcon className="w-4 h-4" />
                     <span>اطلب هذا الحذاء مباشرة عبر واتساب</span>
@@ -452,15 +490,15 @@ export const ProductModal: React.FC = () => {
         </div>
       </div>
 
-      {/* Lightbox Modal for Full-Screen Image Zoom */}
-      {isLightboxOpen && (
+      {/* Lightbox Modal for Full-Screen Image Zoom (Always preserves original full clarity) */}
+      {isImageLightboxOpen && !activeIsVideo && (
         <div
           className="fixed inset-0 z-60 bg-black/95 luxury-modal-backdrop flex items-center justify-center p-4"
-          onClick={() => setIsLightboxOpen(false)}
+          onClick={() => setIsImageLightboxOpen(false)}
         >
           <button
             type="button"
-            onClick={() => setIsLightboxOpen(false)}
+            onClick={() => setIsImageLightboxOpen(false)}
             className="absolute top-6 left-6 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
             aria-label="إغلاق التكبير"
           >
@@ -468,16 +506,25 @@ export const ProductModal: React.FC = () => {
           </button>
           <div className="max-w-4xl max-h-[85vh] relative" onClick={(e) => e.stopPropagation()}>
             <img
-              src={activeImage}
+              src={activeMedia || resolveImageUrl(selectedColor?.image)}
               alt={product.name}
               referrerPolicy="no-referrer"
-              className="max-h-[80vh] w-auto max-w-full rounded-2xl object-contain shadow-2xl border border-white/20"
+              className="max-h-[80vh] w-auto max-w-full rounded-[8px] object-contain shadow-2xl border border-white/15"
             />
             <p className="text-center text-white text-sm font-bold mt-4 font-sans">
               {product.name} - {selectedColor?.name}
             </p>
           </div>
         </div>
+      )}
+
+      {/* Lightbox Modal for Enlarged Video View */}
+      {isVideoLightboxOpen && activeIsVideo && (
+        <VideoLightboxModal
+          src={activeMedia}
+          title={product.name}
+          onClose={() => setIsVideoLightboxOpen(false)}
+        />
       )}
     </>
   );

@@ -11,6 +11,7 @@ import { OrderSuccessModal } from './components/OrderSuccessModal';
 import { AuthModal } from './components/AuthModal';
 import { AdminDashboard } from './components/AdminDashboard';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 const MainLayout: React.FC = () => {
   const { isAdminView, user } = useStore();
@@ -49,8 +50,10 @@ const MainLayout: React.FC = () => {
 
 export default function App() {
   return (
-    <StoreProvider>
-      <MainLayout />
-    </StoreProvider>
+    <ErrorBoundary>
+      <StoreProvider>
+        <MainLayout />
+      </StoreProvider>
+    </ErrorBoundary>
   );
 }

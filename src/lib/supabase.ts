@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { Product, StoreSettings, Order, OrderStatus, User } from '../types';
 import { normalizeWhatsAppNumber } from '../utils/phone';
+import { SHOE_IMAGES } from '../assets/shoeImages';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
@@ -81,7 +82,7 @@ export async function fetchProductsFromSupabase(): Promise<Product[] | null> {
                   id: 'c-default',
                   name: 'أسود',
                   hex: '#0A0A0A',
-                  image: '/src/assets/images/bella_womens_heels_1794318693049.jpg',
+                  image: SHOE_IMAGES.womensHeels,
                   inStock: true,
                 },
               ],
@@ -358,7 +359,9 @@ export async function fetchSettingsFromSupabase(): Promise<Partial<StoreSettings
   try {
     const { data, error } = await supabase
       .from('store_settings')
-      .select('*')
+      .select(
+        'store_name, tagline, phone, whatsapp, email, address, city, delivery_fee, free_shipping_pair_threshold, instagram_url, facebook_url, tiktok_url, announcement_text'
+      )
       .eq('id', 1)
       .single();
 
@@ -374,8 +377,6 @@ export async function fetchSettingsFromSupabase(): Promise<Partial<StoreSettings
       city: data.city,
       deliveryFee: Number(data.delivery_fee),
       freeShippingPairThreshold: data.free_shipping_pair_threshold,
-      adminEmail: data.admin_email,
-      adminPasswordHash: data.admin_password_hash,
       instagramUrl: data.instagram_url,
       facebookUrl: data.facebook_url,
       tiktokUrl: data.tiktok_url,
@@ -400,14 +401,14 @@ export async function updateSettingsInSupabase(
     if (newSettings.address !== undefined) payload.address = newSettings.address;
     if (newSettings.deliveryFee !== undefined) payload.delivery_fee = newSettings.deliveryFee;
     if (newSettings.freeShippingPairThreshold !== undefined) {
-      payload.free_shipping_pair_threshold = newSettings.freeShippingPairThreshold;
+      payload.free_shipping_pair_threshold = Math.max(
+        1,
+        Math.round(Number(newSettings.freeShippingPairThreshold))
+      );
     }
     if (newSettings.instagramUrl !== undefined) payload.instagram_url = newSettings.instagramUrl;
     if (newSettings.facebookUrl !== undefined) payload.facebook_url = newSettings.facebookUrl;
     if (newSettings.tiktokUrl !== undefined) payload.tiktok_url = newSettings.tiktokUrl;
-    if (newSettings.adminPasswordHash !== undefined) {
-      payload.admin_password_hash = newSettings.adminPasswordHash;
-    }
 
     const { error } = await supabase.from('store_settings').update(payload).eq('id', 1);
 

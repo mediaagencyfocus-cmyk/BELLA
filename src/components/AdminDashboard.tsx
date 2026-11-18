@@ -25,13 +25,64 @@ import {
   Key,
   Copy,
   ExternalLink,
-  Check
+  Check,
+  Upload,
+  Sparkles
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { Product, ShoeCategory, ColorVariant, OrderStatus } from '../types';
 import { WhatsAppIcon, InstagramIcon, FacebookIcon, TikTokIcon } from './SocialIcons';
 import { normalizeWhatsAppNumber, buildWhatsAppLink, isValidWhatsAppNumber, formatDisplayPhone } from '../utils/phone';
 import { SHOE_IMAGES, resolveImageUrl } from '../assets/shoeImages';
+import { isVideoMedia } from '../utils/media';
+import { useHarmonizedImage } from '../utils/imageHarmonyAgent';
+import { HarmonizedProductImage } from './HarmonizedProductImage';
+import schemaSqlRaw from '../../supabase/schema.sql?raw';
+
+const ColorHarmonyPreviewBadge: React.FC<{ imageUrl: string }> = ({ imageUrl }) => {
+  const resolved = resolveImageUrl(imageUrl);
+  const { result, isProcessing } = useHarmonizedImage(resolved);
+
+  if (!imageUrl.trim()) return null;
+
+  return (
+    <div className="sm:col-span-12 flex flex-wrap items-center gap-3 pt-2 mt-1 border-t border-slate-200/70 dark:border-slate-700/60">
+      <div className="w-12 h-12 shrink-0">
+        <HarmonizedProductImage src={resolved} alt="معاينة التناغم" />
+      </div>
+      <div className="flex-1 min-w-0 text-[11px] space-y-0.5">
+        <div className="flex items-center gap-1.5 font-semibold text-slate-800 dark:text-slate-200">
+          <Sparkles className="w-3.5 h-3.5 text-[#00C8FF] shrink-0" />
+          <span>AI Image Harmony Agent:</span>
+          <span className="text-slate-500 dark:text-slate-400 font-normal">
+            {isProcessing
+              ? 'جاري تحليل الخلفية...'
+              : result?.status === 'processed'
+                ? 'تم عزل الخلفية وتنعيم الأطراف تلقائياً (تفاصيل المنتج محفوظة 100%)'
+                : 'تم الإبقاء على الصورة الأصلية بدقتها لحماية تفاصيل المنتج'}
+          </span>
+        </div>
+        {result && (
+          <div className="flex items-center gap-2 text-[10px] text-slate-500 dark:text-slate-400">
+            <span>لون الخلفية السائد:</span>
+            <span
+              className="inline-block w-3.5 h-3.5 rounded border border-black/15"
+              style={{ backgroundColor: result.dominantBgHex }}
+              title={result.dominantBgHex}
+            />
+            <span>التدرج الباهت للأطراف:</span>
+            <span
+              className="inline-block w-3.5 h-3.5 rounded border border-black/15"
+              style={{ backgroundColor: result.paleEdgeHex }}
+              title={result.paleEdgeHex}
+            />
+            <span className="text-slate-400">· الأصلية محفوظة بالكامل</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 export const AdminDashboard: React.FC = () => {
   const {
@@ -150,8 +201,8 @@ export const AdminDashboard: React.FC = () => {
     setFormDescription(prod.description);
     setFormStock(prod.stockCount);
     setFormSizesInput(prod.sizes.join(', '));
-    setFormColors(prod.colors);
-    setFormImages(prod.images || []);
+    setFormColors(prod.colors.map((c) => ({ ...c })));
+    setFormImages([...(prod.images || [])]);
     setFormWholesaleQty(prod.wholesaleMinQty);
     setIsAddingProduct(false);
   };
@@ -181,34 +232,46 @@ export const AdminDashboard: React.FC = () => {
 
   const handleSaveProduct = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formName.trim()) return;
+    const trimmedName = formName.trim();
+    const trimmedDesc = formDescription.trim();
+    if (trimmedName.length < 2 || trimmedDesc.length < 2) return;
 
     // Parse sizes
-    const parsedSizes = formSizesInput
-      .split(',')
-      .map(s => parseInt(s.trim(), 10))
-      .filter(n => !isNaN(n) && n > 0);
+    const parsedSizes = Array.from(
+      new Set(
+        formSizesInput
+          .split(',')
+          .map(s => parseInt(s.trim(), 10))
+          .filter(n => !isNaN(n) && n > 0)
+      )
+    );
+
+    const safeStock = Math.max(0, Math.round(Number(formStock) || 0));
+    const safePrice = Math.max(0, Number(formPrice) || 0);
+    const safeOldPrice = formOldPrice && Number(formOldPrice) > 0 ? Number(formOldPrice) : undefined;
 
     const productPayload = {
-      name: formName.trim(),
+      name: trimmedName,
       category: formCategory,
-      price: Number(formPrice),
-      oldPrice: formOldPrice ? Number(formOldPrice) : undefined,
-      rating: 5.0,
-      reviewsCount: 12,
-      discount: formOldPrice && formOldPrice > formPrice ? `${Math.round(((formOldPrice - formPrice) / formOldPrice) * 100)}%-` : undefined,
-      description: formDescription.trim(),
-      features: [
-        'مصنوع من خامات فاخرة عالية الجودة',
-        'مريح ومناسب للاستخدام اليومي والمناسبات',
-        'خدمة المعاينة والقياس عند التوصيل'
-      ],
+      price: safePrice,
+      oldPrice: safeOldPrice,
+      rating: editingProduct?.rating ?? 5.0,
+      reviewsCount: editingProduct?.reviewsCount ?? 12,
+      discount: safeOldPrice && safeOldPrice > safePrice ? `${Math.round(((safeOldPrice - safePrice) / safeOldPrice) * 100)}%-` : undefined,
+      description: trimmedDesc,
+      features: editingProduct?.features?.length
+        ? editingProduct.features
+        : [
+            'مصنوع من خامات فاخرة عالية الجودة',
+            'مريح ومناسب للاستخدام اليومي والمناسبات',
+            'خدمة المعاينة والقياس عند التوصيل'
+          ],
       colors: formColors,
       images: formImages.map(u => u.trim()).filter(Boolean),
       sizes: parsedSizes.length > 0 ? parsedSizes : [38, 39, 40, 41],
-      inStock: formStock > 0,
-      stockCount: Number(formStock),
-      wholesaleMinQty: formCategory === 'wholesale' ? Number(formWholesaleQty || 1) : undefined
+      inStock: safeStock > 0,
+      stockCount: safeStock,
+      wholesaleMinQty: formCategory === 'wholesale' ? Math.max(1, Math.round(Number(formWholesaleQty || 1))) : undefined
     };
 
     if (editingProduct) {
@@ -334,6 +397,82 @@ export const AdminDashboard: React.FC = () => {
 
   const removeExtraImage = (idx: number) => {
     setFormImages(formImages.filter((_, i) => i !== idx));
+  };
+
+  const [mediaUploadNotice, setMediaUploadNotice] = useState<string | null>(null);
+
+  const readCompressedImageAsDataUrl = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('تعذر قراءة ملف الصورة'));
+      reader.onload = () => {
+        const rawUrl = String(reader.result || '');
+        const img = new Image();
+        img.onerror = () => resolve(rawUrl);
+        img.onload = () => {
+          const maxDim = 960;
+          const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+          const w = Math.max(1, Math.round(img.width * scale));
+          const h = Math.max(1, Math.round(img.height * scale));
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            resolve(rawUrl);
+            return;
+          }
+          ctx.drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/webp', 0.88));
+        };
+        img.src = rawUrl;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleLocalColorImageUpload = async (idx: number, file?: File | null) => {
+    if (!file) return;
+    setMediaUploadNotice(null);
+    if (!file.type.startsWith('image/')) {
+      setMediaUploadNotice('يرجى اختيار ملف صورة صالح للون (PNG, JPG, WebP).');
+      return;
+    }
+    try {
+      const originalDataUrl = await readCompressedImageAsDataUrl(file);
+      updateColorVariant(idx, { image: originalDataUrl });
+    } catch {
+      setMediaUploadNotice('تعذر تحميل الصورة المختارة.');
+    }
+  };
+
+  const handleLocalGalleryMediaUpload = async (idx: number, file?: File | null) => {
+    if (!file) return;
+    setMediaUploadNotice(null);
+    if (file.type.startsWith('image/')) {
+      try {
+        const originalDataUrl = await readCompressedImageAsDataUrl(file);
+        updateExtraImage(idx, originalDataUrl);
+      } catch {
+        setMediaUploadNotice('تعذر تحميل الصورة المختارة.');
+      }
+      return;
+    }
+    if (file.type.startsWith('video/')) {
+      if (file.size > 450 * 1024) {
+        setMediaUploadNotice(
+          'حجم الفيديو كبير للحفظ المباشر في المتصفح/السحابة (الحد 450KB). يوصى برفع الفيديو على استضافة وإدخال رابط MP4/WebM المباشر في الخانة.'
+        );
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          updateExtraImage(idx, reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
@@ -757,14 +896,32 @@ export const AdminDashboard: React.FC = () => {
                           </div>
 
                           <div className="sm:col-span-6">
-                            <label className="text-[10px] text-slate-400 block mb-0.5">رابط صورة هذا اللون</label>
-                            <input
-                              type="text"
-                              value={color.image}
-                              onChange={(e) => updateColorVariant(idx, { image: e.target.value })}
-                              placeholder="/src/assets/images/... أو رابط"
-                              className="w-full px-2.5 py-1.5 rounded-lg text-xs font-mono bg-white dark:bg-black/50 border border-slate-200 dark:border-slate-700"
-                            />
+                            <label className="text-[10px] text-slate-400 block mb-0.5">رابط صورة هذا اللون أو رفع صورة</label>
+                            <div className="flex items-center gap-1.5">
+                              <input
+                                type="text"
+                                value={color.image}
+                                onChange={(e) => updateColorVariant(idx, { image: e.target.value })}
+                                placeholder="/src/assets/images/... أو رابط"
+                                className="flex-1 min-w-0 px-2.5 py-1.5 rounded-lg text-xs font-mono bg-white dark:bg-black/50 border border-slate-200 dark:border-slate-700"
+                              />
+                              <label
+                                title="رفع صورة من الجهاز (تعالج تلقائياً مع حفظ الأصل)"
+                                className="px-2.5 py-1.5 rounded-lg bg-slate-200/80 hover:bg-[#00C8FF] hover:text-black dark:bg-slate-800 dark:hover:bg-[#00C8FF] dark:hover:text-black text-[11px] font-bold flex items-center gap-1 cursor-pointer shrink-0 transition-colors"
+                              >
+                                <Upload className="w-3.5 h-3.5" />
+                                <span>رفع</span>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    handleLocalColorImageUpload(idx, e.target.files?.[0]);
+                                    e.target.value = '';
+                                  }}
+                                />
+                              </label>
+                            </div>
                           </div>
 
                           <div className="sm:col-span-1 text-center">
@@ -778,16 +935,18 @@ export const AdminDashboard: React.FC = () => {
                               <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
+
+                          <ColorHarmonyPreviewBadge imageUrl={color.image} />
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  {/* EXTRA PRODUCT GALLERY IMAGES (Product_Images) */}
+                  {/* EXTRA PRODUCT GALLERY IMAGES & VIDEOS (Product_Images) */}
                   <div className="pt-3 border-t border-slate-200 dark:border-slate-800">
                     <div className="flex items-center justify-between mb-2">
                       <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                        معرض الصور الإضافية للمنتج (Product_Images):
+                        معرض الصور والفيديوهات الإضافية للمنتج (Product_Images):
                       </label>
                       <button
                         type="button"
@@ -795,13 +954,19 @@ export const AdminDashboard: React.FC = () => {
                         className="text-xs text-[#00C8FF] font-bold hover:underline flex items-center gap-1 cursor-pointer"
                       >
                         <Plus className="w-3.5 h-3.5" />
-                        <span>إضافة صورة أخرى</span>
+                        <span>إضافة صورة أو فيديو</span>
                       </button>
                     </div>
 
+                    {mediaUploadNotice && (
+                      <div className="mb-2.5 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-300 text-[11px] font-semibold">
+                        {mediaUploadNotice}
+                      </div>
+                    )}
+
                     {formImages.length === 0 ? (
                       <p className="text-[11px] text-slate-400 py-2">
-                        لا توجد صور إضافية حالياً. يمكنك إضافة عدة زوايا أو صور للمنتج لتظهر في نافذة التفاصيل.
+                        لا توجد وسائط إضافية حالياً. يمكنك إضافة روابط صور إضافية أو روابط فيديو (.mp4 / .webm) لتظهر مباشرة في بطاقة المنتج ونافذة التفاصيل.
                       </p>
                     ) : (
                       <div className="space-y-2">
@@ -811,14 +976,35 @@ export const AdminDashboard: React.FC = () => {
                               type="text"
                               value={imgUrl}
                               onChange={(e) => updateExtraImage(idx, e.target.value)}
-                              placeholder="https://... أو /src/assets/images/..."
-                              className="flex-1 px-3 py-1.5 rounded-xl text-xs font-mono bg-slate-50 dark:bg-[#1A1E29] border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
+                              placeholder="https://... (صورة أو رابط فيديو .mp4 / .webm)"
+                              className="flex-1 min-w-0 px-3 py-1.5 rounded-xl text-xs font-mono bg-slate-50 dark:bg-[#1A1E29] border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
                             />
+                            {isVideoMedia(imgUrl) && (
+                              <span className="px-2 py-1 rounded-md bg-slate-200 dark:bg-slate-800 text-[10px] font-bold text-slate-700 dark:text-slate-300 shrink-0">
+                                فيديو
+                              </span>
+                            )}
+                            <label
+                              title="رفع صورة أو فيديو قصير"
+                              className="px-2.5 py-1.5 rounded-xl bg-slate-200/80 hover:bg-[#00C8FF] hover:text-black dark:bg-slate-800 dark:hover:bg-[#00C8FF] dark:hover:text-black text-[11px] font-bold flex items-center gap-1 cursor-pointer shrink-0 transition-colors"
+                            >
+                              <Upload className="w-3.5 h-3.5" />
+                              <span>ملف</span>
+                              <input
+                                type="file"
+                                accept="image/*,video/mp4,video/webm,video/quicktime"
+                                className="hidden"
+                                onChange={(e) => {
+                                  handleLocalGalleryMediaUpload(idx, e.target.files?.[0]);
+                                  e.target.value = '';
+                                }}
+                              />
+                            </label>
                             <button
                               type="button"
                               onClick={() => removeExtraImage(idx)}
                               className="p-1.5 text-slate-400 hover:text-rose-500"
-                              title="حذف الصورة"
+                              title="حذف الوسيط"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -871,11 +1057,12 @@ export const AdminDashboard: React.FC = () => {
                     {products.map((prod) => (
                       <tr key={prod.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                         <td className="py-2.5 px-4">
-                          <img
-                            src={resolveImageUrl(prod.colors[0]?.image)}
-                            alt={prod.name}
-                            className="w-12 h-12 rounded-xl object-cover border border-slate-200 dark:border-slate-800"
-                          />
+                          <div className="w-12 h-12">
+                            <HarmonizedProductImage
+                              src={resolveImageUrl(prod.colors[0]?.image)}
+                              alt={prod.name}
+                            />
+                          </div>
                         </td>
                         <td className="px-4 font-bold text-slate-900 dark:text-white max-w-[200px] truncate">
                           {prod.name}
@@ -1522,14 +1709,22 @@ export const AdminDashboard: React.FC = () => {
                   </h4>
                 </div>
 
-                <a
-                  href="/supabase/schema.sql"
-                  target="_blank"
-                  className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold hover:text-[#00C8FF] flex items-center gap-1.5"
+                <button
+                  type="button"
+                  onClick={() => {
+                    const blob = new Blob([schemaSqlRaw], { type: 'text/sql;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = 'bellashoes-schema.sql';
+                    link.click();
+                    setTimeout(() => URL.revokeObjectURL(url), 1000);
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold hover:text-[#00C8FF] flex items-center gap-1.5 cursor-pointer"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
-                  <span>فتح ملف schema.sql</span>
-                </a>
+                  <span>تحميل ملف schema.sql</span>
+                </button>
               </div>
 
               <div className="space-y-2.5 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -1558,14 +1753,11 @@ export const AdminDashboard: React.FC = () => {
                     معاينة سكربت SQL الكامل (PostgreSQL for Supabase):
                   </span>
                   <button
+                    type="button"
                     onClick={() => {
-                      fetch('/supabase/schema.sql')
-                        .then(r => r.text())
-                        .then(txt => {
-                          navigator.clipboard.writeText(txt);
-                          setCopiedSql(true);
-                          setTimeout(() => setCopiedSql(false), 2500);
-                        });
+                      navigator.clipboard.writeText(schemaSqlRaw);
+                      setCopiedSql(true);
+                      setTimeout(() => setCopiedSql(false), 2500);
                     }}
                     className="px-3.5 py-1.5 rounded-xl bg-[#00C8FF] text-black font-extrabold text-xs flex items-center gap-1.5 shadow-xs hover:bg-[#00B4E6] transition-all cursor-pointer"
                   >
@@ -1584,38 +1776,7 @@ export const AdminDashboard: React.FC = () => {
                 </div>
 
                 <div className="p-4 rounded-2xl bg-black text-slate-300 font-mono text-[11px] max-h-56 overflow-y-auto border border-slate-800" dir="ltr">
-                  <pre className="whitespace-pre-wrap">{`-- BELLA SHOES Complete 12-Table PostgreSQL Schema
-CREATE TABLE categories ( id TEXT PRIMARY KEY, slug VARCHAR(50) UNIQUE, name_ar VARCHAR(120), ... );
-CREATE TABLE products (
-    id TEXT PRIMARY KEY,
-    category_id TEXT NOT NULL REFERENCES categories(id),
-    name VARCHAR(255) NOT NULL,
-    category VARCHAR(50) NOT NULL CHECK (category IN ('womens', 'mens', 'kids', 'wholesale')),
-    price NUMERIC(10, 2) NOT NULL,
-    old_price NUMERIC(10, 2),
-    rating NUMERIC(3, 2) DEFAULT 5.0,
-    reviews_count INTEGER DEFAULT 0,
-    is_new BOOLEAN DEFAULT FALSE,
-    is_bestseller BOOLEAN DEFAULT FALSE,
-    discount VARCHAR(20),
-    description TEXT NOT NULL,
-    features TEXT[] DEFAULT ARRAY[]::TEXT[],
-    in_stock BOOLEAN DEFAULT TRUE,
-    stock_count INTEGER DEFAULT 0,
-    wholesale_min_qty INTEGER,
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
-CREATE TABLE product_images ( id UUID PRIMARY KEY, product_id TEXT REFERENCES products(id) ON DELETE CASCADE, image_url TEXT NOT NULL, ... );
-CREATE TABLE product_colors ( id TEXT PRIMARY KEY, product_id TEXT REFERENCES products(id) ON DELETE CASCADE, name VARCHAR(100), hex VARCHAR(20), image TEXT, ... );
-CREATE TABLE product_sizes  ( id UUID PRIMARY KEY, product_id TEXT REFERENCES products(id) ON DELETE CASCADE, size INTEGER, UNIQUE(product_id, size) );
-CREATE TABLE users          ( id TEXT PRIMARY KEY, name VARCHAR(150), email VARCHAR(255) UNIQUE, phone VARCHAR(50), ... );
-CREATE TABLE admins         ( id TEXT PRIMARY KEY, email VARCHAR(255) UNIQUE, role VARCHAR(50), is_active BOOLEAN );
-CREATE TABLE orders         ( id TEXT PRIMARY KEY, order_number VARCHAR(50) UNIQUE, user_id TEXT REFERENCES users(id), customer_name VARCHAR(150), total NUMERIC(10,2), status VARCHAR(30), ... );
-CREATE TABLE order_items    ( id UUID PRIMARY KEY, order_id TEXT REFERENCES orders(id) ON DELETE CASCADE, product_id TEXT REFERENCES products(id), ... );
-CREATE TABLE payments       ( id UUID PRIMARY KEY, order_id TEXT UNIQUE REFERENCES orders(id) ON DELETE CASCADE, payment_method VARCHAR(50), payment_status VARCHAR(30), amount NUMERIC(10,2), ... );
-CREATE TABLE store_settings ( id INTEGER PRIMARY KEY, email VARCHAR(255), address TEXT, delivery_fee NUMERIC(10,2), ... ); -- + VIEW settings
-CREATE TABLE whatsapp_settings ( id INTEGER PRIMARY KEY, whatsapp_number VARCHAR(50), phone_display VARCHAR(50), default_message TEXT );
--- + Indexes + Triggers + Row Level Security (RLS) + Full Seed Data`}</pre>
+                  <pre className="whitespace-pre-wrap">{schemaSqlRaw}</pre>
                 </div>
               </div>
             </div>

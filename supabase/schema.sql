@@ -191,8 +191,6 @@ CREATE TABLE store_settings (
     city VARCHAR(100) NOT NULL DEFAULT 'الدار البيضاء',
     delivery_fee NUMERIC(10, 2) NOT NULL DEFAULT 35.00,
     free_shipping_pair_threshold INTEGER NOT NULL DEFAULT 2,
-    admin_email VARCHAR(150) NOT NULL DEFAULT 'jarfouribrahim51@gmail.com',
-    admin_password_hash TEXT NOT NULL DEFAULT 'BellaAdmin2026!',
     instagram_url TEXT DEFAULT 'https://instagram.com/bellashoes.ma',
     facebook_url TEXT DEFAULT 'https://facebook.com/bellashoes.ma',
     tiktok_url TEXT DEFAULT 'https://tiktok.com/@bellashoes.ma',
@@ -318,6 +316,34 @@ CREATE POLICY "Admin Full Access Orders" ON orders FOR ALL USING (
         OR EXISTS (SELECT 1 FROM admins WHERE email = auth.jwt() ->> 'email' AND is_active = TRUE)
     )
 );
+CREATE POLICY "Customer Read Own Orders" ON orders FOR SELECT USING (
+    auth.role() = 'authenticated' AND customer_email = auth.jwt() ->> 'email'
+);
+CREATE POLICY "Admin Full Access Order Items" ON order_items FOR ALL USING (
+    auth.role() = 'authenticated' AND (
+        auth.jwt() ->> 'email' IN ('jarfouribrahim51@gmail.com', 'mediaagencyfocus@gmail.com')
+        OR EXISTS (SELECT 1 FROM admins WHERE email = auth.jwt() ->> 'email' AND is_active = TRUE)
+    )
+);
+CREATE POLICY "Users Read Own Or Admin" ON users FOR SELECT USING (
+    auth.role() = 'authenticated' AND (
+        email = auth.jwt() ->> 'email'
+        OR auth.jwt() ->> 'email' IN ('jarfouribrahim51@gmail.com', 'mediaagencyfocus@gmail.com')
+        OR EXISTS (SELECT 1 FROM admins WHERE email = auth.jwt() ->> 'email' AND is_active = TRUE)
+    )
+);
+CREATE POLICY "Users Insert Own" ON users FOR INSERT WITH CHECK (
+    auth.role() = 'authenticated' AND email = auth.jwt() ->> 'email'
+);
+CREATE POLICY "Users Update Own" ON users FOR UPDATE USING (
+    auth.role() = 'authenticated' AND email = auth.jwt() ->> 'email'
+);
+CREATE POLICY "Admins Read Verified" ON admins FOR SELECT USING (
+    auth.role() = 'authenticated' AND (
+        email = auth.jwt() ->> 'email'
+        OR auth.jwt() ->> 'email' IN ('jarfouribrahim51@gmail.com', 'mediaagencyfocus@gmail.com')
+    )
+);
 CREATE POLICY "Admin Full Access Payments" ON payments FOR ALL USING (
     auth.role() = 'authenticated' AND (
         auth.jwt() ->> 'email' IN ('jarfouribrahim51@gmail.com', 'mediaagencyfocus@gmail.com')
@@ -349,7 +375,7 @@ ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO store_settings (
     id, store_name, tagline, phone, whatsapp, email, address, city,
-    delivery_fee, free_shipping_pair_threshold, admin_email, admin_password_hash,
+    delivery_fee, free_shipping_pair_threshold,
     instagram_url, facebook_url, tiktok_url, announcement_text
 ) VALUES (
     1,
@@ -362,8 +388,6 @@ INSERT INTO store_settings (
     'الدار البيضاء',
     35.00,
     2,
-    'jarfouribrahim51@gmail.com',
-    'BellaAdmin2026!',
     'https://instagram.com/bellashoes.ma',
     'https://facebook.com/bellashoes.ma',
     'https://tiktok.com/@bellashoes.ma',

@@ -123,7 +123,7 @@
    COMPONENT INTERACTION UTILITIES
    ========================================================================== */
 
-/* Compositor-only smooth product card lift */
+/* Compositor-only smooth product card lift (minimalist luxury, no heavy shadows) */
 .luxury-product-card {
   transition: transform var(--duration-base) var(--ease-luxury),
               box-shadow var(--duration-base) var(--ease-luxury),
@@ -133,7 +133,11 @@
 
 .luxury-product-card:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-card-hover);
+  box-shadow: 0 10px 28px -10px rgba(10, 11, 14, 0.08);
+}
+
+.dark .luxury-product-card:hover {
+  box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.45);
 }
 
 .product-image-container {
@@ -141,16 +145,8 @@
   overflow: hidden;
 }
 
-.product-image-container img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  transition: transform 0.5s var(--ease-luxury);
-}
-
 .luxury-product-card:hover .product-image-container img {
-  transform: scale(1.04);
+  transform: scale(1.025);
 }
 
 /* Clean Scrollbars */

@@ -81,16 +81,17 @@ export const CartDrawer: React.FC = () => {
 
   const handleSubmitOrder = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!customerName.trim()) {
-      setFormError('يرجى إدخال الاسم الكامل');
+    const digitsOnly = phone.replace(/[^0-9]/g, '');
+    if (customerName.trim().length < 2) {
+      setFormError('يرجى إدخال الاسم الكامل (حرفين على الأقل)');
       return;
     }
-    if (!phone.trim() || phone.trim().length < 8) {
-      setFormError('يرجى إدخال رقم هاتف صحيح لنتصل بك لتأكيد الطلب');
+    if (digitsOnly.length < 8) {
+      setFormError('يرجى إدخال رقم هاتف صحيح (8 أرقام على الأقل) لنتصل بك لتأكيد الطلب');
       return;
     }
-    if (!address.trim()) {
-      setFormError('يرجى إدخال عنوان التوصيل أو الحي');
+    if (address.trim().length < 2) {
+      setFormError('يرجى إدخال عنوان التوصيل أو الحي بشكل واضح');
       return;
     }
 

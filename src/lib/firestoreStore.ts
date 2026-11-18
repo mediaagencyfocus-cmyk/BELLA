@@ -39,30 +39,45 @@ export function isFirebaseAdminUser(): boolean {
  * Strip undefined keys so Firestore rules with keys().hasOnly(...) never fail on undefined props.
  */
 function cleanProductPayload(p: Product): Record<string, unknown> {
+  const safeSizes = Array.from(
+    new Set(
+      (Array.isArray(p.sizes) ? p.sizes : [])
+        .map((s) => Math.round(Number(s)))
+        .filter((n) => Number.isInteger(n) && n > 0)
+    )
+  ).slice(0, 25);
+
+  const safeStockCount = Math.max(0, Math.min(1000000, Math.round(Number(p.stockCount ?? 0))));
   const payload: Record<string, unknown> = {
-    id: p.id,
-    name: p.name,
+    id: p.id.slice(0, 128),
+    name: p.name.trim().slice(0, 255),
     category: p.category,
-    price: Number(p.price),
-    rating: Number(p.rating ?? 5.0),
-    reviewsCount: Number(p.reviewsCount ?? 0),
-    description: p.description,
-    features: Array.isArray(p.features) ? p.features.slice(0, 15) : [],
-    images: Array.isArray(p.images) ? p.images.slice(0, 12) : [],
+    price: Math.max(0, Math.min(1000000, Number(p.price) || 0)),
+    rating: Math.max(0, Math.min(5, Number(p.rating ?? 5.0))),
+    reviewsCount: Math.max(0, Math.round(Number(p.reviewsCount ?? 0))),
+    description: p.description.trim().slice(0, 3000),
+    features: Array.isArray(p.features)
+      ? p.features.map((f) => String(f).slice(0, 200)).slice(0, 15)
+      : [],
+    images: Array.isArray(p.images)
+      ? p.images.map((u) => String(u).trim()).filter(Boolean).slice(0, 12)
+      : [],
     colors: p.colors.slice(0, 15),
-    sizes: p.sizes.slice(0, 25),
-    inStock: Boolean(p.inStock),
-    stockCount: Number(p.stockCount ?? 0),
+    sizes: safeSizes.length > 0 ? safeSizes : [38, 39, 40, 41],
+    inStock: Boolean(p.inStock) && safeStockCount > 0,
+    stockCount: safeStockCount,
     createdAt: p.createdAt || new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
 
-  if (p.oldPrice !== undefined && p.oldPrice !== null) payload.oldPrice = Number(p.oldPrice);
+  if (p.oldPrice !== undefined && p.oldPrice !== null && Number(p.oldPrice) >= 0) {
+    payload.oldPrice = Math.min(1000000, Number(p.oldPrice));
+  }
   if (p.isNew !== undefined) payload.isNew = Boolean(p.isNew);
   if (p.isBestseller !== undefined) payload.isBestseller = Boolean(p.isBestseller);
-  if (p.discount) payload.discount = String(p.discount);
+  if (p.discount) payload.discount = String(p.discount).slice(0, 20);
   if (p.wholesaleMinQty !== undefined && p.wholesaleMinQty !== null) {
-    payload.wholesaleMinQty = Number(p.wholesaleMinQty);
+    payload.wholesaleMinQty = Math.max(1, Math.round(Number(p.wholesaleMinQty)));
   }
   return payload;
 }
@@ -234,19 +249,22 @@ export async function saveSettingsToFirestore(
 
   try {
     const storePayload: Record<string, unknown> = {
-      storeName: settings.storeName || 'BELLA SHOES',
-      tagline: settings.tagline || 'الأناقة تبدأ من خطواتك · أسلوب حياة وفخامة لا تضاهى',
-      phone: cleanPhone.length >= 5 ? cleanPhone : cleanWhatsapp,
-      whatsapp: cleanWhatsapp,
-      email: settings.email || '',
-      address: settings.address || '',
-      city: settings.city || 'الدار البيضاء',
-      deliveryFee: Number(settings.deliveryFee ?? 35),
-      freeShippingPairThreshold: Math.max(1, Number(settings.freeShippingPairThreshold ?? 2)),
-      instagramUrl: settings.instagramUrl || '',
-      facebookUrl: settings.facebookUrl || '',
-      tiktokUrl: settings.tiktokUrl || '',
-      announcementText: settings.announcementText || '',
+      storeName: (settings.storeName || 'BELLA SHOES').slice(0, 120),
+      tagline: (settings.tagline || 'الأناقة تبدأ من خطواتك · أسلوب حياة وفخامة لا تضاهى').slice(0, 300),
+      phone: (cleanPhone.length >= 5 ? cleanPhone : cleanWhatsapp).slice(0, 50),
+      whatsapp: cleanWhatsapp.slice(0, 50),
+      email: (settings.email || '').slice(0, 150),
+      address: (settings.address || '').slice(0, 400),
+      city: (settings.city || 'الدار البيضاء').slice(0, 100),
+      deliveryFee: Math.max(0, Number(settings.deliveryFee ?? 35)),
+      freeShippingPairThreshold: Math.max(
+        1,
+        Math.round(Number(settings.freeShippingPairThreshold ?? 2))
+      ),
+      instagramUrl: (settings.instagramUrl || '').slice(0, 300),
+      facebookUrl: (settings.facebookUrl || '').slice(0, 300),
+      tiktokUrl: (settings.tiktokUrl || '').slice(0, 300),
+      announcementText: (settings.announcementText || '').slice(0, 500),
       updatedAt: now,
     };
 

@@ -247,9 +247,9 @@ export const ProductCatalog: React.FC = () => {
         </div>
       )}
 
-      {/* Responsive Product Grid: 1 col Narrow Mobile, 2 cols Wide Phone, 3 cols Tablet, 4 cols Desktop */}
+      {/* Responsive Luxury Grid: 1 col Mobile, 2 cols Small Tablet, exact 3 cols Desktop/Tablet (1/3 width each) */}
       {filteredProducts.length > 0 ? (
-        <div className="grid grid-cols-1 min-[480px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 lg:gap-8">
           {filteredProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}

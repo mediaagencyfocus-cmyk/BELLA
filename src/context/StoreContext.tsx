@@ -187,11 +187,24 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     localStorage.setItem('bella_theme', autoTheme);
   };
 
+  const sanitizePublicSettingsForCache = (s: StoreSettings): Partial<StoreSettings> => {
+    const { adminPasswordHash: _pw, ...publicOnly } = s;
+    return publicOnly;
+  };
+
   // Settings (Single Centralized Source synced with Cloud DB)
   const [settings, setSettings] = useState<StoreSettings>(() => {
     try {
       const saved = localStorage.getItem('bella_settings');
-      if (saved) return JSON.parse(saved);
+      const savedAdminPass = localStorage.getItem('bella_admin_pass');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return {
+          ...initialSettings,
+          ...parsed,
+          adminPasswordHash: savedAdminPass || initialSettings.adminPasswordHash,
+        };
+      }
     } catch {
       // fallback
     }
@@ -228,9 +241,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     const cloudSynced = firestoreRes.saved || supabaseRes;
 
-    // Apply updated settings locally only after validation succeeds
+    // Apply updated settings locally only after validation succeeds, keeping password out of public bella_settings
     setSettings(updated);
-    localStorage.setItem('bella_settings', JSON.stringify(updated));
+    localStorage.setItem('bella_settings', JSON.stringify(sanitizePublicSettingsForCache(updated)));
+    if (newSettings.adminPasswordHash) {
+      localStorage.setItem('bella_admin_pass', newSettings.adminPasswordHash);
+    }
 
     if (!cloudSynced) {
       return {
@@ -262,7 +278,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const applyRemoteSettings = (remoteSettings: Partial<StoreSettings>) => {
       setSettings((prev) => {
         const merged = { ...prev, ...remoteSettings };
-        localStorage.setItem('bella_settings', JSON.stringify(merged));
+        localStorage.setItem('bella_settings', JSON.stringify(sanitizePublicSettingsForCache(merged)));
         return merged;
       });
     };
@@ -489,7 +505,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
 
     saveOrders([newOrder, ...orders]);
-    saveOrderAndPaymentToFirestore(newOrder).catch(() => {});
+    saveOrderAndPaymentToFirestore(newOrder).catch((err) => {
+      console.warn('Firestore order sync failed (local order preserved):', err);
+    });
 
     if (isSupabaseConfigured()) {
       saveOrderToSupabase(newOrder);
@@ -573,7 +591,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }
 
         unsubOrders = subscribeOrdersFromFirestore((remoteOrders) => {
-          if (remoteOrders.length > 0) {
+          if (remoteOrders.length > 0 || isAdm) {
             setOrders(remoteOrders);
             localStorage.setItem('bella_orders', JSON.stringify(remoteOrders));
           }
@@ -633,6 +651,15 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
+  const getCustomerCreds = (): Record<string, string> => {
+    try {
+      const raw = localStorage.getItem('bella_customer_creds');
+      return raw ? JSON.parse(raw) : {};
+    } catch {
+      return {};
+    }
+  };
+
   const login = (
     email: string,
     pass: string
@@ -661,33 +688,20 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     const found = users.find((u) => u.email.toLowerCase() === cleanEmail);
     if (found) {
+      const creds = getCustomerCreds();
+      if (creds[cleanEmail] && creds[cleanEmail] !== cleanPass) {
+        return { success: false, error: 'كلمة المرور غير صحيحة' };
+      }
       setUser(found);
       localStorage.setItem('bella_user', JSON.stringify(found));
       setIsAdminView(false);
       return { success: true, role: 'customer' };
     }
 
-    if (cleanEmail && cleanPass.length >= 4) {
-      const newCustomer: User = {
-        id: `usr-${Date.now()}`,
-        name: cleanEmail.split('@')[0],
-        email: cleanEmail,
-        role: 'customer',
-        createdAt: new Date().toISOString(),
-      };
-      const newUsers = [...users, newCustomer];
-      setUsers(newUsers);
-      localStorage.setItem('bella_users', JSON.stringify(newUsers));
-      setUser(newCustomer);
-      localStorage.setItem('bella_user', JSON.stringify(newCustomer));
-      if (isSupabaseConfigured()) {
-        saveUserToSupabase(newCustomer);
-      }
-      setIsAdminView(false);
-      return { success: true, role: 'customer' };
-    }
-
-    return { success: false, error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' };
+    return {
+      success: false,
+      error: 'الحساب غير مسجل. يرجى إنشاء حساب جديد أو تسجيل الدخول عبر Google.',
+    };
   };
 
   const signup = (
@@ -697,8 +711,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     phone?: string
   ): { success: boolean; error?: string } => {
     const cleanEmail = email.trim().toLowerCase();
-    if (!name.trim() || !cleanEmail || !pass) {
-      return { success: false, error: 'يرجى ملء جميع الحقول المطلوبة' };
+    if (!name.trim() || !cleanEmail || !pass || pass.trim().length < 6) {
+      return { success: false, error: 'يرجى ملء جميع الحقول المطلوبة (كلمة مرور 6 أحرف على الأقل)' };
     }
 
     if (
@@ -724,6 +738,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       role: 'customer',
       createdAt: new Date().toISOString(),
     };
+
+    const creds = getCustomerCreds();
+    creds[cleanEmail] = pass.trim();
+    localStorage.setItem('bella_customer_creds', JSON.stringify(creds));
 
     const newUsers = [...users, newCustomer];
     setUsers(newUsers);
